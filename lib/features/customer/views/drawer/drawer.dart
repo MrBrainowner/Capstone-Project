@@ -8,7 +8,6 @@ import '../../../../utils/popups/confirm_cancel_pop_up.dart';
 import '../../controllers/customer_controller/customer_controller.dart';
 import '../appointments/appointments.dart';
 import '../account/account.dart';
-import '../face_shape_detector/face_shape_detection_ai.dart';
 
 class CustomerDrawer extends StatelessWidget {
   const CustomerDrawer({super.key});
@@ -77,16 +76,6 @@ class CustomerDrawer extends StatelessWidget {
             onTap: () {
               // Handle profile navigation
               Get.to(() => const CustomerAppointments());
-            },
-          ),
-          ListTile(
-            leading: const iconoir.UserScan(
-              height: 25,
-            ),
-            title: const Text('Recommend Hairsytle'),
-            onTap: () {
-              // Handle profile navigation
-              Get.to(() => const FaceShapeDetectionAi());
             },
           ),
           ListTile(

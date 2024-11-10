@@ -2,6 +2,7 @@ import 'package:barbermate/features/customer/views/get_directions_page/barbersho
 import 'package:barbermate/features/customer/views/get_directions_page/directions_map.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
 import '../../controllers/get_directions_controller/get_directions_controller.dart';
 
 class GetDirectionsPage2 extends StatelessWidget {
@@ -35,6 +36,11 @@ class GetDirectionsPage2 extends StatelessWidget {
               },
             ),
           ),
+          Positioned(
+              left: 20,
+              top: 40,
+              child: GestureDetector(
+                  onTap: () => Get.back(), child: const iconoir.ArrowLeft()))
         ],
       ),
     );

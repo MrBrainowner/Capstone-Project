@@ -1,4 +1,5 @@
 import 'package:barbermate/features/customer/controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
+import 'package:barbermate/features/customer/views/face_shape_detector/face_shape_detection_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/customer_controller/customer_controller.dart';
@@ -55,55 +56,67 @@ class CustomerDashboard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 70),
-                Text('Haircut Styles & Nearby Barbers',
+                Text('Book Your Style, Anytime.',
                     style: Theme.of(context).textTheme.labelSmall),
                 Row(
                   children: [
-                    Flexible(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: 150,
-                                child: OutlinedButton(
-                                    onPressed: () {},
-                                    child: const Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        iconoir.Scissor(
-                                          height: 25,
-                                        ),
-                                        SizedBox(width: 10),
-                                        Text(''),
-                                      ],
-                                    )),
-                              )
-                            ],
-                          ),
-                          const SizedBox(width: 5),
-                          Row(
-                            children: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  Get.to(() => const GetDirectionsPage2());
-                                },
-                                child: const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    iconoir.MapsArrowDiagonal(
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 150,
+                              child: OutlinedButton(
+                                  onPressed: () => Get.to(
+                                      () => const FaceShapeDetectionAi()),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const iconoir.Scissor(
                                         height: 25,
-                                        color:
-                                            Color.fromRGBO(238, 238, 238, 1)),
-                                  ],
-                                ),
-                              )
-                            ],
-                          )
-                        ],
-                      ),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        'Suggest Me',
+                                        overflow: TextOverflow.clip,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyLarge,
+                                      ),
+                                    ],
+                                  )),
+                            )
+                          ],
+                        ),
+                        const SizedBox(width: 5),
+                        Row(
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Get.to(() => const GetDirectionsPage2());
+                              },
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Row(
+                                    children: [
+                                      iconoir.MapsArrowDiagonal(
+                                          height: 25,
+                                          color:
+                                              Color.fromRGBO(238, 238, 238, 1)),
+                                      SizedBox(width: 5),
+                                      Text(
+                                        'Directions',
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        )
+                      ],
                     ),
                   ],
                 ),
