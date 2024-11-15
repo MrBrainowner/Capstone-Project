@@ -23,10 +23,7 @@ class CustomerDashboard extends StatelessWidget {
       appBar: CustomerAppBar(
         centertitle: false,
         scaffoldKey: scaffoldKey,
-        title: Text(
-          '',
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
+        title: const Text(''),
       ),
       drawer: const CustomerDrawer(),
       // Make sure you have a drawer defined here
@@ -82,7 +79,7 @@ class CustomerDashboard extends StatelessWidget {
                                         overflow: TextOverflow.clip,
                                         style: Theme.of(context)
                                             .textTheme
-                                            .bodyLarge,
+                                            .bodyMedium,
                                       ),
                                     ],
                                   )),
@@ -90,32 +87,14 @@ class CustomerDashboard extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(width: 5),
-                        Row(
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                Get.to(() => const GetDirectionsPage2());
-                              },
-                              child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Row(
-                                    children: [
-                                      iconoir.MapsArrowDiagonal(
-                                          height: 25,
-                                          color:
-                                              Color.fromRGBO(238, 238, 238, 1)),
-                                      SizedBox(width: 5),
-                                      Text(
-                                        'Directions',
-                                      )
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        )
+                        ElevatedButton(
+                          onPressed: () {
+                            Get.to(() => const GetDirectionsPage2());
+                          },
+                          child: const iconoir.Map(
+                              height: 25,
+                              color: Color.fromRGBO(238, 238, 238, 1)),
+                        ),
                       ],
                     ),
                   ],
@@ -148,7 +127,7 @@ class CustomerDashboard extends StatelessWidget {
                       );
                     }
                   }),
-                )
+                ),
               ],
             ),
           ),

@@ -1,5 +1,6 @@
 import 'package:barbermate/features/auth/models/barbershop_model.dart';
 import 'package:barbermate/features/customer/views/barbershop/barbershop.dart';
+import 'package:barbermate/utils/themes/text_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
@@ -15,6 +16,7 @@ class CustomerBarbershopCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final darkThemeOutlinedButton =
         BarbermateOutlinedButton.darkThemeOutlinedButton.style;
+    final forOutlinedDarkText = BarbermateTextTheme.darkTextTheme.bodyMedium;
 
     const ngolor = Color.fromRGBO(238, 238, 238, 1);
     return SizedBox(
@@ -137,8 +139,9 @@ class CustomerBarbershopCard extends StatelessWidget {
                                 child: OutlinedButton(
                                   onPressed: () {},
                                   style: darkThemeOutlinedButton,
-                                  child: const Text(
+                                  child: Text(
                                     'Book Now',
+                                    style: forOutlinedDarkText,
                                   ),
                                 ),
                               ),
