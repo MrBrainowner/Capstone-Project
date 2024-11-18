@@ -2,6 +2,7 @@ import 'package:barbermate/features/customer/controllers/get_haircuts_and_barber
 import 'package:barbermate/features/customer/views/face_shape_detector/face_shape_detection_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import '../../controllers/customer_controller/customer_controller.dart';
 import '../drawer/drawer.dart';
 import '../get_directions_page/directions_page.dart';
@@ -17,6 +18,8 @@ class CustomerDashboard extends StatelessWidget {
     final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
     final controller = Get.put(CustomerController());
     final haircutBarber = Get.put(GetHaircutsAndBarbershopsController());
+    final DateTime now = DateTime.now();
+    final String formattedDate = DateFormat('MMMM d, y').format(now);
 
     return Scaffold(
       key: scaffoldKey,
@@ -53,7 +56,7 @@ class CustomerDashboard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 70),
-                Text('Book Your Style, Anytime.',
+                Text(formattedDate,
                     style: Theme.of(context).textTheme.labelSmall),
                 Row(
                   children: [

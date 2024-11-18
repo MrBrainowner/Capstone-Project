@@ -1,3 +1,4 @@
+import 'package:barbermate/data/models/haircut_model/haircut_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -150,6 +151,30 @@ class BarbershopRepository extends GetxController {
           .get();
       return querySnapshot.docs.map((doc) {
         return BarbershopModel.fromSnapshot(
+            doc as DocumentSnapshot<Map<String, dynamic>>);
+      }).toList();
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      throw BPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Something went wrong. Please try again';
+    }
+  }
+
+  // Fetch a barbershop haircuts
+  Future<List<HaircutModel>> fetchBarbershopHaircuts(
+      String barbershopId) async {
+    try {
+      final querySnapshot = await _db
+          .collection("Barbershops")
+          .doc(barbershopId)
+          .collection('Haircuts')
+          .get();
+      return querySnapshot.docs.map((doc) {
+        return HaircutModel.fromSnapshot(
             doc as DocumentSnapshot<Map<String, dynamic>>);
       }).toList();
     } on FirebaseException catch (e) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/verification_controller/verification_controller.dart';
+import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
 
 class VerifyBarbershop extends StatelessWidget {
   const VerifyBarbershop({super.key});
@@ -8,15 +9,6 @@ class VerifyBarbershop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(VerificationController());
-    final documentTypes = [
-      'business_registration',
-      'barangay_clearance',
-      'mayors_permit',
-      'fire_safety_certificate',
-      'sanitation_permit',
-      'proof_of_address',
-    ];
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -34,59 +26,53 @@ class VerifyBarbershop extends StatelessWidget {
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 16),
+              // Use Obx here to only rebuild the ListView when the observable changes
+              Obx(() {
+                return Expanded(
+                  child: ListView.builder(
+                    itemCount: controller.requiredDocumentTypes.length,
+                    itemBuilder: (context, index) {
+                      final documentType =
+                          controller.requiredDocumentTypes[index];
+                      final selectedFile =
+                          controller.selectedFiles[documentType];
 
-              // Use ExpansionTile for each document
-              for (final documentType in documentTypes) ...[
-                Obx(() {
-                  final file = controller.selectedFiles[documentType];
-                  return ExpansionTile(
-                    leading: file != null
-                        ? const Icon(Icons.check_circle, color: Colors.green)
-                        : const Icon(Icons.upload_file),
-                    title: Text(
-                      documentType.replaceAll('_', ' ').capitalize!,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () =>
-                                  controller.pickFile(documentType),
-                              child: Text(
-                                  'Upload ${documentType.replaceAll('_', ' ').capitalize}'),
-                            ),
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        child: ListTile(
+                          title: Text(
+                              documentType.replaceAll('_', ' ').toUpperCase()),
+                          subtitle: selectedFile == null
+                              ? const Text('No file selected')
+                              : Text(
+                                  'Selected: ${selectedFile.path.split('/').last}'),
+                          trailing: IconButton(
+                            icon: const iconoir.Attachment(),
+                            onPressed: () {
+                              controller.pickFile(documentType);
+                            },
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        file != null
-                            ? 'Selected: ${file.path.split('/').last}'
-                            : 'No file selected',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                  );
-                }),
-                const SizedBox(height: 8),
-              ],
-
-              // Submit Button
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Upload all selected files
-                        controller.submitFiles();
-                      },
-                      child: const Text('Submit All Files'),
-                    ),
+                          leading: selectedFile == null
+                              ? const iconoir.Page()
+                              : IconButton(
+                                  icon: const Icon(Icons.check_circle,
+                                      color: Colors.green),
+                                  onPressed: () {},
+                                ),
+                        ),
+                      );
+                    },
                   ),
-                ],
+                );
+              }),
+              const SizedBox(height: 24),
+              // The Submit Button does not need to be wrapped in Obx as it is not dependent on observable variables
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: controller.submitFiles,
+                  child: const Text('Submit All Documents'),
+                ),
               ),
             ],
           ),

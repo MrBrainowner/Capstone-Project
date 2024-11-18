@@ -14,6 +14,7 @@ class GetHaircutsAndBarbershopsController extends GetxController {
   final BarbershopRepository _barbershopRepository = BarbershopRepository();
 
   RxList<HaircutModel> haircuts = <HaircutModel>[].obs;
+  RxList<HaircutModel> barbershopHaircuts = <HaircutModel>[].obs;
   RxList<BarbershopModel> barbershops = <BarbershopModel>[].obs;
   var isLoading = true.obs;
   var error = ''.obs;
@@ -44,6 +45,23 @@ class GetHaircutsAndBarbershopsController extends GetxController {
       // Fetch data from the repository
 
       barbershops.value = await _barbershopRepository.fetchAllBarbershops();
+    } catch (e) {
+      // Handle and display error
+      ToastNotif(message: 'Error fetching barbershops', title: 'Error')
+          .showErrorNotif(Get.context!);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Fetch all barbershop haircuts
+  Future<void> fetchAllBarbershoHaircuts(String barbershopId) async {
+    isLoading.value = true;
+    try {
+      // fetch data from the repo
+
+      barbershopHaircuts.value =
+          await _barbershopRepository.fetchBarbershopHaircuts(barbershopId);
     } catch (e) {
       // Handle and display error
       ToastNotif(message: 'Error fetching barbershops', title: 'Error')
