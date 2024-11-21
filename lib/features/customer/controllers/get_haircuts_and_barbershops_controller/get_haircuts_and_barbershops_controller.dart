@@ -3,7 +3,9 @@ import 'package:get/get.dart';
 
 import '../../../../data/models/haircut_model/haircut_model.dart';
 import '../../../../common/widgets/toast.dart';
+import '../../../../data/models/timeslot_model/timeslot_model.dart';
 import '../../../../data/repository/barbershop_repo/haircut_repository.dart';
+import '../../../../data/repository/barbershop_repo/timeslot_repository.dart';
 import '../../../auth/models/barbershop_model.dart';
 // Import your HaircutModel
 
@@ -12,8 +14,10 @@ class GetHaircutsAndBarbershopsController extends GetxController {
 
   final HaircutRepository _haircutRepository = HaircutRepository();
   final BarbershopRepository _barbershopRepository = BarbershopRepository();
+  final TimeslotRepository _timeslotsRepository = Get.put(TimeslotRepository());
 
   RxList<HaircutModel> haircuts = <HaircutModel>[].obs;
+  RxList<TimeSlotModel> timeSlots = <TimeSlotModel>[].obs;
   RxList<HaircutModel> barbershopHaircuts = <HaircutModel>[].obs;
   RxList<BarbershopModel> barbershops = <BarbershopModel>[].obs;
   var isLoading = true.obs;
@@ -65,6 +69,19 @@ class GetHaircutsAndBarbershopsController extends GetxController {
     } catch (e) {
       // Handle and display error
       ToastNotif(message: 'Error fetching barbershops', title: 'Error')
+          .showErrorNotif(Get.context!);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchBarbershopTimeSlots(String barbershopID) async {
+    isLoading.value = true;
+    try {
+      timeSlots.value =
+          await _timeslotsRepository.fetchBarbershopTimeSlots(barbershopID);
+    } catch (e) {
+      ToastNotif(message: 'Error Fetching TimeSlots', title: 'Error')
           .showErrorNotif(Get.context!);
     } finally {
       isLoading.value = false;

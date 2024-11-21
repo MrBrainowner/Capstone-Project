@@ -27,7 +27,7 @@ class ChooseHaircut extends StatelessWidget {
           if (controller.isLoading.value) {
             return const Center(child: CircularProgressIndicator());
           } else if (controller.barbershopHaircuts.isEmpty) {
-            return const Center(child: Text('No barber available.'));
+            return const Center(child: Text('No Haircut available.'));
           } else {
             final haircuts = controller.barbershopHaircuts;
             return GridView.builder(
@@ -61,7 +61,9 @@ class ChooseHaircut extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                     child: ElevatedButton(
-                        onPressed: () => Get.to(() => const ChooseSchedule()),
+                        onPressed: () async {
+                          Get.to(() => const ChooseSchedule());
+                        },
                         child: const Text('Next')))
               ],
             ))

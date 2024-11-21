@@ -99,7 +99,9 @@ class BarbershopProfilePage extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: SizedBox(
             child: ElevatedButton(
-                onPressed: () => Get.to(() => const ChooseHaircut()),
+                onPressed: () {
+                  Get.to(() => const ChooseHaircut());
+                },
                 child: const Text('Book Now')),
           )),
     );

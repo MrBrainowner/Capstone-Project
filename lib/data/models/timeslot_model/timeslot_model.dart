@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class TimeSlotModel {
   final String? id;
-  final DateTime startTime; // Start time of the time slot
-  final DateTime endTime; // End time of the time slot
+  final TimeOfDay startTime; // Start time of the time slot
+  final TimeOfDay endTime; // End time of the time slot
   int maxBooking; // Max bookings per time slot
   bool? isAvailable; // If the time slot is available or not
   final DateTime? createdAt;
@@ -20,8 +21,8 @@ class TimeSlotModel {
   static TimeSlotModel empty() {
     return TimeSlotModel(
       id: null,
-      startTime: DateTime.now(),
-      endTime: DateTime.now(),
+      startTime: TimeOfDay.now(),
+      endTime: TimeOfDay.now(),
       maxBooking: 0,
       isAvailable: false,
       createdAt: DateTime.now(),
@@ -31,8 +32,8 @@ class TimeSlotModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'start_time': startTime.toIso8601String(),
-      'end_time': endTime.toIso8601String(),
+      'start_time': _timeOfDayToString(startTime), // Store time with AM/PM
+      'end_time': _timeOfDayToString(endTime), // Store time with AM/PM
       'max_booking': maxBooking,
       'is_available': isAvailable,
       'created_at': createdAt?.toIso8601String(),
@@ -44,9 +45,11 @@ class TimeSlotModel {
     final data = document.data()!;
     return TimeSlotModel(
       id: document.id,
-      startTime: DateTime.parse(data['start_time']),
-      endTime: DateTime.parse(data['end_time']),
-      maxBooking: data['max_booking'] ?? 0,
+      startTime: _stringToTimeOfDay(
+          data['start_time']), // Convert to TimeOfDay from string
+      endTime: _stringToTimeOfDay(
+          data['end_time']), // Convert to TimeOfDay from string
+      maxBooking: data['max_booking'] ?? 1,
       isAvailable: data['is_available'] ?? false,
       createdAt: data['created_at'] != null
           ? DateTime.parse(data['created_at'])
@@ -56,8 +59,8 @@ class TimeSlotModel {
 
   TimeSlotModel copyWith({
     String? id,
-    DateTime? startTime,
-    DateTime? endTime,
+    TimeOfDay? startTime,
+    TimeOfDay? endTime,
     int? maxBooking,
     bool? isAvailable,
     DateTime? createdAt,
@@ -72,6 +75,42 @@ class TimeSlotModel {
     );
   }
 
-  String get schedule =>
-      "${startTime.hour}:${startTime.minute} - ${endTime.hour}:${endTime.minute}";
+  String get schedule => "${formatTime(startTime)} - ${formatTime(endTime)}";
+
+  static String _timeOfDayToString(TimeOfDay time) {
+    final hour = time.hourOfPeriod == 0
+        ? 12
+        : time.hourOfPeriod; // Convert to 12-hour format for AM/PM
+    final minute = time.minute
+        .toString()
+        .padLeft(2, '0'); // Add leading zero to minute if necessary
+    final period = time.period == DayPeriod.am
+        ? 'AM'
+        : 'PM'; // Get AM/PM based on the period
+
+    return '$hour:$minute $period'; // Format like '9:00 AM'
+  }
+
+  static TimeOfDay _stringToTimeOfDay(String timeString) {
+    final parts = timeString.split(':');
+    final hourAndPeriod = parts[0];
+    final minute = int.parse(parts[1].substring(0, 2)); // Extract minute part
+
+    final hour = int.parse(hourAndPeriod);
+    parts[1].substring(3).toUpperCase() == 'AM' ? DayPeriod.am : DayPeriod.pm;
+
+    return TimeOfDay(hour: hour, minute: minute);
+  }
+
+  static String formatTime(TimeOfDay time) {
+    final hour = time.hourOfPeriod == 0
+        ? 12
+        : time.hourOfPeriod; // Convert hour to 12-hour format if it's 0 AM
+    final minute = time.minute
+        .toString()
+        .padLeft(2, '0'); // Add leading zero to minutes if needed
+    final period = time.period == DayPeriod.am ? "AM" : "PM"; // Add AM/PM
+
+    return '$hour:$minute $period'; // Format as '9:00 AM' or '9:00 PM'
+  }
 }

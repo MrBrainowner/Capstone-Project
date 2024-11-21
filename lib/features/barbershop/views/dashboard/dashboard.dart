@@ -1,6 +1,7 @@
 import 'package:barbermate/features/barbershop/controllers/barbers_controller/barbers_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/barbershop_controller/barbershop_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/haircuts_controller/haircuts_controller.dart';
+import 'package:barbermate/features/barbershop/controllers/timeslot_controller/timeslot_controller.dart';
 import 'package:barbermate/features/barbershop/views/management/haircut/management.dart';
 import 'package:barbermate/features/barbershop/views/widgets/appbar/appbar.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ class BarbershopDashboard extends StatelessWidget {
     final controller = Get.put(BarbershopController());
     final haircutController = Get.put(HaircutController());
     final barberController = Get.put(BarberController());
+    final timeSlotController = Get.put(TimeSlotController());
 
     return Scaffold(
       key: scaffoldKey,
@@ -111,7 +113,7 @@ class BarbershopDashboard extends StatelessWidget {
                                           const SizedBox(width: 10),
                                           Obx(
                                             () => Text(
-                                                '${haircutController.haircuts.length}'),
+                                                '${timeSlotController.timeSlots.length}'),
                                           ),
                                         ],
                                       )),

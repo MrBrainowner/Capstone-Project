@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../common/widgets/toast.dart';
 import '../../../../data/models/timeslot_model/timeslot_model.dart';
@@ -7,13 +8,17 @@ class TimeSlotController extends GetxController {
   static TimeSlotController get instance => Get.find();
 
   final TimeslotRepository _repository = Get.put(TimeslotRepository());
-  final isLoading = false.obs;
 
+  //variables
+  var isLoading = false.obs;
   RxList<TimeSlotModel> timeSlots = <TimeSlotModel>[].obs;
+  var selectedStartTime = TimeOfDay.now().obs;
+  var selectedEndTime = TimeOfDay.now().obs;
 
-  void init() async {
-    await fetchTimeSlots();
+  @override
+  void onInit() async {
     super.onInit();
+    await fetchTimeSlots();
   }
 
   // Create a time slot
@@ -21,6 +26,7 @@ class TimeSlotController extends GetxController {
     isLoading.value = true;
     try {
       await _repository.createTimeSlot(timeSlot);
+      await fetchTimeSlots();
       Get.snackbar("Success", "Time slot created successfully.");
     } catch (e) {
       Get.snackbar("Error", e.toString());
@@ -69,8 +75,7 @@ class TimeSlotController extends GetxController {
   Future<void> fetchTimeSlots() async {
     isLoading.value = true;
     try {
-      final slots = await _repository.fetchTimeSlots();
-      timeSlots.value = slots;
+      timeSlots.value = await _repository.fetchTimeSlots();
     } catch (e) {
       ToastNotif(message: 'Error Fetching TimeSlots', title: 'Error')
           .showErrorNotif(Get.context!);

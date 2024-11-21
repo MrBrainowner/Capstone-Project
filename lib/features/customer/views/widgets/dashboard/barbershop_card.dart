@@ -127,7 +127,7 @@ class CustomerBarbershopCard extends StatelessWidget {
                             children: [
                               OutlinedButton(
                                 onPressed: () async {
-                                  controller
+                                  await controller
                                       .fetchAllBarbershoHaircuts(barberhop.id);
                                   Get.to(() => BarbershopProfilePage(
                                       barbershop: barberhop));
@@ -144,7 +144,9 @@ class CustomerBarbershopCard extends StatelessWidget {
                                   onPressed: () async {
                                     controller.fetchAllBarbershoHaircuts(
                                         barberhop.id);
-                                    Get.to(() => const ChooseHaircut());
+                                    controller
+                                        .fetchBarbershopTimeSlots(barberhop.id);
+                                    Get.to(() => ChooseHaircut());
                                   },
                                   style: darkThemeOutlinedButton,
                                   child: Text(

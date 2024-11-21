@@ -1,6 +1,10 @@
 import 'package:barbermate/data/repository/auth_repo/auth_repo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import '../../../utils/exceptions/firebase_exceptions.dart';
+import '../../../utils/exceptions/format_exceptions.dart';
+import '../../../utils/exceptions/platform_exceptions.dart';
 import '../../models/timeslot_model/timeslot_model.dart';
 
 class TimeslotRepository extends GetxController {
@@ -11,11 +15,18 @@ class TimeslotRepository extends GetxController {
 
   Future<void> createTimeSlot(TimeSlotModel timeSlot) async {
     try {
-      await _db
+      // Generate a new document ID
+      final docRef = _db
           .collection('Barbershops')
           .doc(barbershopId)
           .collection('Timeslots')
-          .add(timeSlot.toJson());
+          .doc();
+
+      // Set the `id` field in the time slot model
+      final timeSlotWithId = timeSlot.copyWith(id: docRef.id);
+
+      // Save the time slot with the ID as the document ID and field
+      await docRef.set(timeSlotWithId.toJson());
     } catch (e) {
       throw Exception("Failed to create time slot: $e");
     }
@@ -59,8 +70,37 @@ class TimeslotRepository extends GetxController {
         return TimeSlotModel.fromSnapshot(
             doc as DocumentSnapshot<Map<String, dynamic>>);
       }).toList();
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      throw BPlatformException(e.code).message;
     } catch (e) {
-      throw Exception("Failed fetch Time Slots: $e");
+      throw 'Something went wrong. Please try again';
+    }
+  }
+
+  Future<List<TimeSlotModel>> fetchBarbershopTimeSlots(
+      String barbershopID) async {
+    try {
+      final querySnapshot = await _db
+          .collection('Barbershops')
+          .doc(barbershopID)
+          .collection('Timeslots')
+          .get();
+      return querySnapshot.docs.map((doc) {
+        return TimeSlotModel.fromSnapshot(
+            doc as DocumentSnapshot<Map<String, dynamic>>);
+      }).toList();
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      throw BPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Something went wrong. Please try again';
     }
   }
 
