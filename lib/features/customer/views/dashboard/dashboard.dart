@@ -6,8 +6,8 @@ import 'package:intl/intl.dart';
 import '../../controllers/customer_controller/customer_controller.dart';
 import '../drawer/drawer.dart';
 import '../get_directions_page/directions_page.dart';
-import '../widgets/barbershop_card.dart';
-import '../widgets/customer_appbar.dart';
+import '../widgets/dashboard/barbershop_card.dart';
+import '../widgets/appbar/customer_appbar.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
 
 class CustomerDashboard extends StatelessWidget {

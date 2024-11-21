@@ -1,171 +1,107 @@
+import 'package:barbermate/features/auth/models/barbershop_model.dart';
+import 'package:barbermate/features/customer/views/booking/choose_haircut.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
+import '../../controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
+import '../widgets/booking_page/haircuts_card.dart';
 
 class BarbershopProfilePage extends StatelessWidget {
-  final String barbershopName;
-  final String barbershopAddress;
-  final String barbershopImage;
-  final double rating;
-  final int reviewCount;
-  final List<Map<String, String>> haircuts;
+  final BarbershopModel barbershop;
 
   const BarbershopProfilePage({
     super.key,
-    required this.barbershopName,
-    required this.barbershopAddress,
-    required this.barbershopImage,
-    required this.rating,
-    required this.reviewCount,
-    required this.haircuts,
+    required this.barbershop,
   });
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(GetHaircutsAndBarbershopsController());
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(barbershopName),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            // Full-width Banner
-            _buildBanner(),
-
-            // Title, Address, and Rating
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    barbershopName,
-                    style: const TextStyle(
-                      fontSize: 24.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8.0),
-                  Text(
-                    barbershopAddress,
-                    style: TextStyle(fontSize: 16.0, color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 16.0),
-                  Row(
-                    children: [
-                      _buildRatingStars(rating),
-                      const SizedBox(width: 8.0),
-                      Text(
-                        '($reviewCount Reviews)',
-                        style:
-                            TextStyle(fontSize: 14.0, color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // Haircuts Offered Section
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                'Haircuts Offered',
-                style: TextStyle(
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            _buildHaircutList(context),
-          ],
+        centerTitle: true,
+        title: Text(
+          barbershop.barbershopName,
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
       ),
-    );
-  }
-
-  Widget _buildBanner() {
-    return Image.asset(
-      barbershopImage,
-      fit: BoxFit.cover,
-      width: double.infinity,
-      height: 200.0,
-    );
-  }
-
-  Widget _buildRatingStars(double rating) {
-    return Row(
-      children: List.generate(5, (index) {
-        return Icon(
-          index < rating ? Icons.star : Icons.star_border,
-          color: Colors.amber,
-          size: 20.0,
-        );
-      }),
-    );
-  }
-
-  Widget _buildHaircutList(BuildContext context) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: haircuts.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 16.0,
-        mainAxisSpacing: 16.0,
-        childAspectRatio: 3 / 4,
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      itemBuilder: (context, index) {
-        return _buildHaircutCard(context, haircuts[index]);
-      },
-    );
-  }
-
-  Widget _buildHaircutCard(BuildContext context, Map<String, String> haircut) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      elevation: 4.0,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Expanded(
-            child: ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(8.0)),
-              child: Image.asset(
-                haircut['image']!,
-                fit: BoxFit.cover,
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                height: 150,
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.all(Radius.circular(5)),
+                  child: Image.asset('assets/images/barbershop.jpg',
+                      fit: BoxFit.cover),
+                ),
               ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  haircut['name']!,
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
+              const SizedBox(height: 8.0),
+              Text(
+                barbershop.barbershopName,
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 8.0),
+              Text(
+                barbershop.address,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 8.0),
+              const Row(
+                children: [
+                  iconoir.StarSolid(
+                    height: 15,
                   ),
-                ),
-                const SizedBox(height: 4.0),
-                Text(
-                  haircut['price']!,
-                  style: TextStyle(
-                    fontSize: 14.0,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
+                  SizedBox(width: 3),
+                  Text(
+                    '4.5',
+                  )
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              SizedBox(
+                height: 400,
+                child: Obx(() {
+                  if (controller.isLoading.value) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (controller.barbershopHaircuts.isEmpty) {
+                    return const Center(child: Text('No barber available.'));
+                  } else {
+                    final haircuts = controller.barbershopHaircuts;
+                    return GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2, // 2 columns
+                        mainAxisSpacing: 15, // Spacing between rows
+                        crossAxisSpacing: 15, // Spacing between columns
+                        childAspectRatio: 0.7,
+                        mainAxisExtent: 215, // Aspect ratio for vertical cards
+                      ),
+                      itemCount: haircuts.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final barbershopHaircut = haircuts[index];
+                        return HaircutsCard(haircut: barbershopHaircut);
+                      },
+                    );
+                  }
+                }),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
+      bottomNavigationBar: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SizedBox(
+            child: ElevatedButton(
+                onPressed: () => Get.to(() => const ChooseHaircut()),
+                child: const Text('Book Now')),
+          )),
     );
   }
 }

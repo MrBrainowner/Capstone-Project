@@ -1,4 +1,4 @@
-import 'package:barbermate/features/customer/views/get_directions_page/widget/barbershop_card.dart';
+import 'package:barbermate/features/customer/views/widgets/get_directions/barbershop_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';

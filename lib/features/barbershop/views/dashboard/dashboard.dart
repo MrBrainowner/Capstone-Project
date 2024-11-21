@@ -2,12 +2,13 @@ import 'package:barbermate/features/barbershop/controllers/barbers_controller/ba
 import 'package:barbermate/features/barbershop/controllers/barbershop_controller/barbershop_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/haircuts_controller/haircuts_controller.dart';
 import 'package:barbermate/features/barbershop/views/management/haircut/management.dart';
-import 'package:barbermate/features/barbershop/views/widgets/appbar.dart';
+import 'package:barbermate/features/barbershop/views/widgets/appbar/appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
 import '../management/barbers/management.dart';
 import '../drawer/drawer.dart';
+import '../management/timeslots/timeslots.dart';
 
 class BarbershopDashboard extends StatelessWidget {
   const BarbershopDashboard({super.key});
@@ -56,62 +57,90 @@ class BarbershopDashboard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 90),
-                Text('Haircut Styles & Barbers',
+                Text('Haircut Styles | Time Slots | Barbers',
                     style: Theme.of(context).textTheme.labelSmall),
                 Row(
                   children: [
                     Flexible(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: 150,
-                                child: OutlinedButton(
-                                    onPressed: () {
-                                      Get.to(
-                                          () => const HaircutManagementPage());
-                                    },
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        const iconoir.Scissor(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 150,
+                                  child: OutlinedButton(
+                                      onPressed: () {
+                                        Get.to(() =>
+                                            const HaircutManagementPage());
+                                      },
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const iconoir.Scissor(
+                                            height: 25,
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Obx(
+                                            () => Text(
+                                                '${haircutController.haircuts.length}'),
+                                          ),
+                                        ],
+                                      )),
+                                )
+                              ],
+                            ),
+                            const SizedBox(width: 5),
+                            Row(
+                              children: [
+                                SizedBox(
+                                  child: OutlinedButton(
+                                      onPressed: () {
+                                        Get.to(() => const TimeslotsPage());
+                                      },
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const iconoir.Timer(
+                                            height: 25,
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Obx(
+                                            () => Text(
+                                                '${haircutController.haircuts.length}'),
+                                          ),
+                                        ],
+                                      )),
+                                )
+                              ],
+                            ),
+                            const SizedBox(width: 5),
+                            Row(
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Get.to(() => const ManageBarbersPage());
+                                  },
+                                  child: Row(
+                                    children: [
+                                      const iconoir.Group(
                                           height: 25,
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Obx(
-                                          () => Text(
-                                              '${haircutController.haircuts.length}'),
-                                        ),
-                                      ],
-                                    )),
-                              )
-                            ],
-                          ),
-                          const SizedBox(width: 5),
-                          Row(
-                            children: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  Get.to(() => const ManageBarbersPage());
-                                },
-                                child: Row(
-                                  children: [
-                                    const iconoir.Group(
-                                        height: 25,
-                                        color:
-                                            Color.fromRGBO(238, 238, 238, 1)),
-                                    const SizedBox(width: 10),
-                                    Obx(() => Text(
-                                        '${barberController.barbers.length}')),
-                                  ],
-                                ),
-                              )
-                            ],
-                          )
-                        ],
+                                          color:
+                                              Color.fromRGBO(238, 238, 238, 1)),
+                                      const SizedBox(width: 10),
+                                      Obx(() => Text(
+                                          '${barberController.barbers.length}')),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ],

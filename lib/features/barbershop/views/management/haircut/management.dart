@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../controllers/haircuts_controller/haircuts_controller.dart';
-import '../../widgets/haircut_card.dart';
+import '../../widgets/management/haircut_card.dart';
 import 'add.dart';
 
 class HaircutManagementPage extends StatelessWidget {
@@ -39,7 +39,7 @@ class HaircutManagementPage extends StatelessWidget {
                   mainAxisSpacing: 2, // Spacing between rows
                   crossAxisSpacing: 15, // Spacing between columns
                   childAspectRatio: 0.7,
-                  mainAxisExtent: 195 // Aspect ratio for vertical cards
+                  mainAxisExtent: 215 // Aspect ratio for vertical cards
                   ),
               itemCount: controller
                   .haircuts.length, // Replace with dynamic count of barbers

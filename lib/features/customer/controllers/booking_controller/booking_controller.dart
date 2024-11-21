@@ -1,10 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get/get.dart';
 import '../../../../data/models/booking_model/booking_model.dart';
 // Import your BookingModel
 
-class CustomerBookingController {
+class CustomerBookingController extends GetxController {
+  static CustomerBookingController get instance => Get.find();
+
+  //variables
   final CollectionReference bookingsCollection =
       FirebaseFirestore.instance.collection('bookings');
+
+  var selectedHaircut = ''.obs;
 
   // Add a new booking
   Future<void> addBooking(BookingModel booking) async {

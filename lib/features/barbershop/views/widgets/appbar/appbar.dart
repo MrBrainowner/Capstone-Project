@@ -1,14 +1,13 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
-import '../notifications/notifications.dart';
+import '../../notifications/notifications.dart';
 
-class CustomerAppBar extends StatelessWidget implements PreferredSizeWidget {
+class BarbershopAppBar extends StatelessWidget implements PreferredSizeWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
   final Widget? title;
   final bool? centertitle;
-  const CustomerAppBar({
+  const BarbershopAppBar({
     super.key,
     required this.scaffoldKey,
     required this.title,
@@ -20,17 +19,16 @@ class CustomerAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       centerTitle: centertitle,
       title: title,
-
-      leading: AppBarIcon(scaffoldKey: scaffoldKey), // Drawer Icon
+      leading: BarbershopAppBarIcon(scaffoldKey: scaffoldKey), // Drawer Icon
       actions: [
         GestureDetector(
-          onTap: () => Get.to(
-              () => const CustomerNotifications()), // Navigate to notifications
+          onTap: () => Get.to(() =>
+              const BarbershopNotifications()), // Navigate to notifications
           child: const iconoir.Bell(
             height: 25, // Bell Icon height
           ),
         ),
-        const SizedBox(width: 10), // Padding for right spacing
+        const SizedBox(width: 15), // Padding for right spacing
       ],
     );
   }
@@ -40,8 +38,8 @@ class CustomerAppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-class AppBarIcon extends StatelessWidget {
-  const AppBarIcon({
+class BarbershopAppBarIcon extends StatelessWidget {
+  const BarbershopAppBarIcon({
     super.key,
     required this.scaffoldKey,
   });

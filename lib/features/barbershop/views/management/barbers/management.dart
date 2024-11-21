@@ -1,7 +1,7 @@
 import 'package:barbermate/features/barbershop/controllers/barbers_controller/barbers_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../widgets/barber_card.dart';
+import '../../widgets/management/barber_card.dart';
 import 'add.dart';
 
 class ManageBarbersPage extends StatelessWidget {
@@ -39,7 +39,7 @@ class ManageBarbersPage extends StatelessWidget {
                   mainAxisSpacing: 2, // Spacing between rows
                   crossAxisSpacing: 15, // Spacing between columns
                   childAspectRatio: 0.7,
-                  mainAxisExtent: 185 // Aspect ratio for vertical cards
+                  mainAxisExtent: 195 // Aspect ratio for vertical cards
                   ),
               itemCount: controller
                   .barbers.length, // Replace with dynamic count of barbers

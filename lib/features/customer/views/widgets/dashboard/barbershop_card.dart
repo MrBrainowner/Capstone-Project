@@ -7,9 +7,9 @@ import 'package:barbermate/features/auth/models/barbershop_model.dart';
 import 'package:barbermate/features/customer/views/barbershop/barbershop.dart';
 import 'package:barbermate/utils/themes/text_theme.dart';
 
-import '../../../../utils/themes/outline_button_theme.dart';
-import '../../controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
-import '../booking/booking_page.dart';
+import '../../../../../utils/themes/outline_button_theme.dart';
+import '../../../controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
+import '../../booking/choose_haircut.dart';
 
 class CustomerBarbershopCard extends StatelessWidget {
   const CustomerBarbershopCard({
@@ -59,15 +59,15 @@ class CustomerBarbershopCard extends StatelessWidget {
                         ),
                         height: 20,
                         width: 50,
-                        child: Row(
+                        child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             iconoir.StarSolid(
                               height: 15,
-                              color: Colors.yellow.shade700,
+                              color: Colors.white,
                             ),
-                            const SizedBox(width: 3),
-                            const Text(
+                            SizedBox(width: 3),
+                            Text(
                               '4.5',
                               style: TextStyle(color: ngolor),
                             )
@@ -126,15 +126,11 @@ class CustomerBarbershopCard extends StatelessWidget {
                           child: Row(
                             children: [
                               OutlinedButton(
-                                onPressed: () {
+                                onPressed: () async {
+                                  controller
+                                      .fetchAllBarbershoHaircuts(barberhop.id);
                                   Get.to(() => BarbershopProfilePage(
-                                      barbershopName: barberhop.barbershopName,
-                                      barbershopAddress: barberhop.address,
-                                      barbershopImage:
-                                          barberhop.barbershopBannerImage,
-                                      rating: 0,
-                                      reviewCount: 0,
-                                      haircuts: const []));
+                                      barbershop: barberhop));
                                 },
                                 style: darkThemeOutlinedButton,
                                 child: const iconoir.Shop(
@@ -146,7 +142,9 @@ class CustomerBarbershopCard extends StatelessWidget {
                               Expanded(
                                 child: OutlinedButton(
                                   onPressed: () async {
-                                    Get.to(() => const BookingPage());
+                                    controller.fetchAllBarbershoHaircuts(
+                                        barberhop.id);
+                                    Get.to(() => const ChooseHaircut());
                                   },
                                   style: darkThemeOutlinedButton,
                                   child: Text(

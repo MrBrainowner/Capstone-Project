@@ -1,7 +1,10 @@
 import 'package:barbermate/features/barbershop/controllers/barbershop_controller/barbershop_controller.dart';
+import 'package:barbermate/features/barbershop/controllers/haircuts_controller/haircuts_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
+
+import '../../../customer/views/widgets/booking_page/haircuts_card.dart';
 
 class BarbershopProfile extends StatelessWidget {
   const BarbershopProfile({super.key});
@@ -9,151 +12,120 @@ class BarbershopProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(BarbershopController());
-    const ngolor = Color.fromRGBO(238, 238, 238, 1);
+    final haircut = Get.put(HaircutController());
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Barbershop Profile'),
-        centerTitle: true,
-        automaticallyImplyLeading: true,
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(5),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Obx(
-                            () => Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(5),
-                                      topRight: Radius.circular(5)),
-                                  border: Border.all(
-                                      width: 1,
-                                      color: Theme.of(context).primaryColor)),
-                              height: 160,
-                              child: controller.barbershop.value
-                                      .barbershopBannerImage.isNotEmpty
-                                  ? Image.network(
-                                      controller.barbershop.value
-                                          .barbershopBannerImage,
-                                      fit: BoxFit.cover)
-                                  : ClipRRect(
-                                      borderRadius: const BorderRadius.only(
-                                          topLeft: Radius.circular(5),
-                                          topRight: Radius.circular(5)),
-                                      child: Image.asset(
-                                          'assets/images/barbershop.jpg',
-                                          fit: BoxFit.cover),
-                                    ),
-                            ),
-                          ),
+    return DefaultTabController(
+      initialIndex: 1,
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Barbershop Profile'),
+          centerTitle: true,
+          automaticallyImplyLeading: true,
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: [
+                SizedBox(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: double.infinity,
+                        height: 150,
+                        child: ClipRRect(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(5)),
+                          child: Image.asset('assets/images/barbershop.jpg',
+                              fit: BoxFit.cover),
                         ),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
-                          border: Border.all(
-                              width: 1, color: Theme.of(context).primaryColor)),
-                      child: Row(
+                      ),
+                      const SizedBox(height: 8.0),
+                      Text(
+                        controller.barbershop.value.barbershopName,
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                      const SizedBox(height: 8.0),
+                      Text(
+                        controller.barbershop.value.address,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 8.0),
+                      const Row(
                         children: [
-                          Expanded(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Container(
-                                  height: 70,
-                                  width: 70,
-                                  decoration: const BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(5))),
-                                  child: const ClipRRect(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(5)),
-                                    child: Image(
-                                        fit: BoxFit.cover,
-                                        image: AssetImage(
-                                            'assets/images/prof.jpg')),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Obx(
-                                  () => Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        controller
-                                            .barbershop.value.barbershopName,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleLarge
-                                            ?.copyWith(color: Colors.white),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.fade,
-                                      ),
-                                      Text(
-                                        controller.barbershop.value.address,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.copyWith(color: Colors.white),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.fade,
-                                      ),
-                                      const SizedBox(height: 5),
-                                      const Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          iconoir.StarSolid(
-                                            color: ngolor,
-                                            height: 15,
-                                          ),
-                                          iconoir.StarSolid(
-                                            color: ngolor,
-                                            height: 15,
-                                          ),
-                                          iconoir.StarSolid(
-                                            color: ngolor,
-                                            height: 15,
-                                          ),
-                                          iconoir.StarSolid(
-                                            color: ngolor,
-                                            height: 15,
-                                          ),
-                                          iconoir.Star(
-                                            color: ngolor,
-                                            height: 15,
-                                          )
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
+                          iconoir.StarSolid(
+                            height: 15,
                           ),
+                          SizedBox(width: 3),
+                          Text(
+                            '4.5',
+                          )
                         ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 10.0),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24.0),
-            ],
+                // kani ang tab name
+                SizedBox(
+                  height: 30,
+                  child: TabBar(tabs: [
+                    Tab(
+                      child: Text(
+                        'Haircuts',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ),
+                    Tab(
+                      child: Text('Reviews',
+                          style: Theme.of(context).textTheme.bodyLarge),
+                    )
+                  ]),
+                ),
+                //kani ang body sa mga tab
+                SizedBox(
+                  height: 500,
+                  child: TabBarView(children: [
+                    Tab(
+                      child: SizedBox(
+                        child: Obx(() {
+                          if (haircut.isLoading.value) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          } else if (haircut.haircuts.isEmpty) {
+                            return const Center(
+                                child: Text('No barber available.'));
+                          } else {
+                            final haircutss = haircut.haircuts;
+                            return GridView.builder(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2, // 2 columns
+                                mainAxisSpacing: 15, // Spacing between rows
+                                crossAxisSpacing: 15, // Spacing between columns
+                                childAspectRatio: 0.7,
+                                mainAxisExtent:
+                                    215, // Aspect ratio for vertical cards
+                              ),
+                              itemCount: haircutss.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                final barbershopHaircut = haircutss[index];
+                                return HaircutsCard(haircut: barbershopHaircut);
+                              },
+                            );
+                          }
+                        }),
+                      ),
+                    ),
+                    const Tab(
+                      child: Text('Reviews Page'),
+                    )
+                  ]),
+                )
+              ],
+            ),
           ),
         ),
       ),
