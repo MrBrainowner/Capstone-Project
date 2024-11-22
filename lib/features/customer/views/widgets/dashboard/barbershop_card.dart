@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
@@ -146,7 +147,7 @@ class CustomerBarbershopCard extends StatelessWidget {
                                         barberhop.id);
                                     controller
                                         .fetchBarbershopTimeSlots(barberhop.id);
-                                    Get.to(() => ChooseHaircut());
+                                    Get.to(() => const ChooseHaircut());
                                   },
                                   style: darkThemeOutlinedButton,
                                   child: Text(

@@ -10,15 +10,59 @@ class TimeSlotController extends GetxController {
   final TimeslotRepository _repository = Get.put(TimeslotRepository());
 
   //variables
+  // Open and Close times
+  var selectedOpenStartTime = TimeOfDay.now().obs;
+  var selectedCloseEndTime = TimeOfDay.now().obs;
+
+  // Days Disabler (true for enabled, false for disabled)
+  var disabledDays =
+      List.generate(7, (index) => false).obs; // Default: all days enabled
+
   var isLoading = false.obs;
   RxList<TimeSlotModel> timeSlots = <TimeSlotModel>[].obs;
   var selectedStartTime = TimeOfDay.now().obs;
   var selectedEndTime = TimeOfDay.now().obs;
 
+  // Helper method to get the day name
+  String getDayName(int index) {
+    switch (index) {
+      case 0:
+        return 'Monday';
+      case 1:
+        return 'Tuesday';
+      case 2:
+        return 'Wednesday';
+      case 3:
+        return 'Thursday';
+      case 4:
+        return 'Friday';
+      case 5:
+        return 'Saturday';
+      case 6:
+        return 'Sunday';
+      default:
+        return '';
+    }
+  }
+
   @override
   void onInit() async {
     super.onInit();
     await fetchTimeSlots();
+  }
+
+  // Method to toggle a specific day (disable or enable)
+  void toggleDay(int dayIndex) {
+    disabledDays[dayIndex] = !disabledDays[dayIndex];
+  }
+
+  // Methods to set Open and Close times
+  void setOpenTime(TimeOfDay time) {
+    selectedStartTime.value = time;
+  }
+
+  void setCloseTime(TimeOfDay time) {
+    selectedEndTime.value = time;
   }
 
   // Create a time slot

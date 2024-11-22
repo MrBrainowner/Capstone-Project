@@ -1,7 +1,9 @@
+import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
 import 'package:barbermate/features/customer/views/booking/choose_schedule.dart';
 import 'package:barbermate/features/customer/views/widgets/booking_page/haircuts_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../data/models/haircut_model/haircut_model.dart';
 import '../../controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
 
 class ChooseHaircut extends StatelessWidget {
@@ -12,6 +14,7 @@ class ChooseHaircut extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(GetHaircutsAndBarbershopsController());
+    final bookingController = Get.put(CustomerBookingController());
 
     return Scaffold(
       appBar: AppBar(
@@ -56,15 +59,28 @@ class ChooseHaircut extends StatelessWidget {
               children: [
                 Expanded(
                     child: OutlinedButton(
-                        onPressed: () => Get.to(() => const ChooseSchedule()),
-                        child: const Text('Skip'))),
-                const SizedBox(width: 10),
-                Expanded(
-                    child: ElevatedButton(
                         onPressed: () async {
+                          bookingController.selectedHaircut.value =
+                              HaircutModel.empty();
                           Get.to(() => const ChooseSchedule());
                         },
-                        child: const Text('Next')))
+                        child: const Text('Skip'))),
+                const SizedBox(width: 10),
+                Obx(
+                  () => Expanded(
+                      child: bookingController.selectedHaircut.value?.id == null
+                          ? ElevatedButton(
+                              style: const ButtonStyle(
+                                  backgroundColor:
+                                      WidgetStatePropertyAll(Colors.grey)),
+                              onPressed: () {},
+                              child: const Text('Next'))
+                          : ElevatedButton(
+                              onPressed: () {
+                                Get.to(() => const ChooseSchedule());
+                              },
+                              child: const Text('Next'))),
+                )
               ],
             ))
           ],

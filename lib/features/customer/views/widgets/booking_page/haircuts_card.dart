@@ -1,5 +1,8 @@
 import 'package:barbermate/data/models/haircut_model/haircut_model.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../../controllers/booking_controller/booking_controller.dart';
 
 class HaircutsCard extends StatelessWidget {
   const HaircutsCard({
@@ -11,33 +14,59 @@ class HaircutsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {},
-      child: SizedBox(
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(3)),
-                  child: Image(
+    final controller = Get.put(CustomerBookingController());
+
+    return Obx(() {
+      // Check if the haircut is selected
+      final isSelected = controller.selectedHaircut.value == haircut;
+
+      return GestureDetector(
+        onTap: () {
+          // Toggle selection: Select if not selected, deselect if already selected
+          if (isSelected) {
+            controller.selectedHaircut.value = null; // Deselect
+          } else {
+            controller.selectedHaircut.value = haircut; // Select
+          }
+        },
+        child: SizedBox(
+          child: Card(
+            elevation: isSelected ? 5 : 2, // Add elevation for better feedback
+            shape: RoundedRectangleBorder(
+              side: BorderSide(
+                color: isSelected
+                    ? Colors.black
+                    : Colors.transparent, // Visible border for selection
+                width: 2, // Border width
+              ),
+              borderRadius:
+                  BorderRadius.circular(8), // Border radius for rounded corners
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(3)),
+                    child: Image(
                       height: 140,
                       fit: BoxFit.cover,
                       image: haircut.imageUrls.isNotEmpty
                           ? NetworkImage(haircut.imageUrls.first)
                           : const AssetImage('assets/images/prof.jpg')
-                              as ImageProvider),
-                ),
-                const SizedBox(height: 5),
-                Text(haircut.name),
-                const SizedBox(height: 2),
-                Text('₱ ${haircut.price}'),
-              ],
+                              as ImageProvider,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(haircut.name),
+                  const SizedBox(height: 2),
+                  Text('₱ ${haircut.price}'),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 }
