@@ -10,40 +10,19 @@ class TimeSlotController extends GetxController {
   final TimeslotRepository _repository = Get.put(TimeslotRepository());
 
   //variables
-  // Open and Close times
+  RxList<DateTime> disabledDates =
+      <DateTime>[].obs; // Store disabled specific dates
+  RxList<bool> disabledDaysOfWeek =
+      List.filled(7, false).obs; // Store disabled recurring days
   var selectedOpenStartTime = TimeOfDay.now().obs;
   var selectedCloseEndTime = TimeOfDay.now().obs;
-
-  // Days Disabler (true for enabled, false for disabled)
-  var disabledDays =
-      List.generate(7, (index) => false).obs; // Default: all days enabled
-
   var isLoading = false.obs;
   RxList<TimeSlotModel> timeSlots = <TimeSlotModel>[].obs;
   var selectedStartTime = TimeOfDay.now().obs;
   var selectedEndTime = TimeOfDay.now().obs;
 
-  // Helper method to get the day name
-  String getDayName(int index) {
-    switch (index) {
-      case 0:
-        return 'Monday';
-      case 1:
-        return 'Tuesday';
-      case 2:
-        return 'Wednesday';
-      case 3:
-        return 'Thursday';
-      case 4:
-        return 'Friday';
-      case 5:
-        return 'Saturday';
-      case 6:
-        return 'Sunday';
-      default:
-        return '';
-    }
-  }
+  // List of days
+  final daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   @override
   void onInit() async {
@@ -51,12 +30,6 @@ class TimeSlotController extends GetxController {
     await fetchTimeSlots();
   }
 
-  // Method to toggle a specific day (disable or enable)
-  void toggleDay(int dayIndex) {
-    disabledDays[dayIndex] = !disabledDays[dayIndex];
-  }
-
-  // Methods to set Open and Close times
   void setOpenTime(TimeOfDay time) {
     selectedStartTime.value = time;
   }
@@ -64,6 +37,53 @@ class TimeSlotController extends GetxController {
   void setCloseTime(TimeOfDay time) {
     selectedEndTime.value = time;
   }
+
+  // Add a disabled specific date
+  void addDisabledDate(DateTime date) {
+    if (!disabledDates.contains(date)) {
+      disabledDates.add(date);
+    } else {
+      Get.snackbar("Error", "Date already disabled.");
+    }
+  }
+
+  // Remove a disabled specific date
+  void removeDisabledDate(DateTime date) {
+    disabledDates.remove(date);
+  }
+
+  // Toggle recurring days of the week
+  void toggleDayOfWeek(int index) {
+    disabledDaysOfWeek[index] = !disabledDaysOfWeek[index];
+  }
+
+  // Check if a date is disabled (specific date or recurring day)
+  bool isDateDisabled(DateTime date) {
+    // Check specific dates
+    if (disabledDates.contains(date)) return true;
+
+    // Check recurring days of the week
+    int weekdayIndex = date.weekday - 1; // Convert to 0-based index
+    if (disabledDaysOfWeek[weekdayIndex]) return true;
+
+    return false;
+  }
+
+  // Save disabled data to Firebase (implement Firebase logic here)
+  Future<void> saveDisabledData() async {
+    try {
+      isLoading.value = true;
+      // Save both `disabledDates` and `disabledDaysOfWeek` to Firebase
+    } catch (e) {
+      Get.snackbar("Error", "Failed to save disabled data.");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Save disabled days to Firebase
+
+  // Fetch disabled days from Firebase
 
   // Create a time slot
   Future<void> createTimeSlot(TimeSlotModel timeSlot) async {

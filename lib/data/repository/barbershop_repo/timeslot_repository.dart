@@ -112,4 +112,33 @@ class TimeslotRepository extends GetxController {
 
     return bookings.docs.isNotEmpty;
   }
+
+  // Fetch disabled days from Firebase
+  Future<List<bool>?> getDisabledDays() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('Barbershops')
+          .doc('disabledDays')
+          .get();
+
+      if (snapshot.exists && snapshot.data() != null) {
+        return List<bool>.from(snapshot.data()!['days']);
+      }
+    } catch (e) {
+      throw ('Error fetching disabled days: $e');
+    }
+    return null; // Default to all enabled if data not found
+  }
+
+  // Update disabled days in Firebase
+  Future<void> updateDisabledDays(List<bool> disabledDays) async {
+    try {
+      await _db
+          .collection('Barbershops')
+          .doc('disabledDays')
+          .set({'days': disabledDays});
+    } catch (e) {
+      throw ('Error updating disabled days: $e');
+    }
+  }
 }

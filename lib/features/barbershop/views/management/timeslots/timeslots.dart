@@ -17,17 +17,17 @@ class TimeslotsPage extends StatelessWidget {
           title: const Text('Manage Time Slots'),
           bottom: const TabBar(
             tabs: [
-              Tab(text: "Open/Close Hours"),
-              Tab(text: "Disable Days"),
               Tab(text: "Time Slots"),
+              Tab(text: "Open Hours"),
+              Tab(text: "Days"),
             ],
           ),
         ),
         body: const TabBarView(
           children: [
+            AddCreateTimeSlot(),
             OpenAndCloseHours(),
             DateAvailable(),
-            AddCreateTimeSlot(),
           ],
         ),
       ),
