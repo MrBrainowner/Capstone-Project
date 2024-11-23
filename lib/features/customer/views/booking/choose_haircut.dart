@@ -62,6 +62,7 @@ class ChooseHaircut extends StatelessWidget {
                         onPressed: () async {
                           bookingController.selectedHaircut.value =
                               HaircutModel.empty();
+
                           Get.to(() => const ChooseSchedule());
                         },
                         child: const Text('Skip'))),

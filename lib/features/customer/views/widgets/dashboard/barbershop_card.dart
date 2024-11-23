@@ -1,5 +1,4 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
@@ -85,12 +84,24 @@ class CustomerBarbershopCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Text('OPEN NOW',
-                            maxLines: 1,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.copyWith(color: Colors.green))
+                        Text(
+                          barberhop.openHours == null ||
+                                  barberhop.openHours!.isEmpty
+                              ? 'UNVERIFIED'
+                              : controller.isOpenNow.value
+                                  ? 'OPEN NOW'
+                                  : 'CLOSED',
+                          maxLines: 1,
+                          style:
+                              Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    color: barberhop.openHours == null ||
+                                            barberhop.openHours!.isEmpty
+                                        ? Colors.orange
+                                        : controller.isOpenNow.value
+                                            ? Colors.green
+                                            : Colors.red,
+                                  ),
+                        )
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -147,6 +158,8 @@ class CustomerBarbershopCard extends StatelessWidget {
                                         barberhop.id);
                                     controller
                                         .fetchBarbershopTimeSlots(barberhop.id);
+                                    controller.fetchBarbershopAvailableDays(
+                                        barberhop.id);
                                     Get.to(() => const ChooseHaircut());
                                   },
                                   style: darkThemeOutlinedButton,

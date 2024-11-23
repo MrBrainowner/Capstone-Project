@@ -174,6 +174,29 @@ class TimeslotRepository extends GetxController {
     }
   }
 
+  Future<AvailableDaysModel?> getBarbershopAvailableDays(String shopId) async {
+    try {
+      DocumentSnapshot snapshot = await _db
+          .collection('Barbershops')
+          .doc(shopId)
+          .collection('AvailableDays')
+          .doc('settings') // Assuming settings document
+          .get();
+      if (snapshot.exists) {
+        return AvailableDaysModel.fromSnapshot(snapshot);
+      }
+      return null;
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      throw BPlatformException(e.code).message;
+    } catch (e) {
+      throw ("Error fetching available days: $e");
+    }
+  }
+
   // Save available days and disabled dates to Firestore
   Future<void> saveAvailableDays(AvailableDaysModel model) async {
     try {

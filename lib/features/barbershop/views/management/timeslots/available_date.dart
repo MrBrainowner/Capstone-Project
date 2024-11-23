@@ -119,8 +119,6 @@ class DateAvailable extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () async {
                     await controller.saveAvailableDays();
-                    Get.snackbar(
-                        'Success', 'Available days saved successfully');
                   },
                   child: const Text('Save'),
                 ),

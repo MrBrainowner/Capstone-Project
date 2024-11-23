@@ -1,6 +1,8 @@
 import 'package:barbermate/data/repository/barbershop_repo/barbershop_repo.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../data/models/available_days/available_days.dart';
 import '../../../../data/models/haircut_model/haircut_model.dart';
 import '../../../../common/widgets/toast.dart';
 import '../../../../data/models/timeslot_model/timeslot_model.dart';
@@ -20,8 +22,12 @@ class GetHaircutsAndBarbershopsController extends GetxController {
   RxList<TimeSlotModel> timeSlots = <TimeSlotModel>[].obs;
   RxList<HaircutModel> barbershopHaircuts = <HaircutModel>[].obs;
   RxList<BarbershopModel> barbershops = <BarbershopModel>[].obs;
+  Rx<AvailableDaysModel?> availableDays = Rx<AvailableDaysModel?>(null);
+  var selectedDate = Rx<DateTime?>(null);
+
   var isLoading = true.obs;
   var error = ''.obs;
+  RxBool isOpenNow = false.obs;
 
   @override
   void onInit() async {
@@ -29,7 +35,50 @@ class GetHaircutsAndBarbershopsController extends GetxController {
     await fetchAllBarbershops();
   }
 
-//============================================= fetch haircuts
+  Future<void> refreshData() async {
+    await fetchAllBarbershops();
+  }
+
+//======================================================================== open hours logic
+
+  void checkIsOpenNow(String? openHours) {
+    if (openHours == null || openHours.isEmpty) {
+      isOpenNow.value = false; // Default to closed if unverified
+      return;
+    }
+
+    final currentTime = TimeOfDay.now();
+    final parts = openHours.split(' to ');
+    final openTime = _stringToTimeOfDay(parts[0].trim());
+    final closeTime = _stringToTimeOfDay(parts[1].trim());
+
+    // Update the observable value
+    isOpenNow.value = _isTimeWithinRange(currentTime, openTime, closeTime);
+  }
+
+  static TimeOfDay _stringToTimeOfDay(String timeString) {
+    final parts = timeString.split(' ');
+    final timeParts = parts[0].split(':');
+    final hour = int.parse(timeParts[0]);
+    final minute = int.parse(timeParts[1]);
+    final isPM = parts[1].toUpperCase() == 'PM';
+
+    return TimeOfDay(
+      hour: isPM ? (hour % 12) + 12 : hour % 12,
+      minute: minute,
+    );
+  }
+
+  static bool _isTimeWithinRange(
+      TimeOfDay currentTime, TimeOfDay startTime, TimeOfDay endTime) {
+    final currentMinutes = currentTime.hour * 60 + currentTime.minute;
+    final startMinutes = startTime.hour * 60 + startTime.minute;
+    final endMinutes = endTime.hour * 60 + endTime.minute;
+
+    return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+  }
+
+//======================================================================== fetch haircuts
   Future<void> fetchHaircuts() async {
     try {
       isLoading(true);
@@ -75,6 +124,8 @@ class GetHaircutsAndBarbershopsController extends GetxController {
     }
   }
 
+  //======================================================================== timeslots
+
   Future<void> fetchBarbershopTimeSlots(String barbershopID) async {
     isLoading.value = true;
     try {
@@ -85,6 +136,17 @@ class GetHaircutsAndBarbershopsController extends GetxController {
           .showErrorNotif(Get.context!);
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  // Fetch available days for the barbershop
+  Future<void> fetchBarbershopAvailableDays(String barbershopId) async {
+    try {
+      final data =
+          await _timeslotsRepository.getBarbershopAvailableDays(barbershopId);
+      availableDays.value = data; // Store the fetched data
+    } catch (e) {
+      throw ("Error fetching available days: $e");
     }
   }
 }

@@ -69,7 +69,7 @@ class TimeSlotController extends GetxController {
       openHours.value = _barbershop.barbershop.value.openHours.toString();
       _setInitialTimes();
     } catch (e) {
-      Get.snackbar('Error', 'Failed to update open hours: $e');
+      throw 'error fetching';
     }
   }
 
@@ -113,11 +113,13 @@ class TimeSlotController extends GetxController {
   Future<void> updateOpenHours(String openHours) async {
     try {
       await _repository.updateOpenHours(openHours);
-      Get.snackbar('Success', 'Open hours updated successfully');
-      fetchOpenHours();
+      ToastNotif(message: 'Open hours updated successfully', title: 'Success')
+          .showSuccessNotif(Get.context!);
+      await fetchOpenHours();
       _setInitialTimes();
     } catch (e) {
-      Get.snackbar('Error', 'Failed to update open hours: $e');
+      ToastNotif(message: 'Failed to update open hours: $e', title: 'Error')
+          .showErrorNotif(Get.context!);
     }
   }
 
@@ -137,7 +139,8 @@ class TimeSlotController extends GetxController {
     if (!disabledDates.contains(date)) {
       disabledDates.add(date);
     } else {
-      Get.snackbar("Error", "Date already disabled.");
+      ToastNotif(message: 'Date already disabled.', title: 'Error')
+          .showErrorNotif(Get.context!);
     }
   }
 
@@ -173,30 +176,59 @@ class TimeSlotController extends GetxController {
         daysOfWeekStatus: daysOfWeekStatus,
         disabledDates: disabledDates,
       ));
-      Get.snackbar("Success", "Available days saved successfully.");
+      ToastNotif(
+              message: 'Available days saved successfully.', title: 'Success')
+          .showSuccessNotif(Get.context!);
       fetchAvailableDays();
     } catch (e) {
-      Get.snackbar("Error", "Failed to save disabled data: $e");
+      ToastNotif(message: 'Failed to save disabled data: $e', title: 'Error')
+          .showErrorNotif(Get.context!);
     } finally {
       isLoading.value = false;
     }
   }
 
-  // Update Available days
-
-  // Fetch Availalbe days
-
   //============================================================================ Time Slots
+
+  bool isTimeSlotConflict(TimeOfDay startTime, TimeOfDay endTime) {
+    for (var timeSlot in timeSlots) {
+      final existingStart = timeSlot.startTime;
+      final existingEnd = timeSlot.endTime;
+
+      // Check if the new slot overlaps or is identical
+      if ((startTime.hour < existingEnd.hour ||
+              (startTime.hour == existingEnd.hour &&
+                  startTime.minute < existingEnd.minute)) &&
+          (endTime.hour > existingStart.hour ||
+              (endTime.hour == existingStart.hour &&
+                  endTime.minute > existingStart.minute))) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   // Create a time slot
   Future<void> createTimeSlot(TimeSlotModel timeSlot) async {
     isLoading.value = true;
     try {
+      // Check for conflicts
+      if (isTimeSlotConflict(timeSlot.startTime, timeSlot.endTime)) {
+        ToastNotif(
+                message: 'Time slot conflicts with an existing slot.',
+                title: 'Error')
+            .showErrorNotif(Get.context!);
+        return;
+      }
+
+      // Proceed to create the time slot if no conflict
       await _repository.createTimeSlot(timeSlot);
       await fetchTimeSlots();
-      Get.snackbar("Success", "Time slot created successfully.");
+      ToastNotif(message: 'Time slot created successfully.', title: 'Success')
+          .showSuccessNotif(Get.context!);
     } catch (e) {
-      Get.snackbar("Error", e.toString());
+      ToastNotif(message: e.toString(), title: 'Error')
+          .showErrorNotif(Get.context!);
     } finally {
       isLoading.value = false;
     }
@@ -209,14 +241,19 @@ class TimeSlotController extends GetxController {
     try {
       final hasBookings = await _repository.hasActiveBookings(timeSlotId);
       if (hasBookings) {
-        Get.snackbar("Error", "Cannot update time slot with active bookings.");
+        ToastNotif(
+                message: 'Cannot update time slot with active bookings.',
+                title: 'Error')
+            .showErrorNotif(Get.context!);
       } else {
         await _repository.updateTimeSlot(timeSlotId, startTime, endTime);
-        Get.snackbar("Success", "Time slot updated successfully.");
+        ToastNotif(message: 'Time slot updated successfully.', title: 'Success')
+            .showSuccessNotif(Get.context!);
       }
-      fetchTimeSlots();
+      await fetchTimeSlots();
     } catch (e) {
-      Get.snackbar("Error", e.toString());
+      ToastNotif(message: e.toString(), title: 'Error')
+          .showErrorNotif(Get.context!);
     } finally {
       isLoading.value = false;
     }
@@ -228,14 +265,18 @@ class TimeSlotController extends GetxController {
     try {
       final hasBookings = await _repository.hasActiveBookings(timeSlotId);
       if (hasBookings) {
-        Get.snackbar("Error", "Cannot delete time slot with active bookings.");
+        ToastNotif(
+            message: 'Cannot delete time slot with active bookings.',
+            title: 'Error');
       } else {
         await _repository.deleteTimeSlot(timeSlotId);
-        Get.snackbar("Success", "Time slot deleted successfully.");
+        ToastNotif(message: 'Time slot deleted successfully.', title: 'Success')
+            .showSuccessNotif(Get.context!);
       }
-      fetchTimeSlots();
+      await fetchTimeSlots();
     } catch (e) {
-      Get.snackbar("Error", e.toString());
+      ToastNotif(message: e.toString(), title: 'Error')
+          .showErrorNotif(Get.context!);
     } finally {
       isLoading.value = false;
     }

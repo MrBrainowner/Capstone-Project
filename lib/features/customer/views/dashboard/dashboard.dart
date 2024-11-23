@@ -30,108 +30,115 @@ class CustomerDashboard extends StatelessWidget {
       ),
       drawer: const CustomerDrawer(),
       // Make sure you have a drawer defined here
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Center(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                        child: Row(
-                      children: [
-                        Flexible(
-                          child: Obx(
-                            () => Text(
-                              'Welcome to Barbermate, ${controller.customer.value.firstName} ${controller.customer.value.lastName}',
-                              maxLines: 3,
-                              style: Theme.of(context).textTheme.displaySmall,
+      body: RefreshIndicator(
+        triggerMode: RefreshIndicatorTriggerMode.anywhere,
+        onRefresh: () => haircutBarber.refreshData(),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                          child: Row(
+                        children: [
+                          Flexible(
+                            child: Obx(
+                              () => Text(
+                                'Welcome to Barbermate, ${controller.customer.value.firstName} ${controller.customer.value.lastName}',
+                                maxLines: 3,
+                                style: Theme.of(context).textTheme.displaySmall,
+                              ),
                             ),
+                          )
+                        ],
+                      )),
+                    ],
+                  ),
+                  const SizedBox(height: 70),
+                  Text(formattedDate,
+                      style: Theme.of(context).textTheme.labelSmall),
+                  Row(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 150,
+                                child: OutlinedButton(
+                                    onPressed: () => Get.to(
+                                        () => const FaceShapeDetectionAi()),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const iconoir.Scissor(
+                                          height: 25,
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          'Suggest Me',
+                                          overflow: TextOverflow.clip,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium,
+                                        ),
+                                      ],
+                                    )),
+                              )
+                            ],
                           ),
-                        )
-                      ],
-                    )),
-                  ],
-                ),
-                const SizedBox(height: 70),
-                Text(formattedDate,
-                    style: Theme.of(context).textTheme.labelSmall),
-                Row(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 150,
-                              child: OutlinedButton(
-                                  onPressed: () => Get.to(
-                                      () => const FaceShapeDetectionAi()),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const iconoir.Scissor(
-                                        height: 25,
-                                      ),
-                                      const SizedBox(width: 5),
-                                      Text(
-                                        'Suggest Me',
-                                        overflow: TextOverflow.clip,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium,
-                                      ),
-                                    ],
-                                  )),
-                            )
-                          ],
-                        ),
-                        const SizedBox(width: 5),
-                        ElevatedButton(
-                          onPressed: () {
-                            Get.to(() => const GetDirectionsPage2());
+                          const SizedBox(width: 5),
+                          ElevatedButton(
+                            onPressed: () {
+                              Get.to(() => const GetDirectionsPage2());
+                            },
+                            child: const iconoir.Map(
+                                height: 25,
+                                color: Color.fromRGBO(238, 238, 238, 1)),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Text('Book Now',
+                      style: Theme.of(context).textTheme.labelSmall),
+                  const SizedBox(height: 4),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 274,
+                    child: Obx(() {
+                      if (haircutBarber.isLoading.value) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (haircutBarber.barbershops.isEmpty) {
+                        return const Center(
+                            child: Text('No Barbershop available.'));
+                      } else {
+                        final barbershop = haircutBarber.barbershops;
+
+                        return ListView.builder(
+                          itemCount: haircutBarber.barbershops.length,
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (context, index) {
+                            final shops = barbershop[index];
+                            haircutBarber.checkIsOpenNow(shops.openHours);
+                            return CustomerBarbershopCard(
+                              barberhop: shops,
+                            );
                           },
-                          child: const iconoir.Map(
-                              height: 25,
-                              color: Color.fromRGBO(238, 238, 238, 1)),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Text('Book Now', style: Theme.of(context).textTheme.labelSmall),
-                const SizedBox(height: 4),
-                SizedBox(
-                  width: double.infinity,
-                  height: 274,
-                  child: Obx(() {
-                    if (haircutBarber.isLoading.value) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (haircutBarber.barbershops.isEmpty) {
-                      return const Center(
-                          child: Text('No Barbershop available.'));
-                    } else {
-                      final barbershop = haircutBarber.barbershops;
-
-                      return ListView.builder(
-                        itemCount: haircutBarber.barbershops.length,
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (context, index) {
-                          final shops = barbershop[index];
-
-                          return CustomerBarbershopCard(
-                            barberhop: shops,
-                          );
-                        },
-                      );
-                    }
-                  }),
-                ),
-              ],
+                        );
+                      }
+                    }),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

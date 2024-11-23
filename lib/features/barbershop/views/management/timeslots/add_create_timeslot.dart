@@ -133,7 +133,7 @@ void showAddTimeSlotModal(BuildContext context, TimeSlotController controller) {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   final timeSlot = TimeSlotModel(
                       startTime: controller.selectedStartTime.value,
                       endTime: controller.selectedEndTime.value,
@@ -225,7 +225,7 @@ void showEditDeleteModal(BuildContext context, TimeSlotController controller,
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   controller.updateTimeSlot(
                       timeSlot.id.toString(),
                       controller.selectedStartTime.value,
@@ -238,8 +238,8 @@ void showEditDeleteModal(BuildContext context, TimeSlotController controller,
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  controller.deleteTimeSlot(timeSlot.id.toString());
+                onPressed: () async {
+                  await controller.deleteTimeSlot(timeSlot.id.toString());
                   Get.back();
                 },
                 child: const Text("Delete Time Slot"),
