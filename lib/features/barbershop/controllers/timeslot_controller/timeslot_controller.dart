@@ -1,6 +1,8 @@
+import 'package:barbermate/features/barbershop/controllers/barbershop_controller/barbershop_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../common/widgets/toast.dart';
+import '../../../../data/models/available_days/available_days.dart';
 import '../../../../data/models/timeslot_model/timeslot_model.dart';
 import '../../../../data/repository/barbershop_repo/timeslot_repository.dart';
 
@@ -8,34 +10,126 @@ class TimeSlotController extends GetxController {
   static TimeSlotController get instance => Get.find();
 
   final TimeslotRepository _repository = Get.put(TimeslotRepository());
+  final BarbershopController _barbershop = Get.put(BarbershopController());
 
   //variables
-  RxList<DateTime> disabledDates =
-      <DateTime>[].obs; // Store disabled specific dates
-  RxList<bool> disabledDaysOfWeek =
-      List.filled(7, false).obs; // Store disabled recurring days
-  var selectedOpenStartTime = TimeOfDay.now().obs;
-  var selectedCloseEndTime = TimeOfDay.now().obs;
   var isLoading = false.obs;
+
+  //================================================== time slots
+
   RxList<TimeSlotModel> timeSlots = <TimeSlotModel>[].obs;
   var selectedStartTime = TimeOfDay.now().obs;
   var selectedEndTime = TimeOfDay.now().obs;
 
+  //================================================== open hours
+
+  var selectedOpenStartTime = TimeOfDay.now().obs;
+  var selectedCloseEndTime = TimeOfDay.now().obs;
+  var openHours = ''.obs;
+
+  //================================================== available days
+
+  RxList<DateTime> disabledDates =
+      <DateTime>[].obs; // Store disabled specific dates
+  RxList<bool> disabledDaysOfWeek =
+      List.filled(7, false).obs; // Store disabled recurring days
+
   // List of days
-  final daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  var daysOfWeekStatus = <String, bool>{
+    'Mon': true,
+    'Tue': true,
+    'Wed': true,
+    'Thu': true,
+    'Fri': true,
+    'Sat': true,
+    'Sun': true,
+  }.obs;
 
   @override
   void onInit() async {
     super.onInit();
     await fetchTimeSlots();
+    await fetchOpenHours();
+    await fetchAvailableDays();
   }
 
+  //============================================================================ Open Hours
+
   void setOpenTime(TimeOfDay time) {
-    selectedStartTime.value = time;
+    selectedOpenStartTime.value = time;
   }
 
   void setCloseTime(TimeOfDay time) {
-    selectedEndTime.value = time;
+    selectedCloseEndTime.value = time;
+  }
+
+  Future<void> fetchOpenHours() async {
+    try {
+      await _barbershop.fetchBarbershopData();
+      openHours.value = _barbershop.barbershop.value.openHours.toString();
+      _setInitialTimes();
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to update open hours: $e');
+    }
+  }
+
+  // Parse the open hours string into TimeOfDay objects
+  void _setInitialTimes() {
+    String startTime = '';
+    String endTime = '';
+
+    if (openHours.isNotEmpty) {
+      // Split the openHours string into start and end times
+      List<String> times = openHours.value.split(' to ');
+      if (times.length == 2) {
+        startTime = times[0]; // The first part is the start time
+        endTime = times[1]; // The second part is the end time
+      }
+    }
+
+    // Set initial start and end times
+    selectedOpenStartTime.value = _parseTime(startTime);
+    selectedCloseEndTime.value = _parseTime(endTime);
+  }
+
+  // Function to parse time strings like '8:00 AM' or '5:00 PM' into TimeOfDay
+  TimeOfDay _parseTime(String time) {
+    final parts = time.split(' ');
+    final timeParts = parts[0].split(':');
+    final hour = int.parse(timeParts[0]);
+    final minute = int.parse(timeParts[1]);
+    final period = parts[1].toLowerCase(); // AM or PM
+
+    int hour24 = hour;
+    if (period == 'pm' && hour != 12) {
+      hour24 += 12; // Convert PM times to 24-hour format
+    } else if (period == 'am' && hour == 12) {
+      hour24 = 0; // Convert 12 AM to 0 hours
+    }
+
+    return TimeOfDay(hour: hour24, minute: minute);
+  }
+
+  Future<void> updateOpenHours(String openHours) async {
+    try {
+      await _repository.updateOpenHours(openHours);
+      Get.snackbar('Success', 'Open hours updated successfully');
+      fetchOpenHours();
+      _setInitialTimes();
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to update open hours: $e');
+    }
+  }
+
+  //============================================================================ Available Days
+
+  // Fetch available days and disabled dates from Firestore
+  Future<void> fetchAvailableDays() async {
+    AvailableDaysModel? model = await _repository.getAvailableDays();
+    if (model != null) {
+      daysOfWeekStatus.assignAll(model.daysOfWeekStatus);
+      disabledDates.assignAll(model.disabledDates);
+    }
   }
 
   // Add a disabled specific date
@@ -52,9 +146,11 @@ class TimeSlotController extends GetxController {
     disabledDates.remove(date);
   }
 
-  // Toggle recurring days of the week
-  void toggleDayOfWeek(int index) {
-    disabledDaysOfWeek[index] = !disabledDaysOfWeek[index];
+  // Toggle the disabled/enabled status of a day
+  void toggleDayOfWeek(String day) {
+    if (daysOfWeekStatus.containsKey(day)) {
+      daysOfWeekStatus[day] = !daysOfWeekStatus[day]!;
+    }
   }
 
   // Check if a date is disabled (specific date or recurring day)
@@ -69,21 +165,28 @@ class TimeSlotController extends GetxController {
     return false;
   }
 
-  // Save disabled data to Firebase (implement Firebase logic here)
-  Future<void> saveDisabledData() async {
+  // Save available days to Firebase
+  Future<void> saveAvailableDays() async {
     try {
       isLoading.value = true;
-      // Save both `disabledDates` and `disabledDaysOfWeek` to Firebase
+      await _repository.saveAvailableDays(AvailableDaysModel(
+        daysOfWeekStatus: daysOfWeekStatus,
+        disabledDates: disabledDates,
+      ));
+      Get.snackbar("Success", "Available days saved successfully.");
+      fetchAvailableDays();
     } catch (e) {
-      Get.snackbar("Error", "Failed to save disabled data.");
+      Get.snackbar("Error", "Failed to save disabled data: $e");
     } finally {
       isLoading.value = false;
     }
   }
 
-  // Save disabled days to Firebase
+  // Update Available days
 
-  // Fetch disabled days from Firebase
+  // Fetch Availalbe days
+
+  //============================================================================ Time Slots
 
   // Create a time slot
   Future<void> createTimeSlot(TimeSlotModel timeSlot) async {
@@ -101,16 +204,17 @@ class TimeSlotController extends GetxController {
 
   // Update a time slot
   Future<void> updateTimeSlot(
-      String timeSlotId, Map<String, dynamic> updates) async {
+      String timeSlotId, TimeOfDay startTime, TimeOfDay endTime) async {
     isLoading.value = true;
     try {
       final hasBookings = await _repository.hasActiveBookings(timeSlotId);
       if (hasBookings) {
         Get.snackbar("Error", "Cannot update time slot with active bookings.");
       } else {
-        await _repository.updateTimeSlot(timeSlotId, updates);
+        await _repository.updateTimeSlot(timeSlotId, startTime, endTime);
         Get.snackbar("Success", "Time slot updated successfully.");
       }
+      fetchTimeSlots();
     } catch (e) {
       Get.snackbar("Error", e.toString());
     } finally {
@@ -129,6 +233,7 @@ class TimeSlotController extends GetxController {
         await _repository.deleteTimeSlot(timeSlotId);
         Get.snackbar("Success", "Time slot deleted successfully.");
       }
+      fetchTimeSlots();
     } catch (e) {
       Get.snackbar("Error", e.toString());
     } finally {
@@ -136,6 +241,7 @@ class TimeSlotController extends GetxController {
     }
   }
 
+  // Fetch TimeSlot
   Future<void> fetchTimeSlots() async {
     isLoading.value = true;
     try {

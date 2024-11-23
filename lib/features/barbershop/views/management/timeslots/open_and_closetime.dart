@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../../controllers/timeslot_controller/timeslot_controller.dart';
 
 class OpenAndCloseHours extends StatelessWidget {
@@ -17,50 +16,63 @@ class OpenAndCloseHours extends StatelessWidget {
           children: [
             const Text("Add Open Hours"),
             const SizedBox(height: 10),
-            Row(
-              children: [
-                Obx(() {
-                  return Expanded(
+            Obx(() {
+              return Row(
+                children: [
+                  Expanded(
                     child: OutlinedButton(
                       onPressed: () async {
                         TimeOfDay? selectedTime = await showTimePicker(
                           context: context,
-                          initialTime: controller.selectedStartTime.value,
+                          initialTime: controller.selectedOpenStartTime.value,
                         );
                         if (selectedTime != null) {
                           controller.setOpenTime(selectedTime);
                         }
                       },
                       child: Text(
-                          'Open: ${controller.selectedStartTime.value.format(context)}'),
+                          'Open: ${controller.selectedOpenStartTime.value.format(context)}'),
                     ),
-                  );
-                }),
-                const SizedBox(width: 10),
-                Obx(() {
-                  return Expanded(
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
                     child: OutlinedButton(
                       onPressed: () async {
                         TimeOfDay? selectedTime = await showTimePicker(
                           context: context,
-                          initialTime: controller.selectedEndTime.value,
+                          initialTime: controller.selectedCloseEndTime.value,
                         );
                         if (selectedTime != null) {
                           controller.setCloseTime(selectedTime);
                         }
                       },
                       child: Text(
-                          'Close: ${controller.selectedEndTime.value.format(context)}'),
+                          'Close: ${controller.selectedCloseEndTime.value.format(context)}'),
                     ),
-                  );
-                }),
-              ],
+                  ),
+                ],
+              );
+            }),
+            const SizedBox(height: 10),
+            Obx(
+              () => Text(controller.openHours.isEmpty
+                  ? 'Please set a Open Hours'
+                  : 'Open Hours ${controller.openHours}'),
             ),
             const SizedBox(height: 10),
             SizedBox(
               width: double.infinity,
-              child:
-                  ElevatedButton(onPressed: () {}, child: const Text('Save')),
+              child: ElevatedButton(
+                onPressed: () {
+                  // Format the open and close hours into a single string
+                  String openToClose =
+                      '${controller.selectedOpenStartTime.value.format(context)} to ${controller.selectedCloseEndTime.value.format(context)}';
+
+                  // Send the formatted string to the controller
+                  controller.updateOpenHours(openToClose);
+                },
+                child: const Text('Save'),
+              ),
             )
           ],
         ),

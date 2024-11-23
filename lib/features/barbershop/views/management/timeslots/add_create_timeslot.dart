@@ -87,7 +87,7 @@ void showAddTimeSlotModal(BuildContext context, TimeSlotController controller) {
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
+                  child: ElevatedButton(
                     onPressed: () async {
                       controller.selectedStartTime.value =
                           (await showTimePicker(
@@ -98,7 +98,7 @@ void showAddTimeSlotModal(BuildContext context, TimeSlotController controller) {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: OutlinedButton(
+                  child: ElevatedButton(
                     onPressed: () async {
                       controller.selectedEndTime.value = (await showTimePicker(
                           context: context, initialTime: TimeOfDay.now()))!;
@@ -179,12 +179,12 @@ void showEditDeleteModal(BuildContext context, TimeSlotController controller,
               decoration: BoxDecoration(
                   border: Border.all(width: 1),
                   borderRadius: const BorderRadius.all(Radius.circular(5))),
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(child: Center(child: Text('Selected TimeSlot')))
+                    SizedBox(child: Center(child: Text(timeSlot.schedule)))
                   ],
                 ),
               ),
@@ -194,35 +194,56 @@ void showEditDeleteModal(BuildContext context, TimeSlotController controller,
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () async {},
+                    onPressed: () async {
+                      controller.selectedStartTime.value =
+                          (await showTimePicker(
+                              context: context, initialTime: TimeOfDay.now()))!;
+                    },
                     child: const Text("Edit Start Time"),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () async {},
+                    onPressed: () async {
+                      controller.selectedEndTime.value = (await showTimePicker(
+                          context: context, initialTime: TimeOfDay.now()))!;
+                    },
                     child: const Text("Edit End Time"),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Selected Time: ',
-              style: TextStyle(fontSize: 16),
+            Obx(
+              () => Text(
+                'Selected Time: ${TimeSlotModel.formatTime(controller.selectedStartTime.value)} - ${TimeSlotModel.formatTime(controller.selectedEndTime.value)}',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {},
-              child: const Text("Save Changes"),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  controller.updateTimeSlot(
+                      timeSlot.id.toString(),
+                      controller.selectedStartTime.value,
+                      controller.selectedEndTime.value);
+                  Get.back();
+                },
+                child: const Text("Save Changes"),
+              ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                controller.deleteTimeSlot(timeSlot.id.toString());
-                Get.back();
-              },
-              child: const Text("Delete Time Slot"),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  controller.deleteTimeSlot(timeSlot.id.toString());
+                  Get.back();
+                },
+                child: const Text("Delete Time Slot"),
+              ),
             ),
           ],
         ),

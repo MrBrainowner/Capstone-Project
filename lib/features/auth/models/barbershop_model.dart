@@ -14,12 +14,13 @@ class BarbershopModel {
   String status;
   final DateTime createdAt;
   final String address;
-  final double latitude; // New field
+  final double latitude;
   final double longitude;
   final String landMark;
   final int postal;
   final String streetAddress;
   final String floorNumber;
+  String? openHours; // Now a single string for open hours
 
   BarbershopModel({
     required this.id,
@@ -40,9 +41,9 @@ class BarbershopModel {
     required this.postal,
     required this.streetAddress,
     required this.floorNumber,
+    this.openHours, // Optional field for open hours as a string
   });
 
-  // Static function to create an empty Barbershop model
   static BarbershopModel empty() {
     return BarbershopModel(
       id: '',
@@ -63,10 +64,10 @@ class BarbershopModel {
       postal: 0,
       streetAddress: '',
       floorNumber: '',
+      openHours: null, // Default to null
     );
   }
 
-  // Convert model to JSON structure for storing data in Firebase
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -87,10 +88,10 @@ class BarbershopModel {
       'postal': postal,
       'street_address': streetAddress,
       'floorNumber': floorNumber,
+      'open_hours': openHours, // Add to JSON
     };
   }
 
-  // Factory method to create a BarbershopModel from a Firebase document snapshot
   factory BarbershopModel.fromSnapshot(
       DocumentSnapshot<Map<String, dynamic>> document) {
     final data = document.data()!;
@@ -109,16 +110,16 @@ class BarbershopModel {
           ? DateTime.parse(data['created_at'])
           : DateTime.now(),
       address: data['address'] ?? '',
-      latitude: data['latitude']?.toDouble() ?? 0.0, // Parse latitude
+      latitude: data['latitude']?.toDouble() ?? 0.0,
       longitude: data['longitude']?.toDouble() ?? 0.0,
-      landMark: data['landMark'] ?? '', // Parse longitude
-      postal: data['postal']?.toInt() ?? 0, // Parse postal
+      landMark: data['landMark'] ?? '',
+      postal: data['postal']?.toInt() ?? 0,
       streetAddress: data['street_address'] ?? '',
-      floorNumber: data['floorNumber'] ?? '', // Parse streetAddress
+      floorNumber: data['floorNumber'] ?? '',
+      openHours: data['open_hours'], // Handle null or missing field
     );
   }
 
-  // CopyWith method for creating a modified copy of the current instance
   BarbershopModel copyWith({
     String? id,
     String? firstName,
@@ -138,6 +139,7 @@ class BarbershopModel {
     int? postal,
     String? streetAddress,
     String? floorNumber,
+    String? openHours, // Update this field
   }) {
     return BarbershopModel(
       id: id ?? this.id,
@@ -160,12 +162,7 @@ class BarbershopModel {
       postal: postal ?? this.postal,
       streetAddress: streetAddress ?? this.streetAddress,
       floorNumber: floorNumber ?? this.floorNumber,
+      openHours: openHours ?? this.openHours, // Add to copyWith
     );
   }
-
-  // Convert model to entity (if using with any state management or other libraries)
-  // This method can be customized based on your application's requirements
-  // For example, if you need to convert it to a domain entity or DTO (Data Transfer Object)
-  // The implementation will vary based on your architecture.
-  // For simplicity, it's left out in this example.
 }

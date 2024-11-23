@@ -1,10 +1,12 @@
 import 'package:barbermate/data/repository/auth_repo/auth_repo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../../utils/exceptions/firebase_exceptions.dart';
 import '../../../utils/exceptions/format_exceptions.dart';
 import '../../../utils/exceptions/platform_exceptions.dart';
+import '../../models/available_days/available_days.dart';
 import '../../models/timeslot_model/timeslot_model.dart';
 
 class TimeslotRepository extends GetxController {
@@ -12,6 +14,27 @@ class TimeslotRepository extends GetxController {
 
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final barbershopId = AuthenticationRepository.instance.authUser?.uid;
+
+  //============================================================================ Open Hours
+
+  Future<void> updateOpenHours(String openHours) async {
+    try {
+      await _db
+          .collection('Barbershops')
+          .doc(barbershopId)
+          .update({'open_hours': openHours});
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      throw BPlatformException(e.code).message;
+    } catch (e) {
+      throw Exception('Failed to update open hours: $e');
+    }
+  }
+
+  //============================================================================ Time slots
 
   Future<void> createTimeSlot(TimeSlotModel timeSlot) async {
     try {
@@ -27,20 +50,35 @@ class TimeslotRepository extends GetxController {
 
       // Save the time slot with the ID as the document ID and field
       await docRef.set(timeSlotWithId.toJson());
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      throw BPlatformException(e.code).message;
     } catch (e) {
       throw Exception("Failed to create time slot: $e");
     }
   }
 
   Future<void> updateTimeSlot(
-      String timeSlotId, Map<String, dynamic> updates) async {
+      String timeSlotId, TimeOfDay startTime, TimeOfDay endTime) async {
     try {
+      final start = TimeSlotModel.timeOfDayToString(startTime);
+      final end = TimeSlotModel.timeOfDayToString(endTime);
+
       await _db
           .collection('Barbershops')
           .doc(barbershopId)
           .collection('Timeslots')
           .doc(timeSlotId)
-          .update(updates);
+          .update({'start_time': start, 'end_time': end});
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      throw BPlatformException(e.code).message;
     } catch (e) {
       throw Exception("Failed to update time slot: $e");
     }
@@ -54,6 +92,12 @@ class TimeslotRepository extends GetxController {
           .collection('Timeslots')
           .doc(timeSlotId)
           .delete();
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      throw BPlatformException(e.code).message;
     } catch (e) {
       throw Exception("Failed to delete time slot: $e");
     }
@@ -104,6 +148,75 @@ class TimeslotRepository extends GetxController {
     }
   }
 
+  //============================================================================ Available days
+
+  // Fetch available days and disabled dates for the barbershop
+  Future<AvailableDaysModel?> getAvailableDays() async {
+    try {
+      DocumentSnapshot snapshot = await _db
+          .collection('Barbershops')
+          .doc(barbershopId)
+          .collection('AvailableDays')
+          .doc('settings') // Assuming settings document
+          .get();
+      if (snapshot.exists) {
+        return AvailableDaysModel.fromSnapshot(snapshot);
+      }
+      return null;
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      throw BPlatformException(e.code).message;
+    } catch (e) {
+      throw ("Error fetching available days: $e");
+    }
+  }
+
+  // Save available days and disabled dates to Firestore
+  Future<void> saveAvailableDays(AvailableDaysModel model) async {
+    try {
+      await _db
+          .collection('Barbershops')
+          .doc(barbershopId)
+          .collection('AvailableDays')
+          .doc('settings')
+          .set(model.toJson(), SetOptions(merge: true));
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      throw BPlatformException(e.code).message;
+    } catch (e) {
+      throw ("Error saving available days: $e");
+    }
+  }
+
+  // Update specific date status in Firestore
+  Future<void> updateDisabledDate(List<DateTime> disabledDates) async {
+    try {
+      await _db
+          .collection('Barbershops')
+          .doc(barbershopId)
+          .collection('AvailableDays')
+          .doc('settings')
+          .update({
+        'disabled_dates':
+            disabledDates.map((date) => date.toIso8601String()).toList(),
+      });
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      throw BPlatformException(e.code).message;
+    } catch (e) {
+      throw ("Error updating disabled dates: $e");
+    }
+  }
+
   Future<bool> hasActiveBookings(String timeSlotId) async {
     final bookings = await _db
         .collection('Bookings')
@@ -111,34 +224,5 @@ class TimeslotRepository extends GetxController {
         .where('status', whereIn: ['pending', 'confirmed']).get();
 
     return bookings.docs.isNotEmpty;
-  }
-
-  // Fetch disabled days from Firebase
-  Future<List<bool>?> getDisabledDays() async {
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('Barbershops')
-          .doc('disabledDays')
-          .get();
-
-      if (snapshot.exists && snapshot.data() != null) {
-        return List<bool>.from(snapshot.data()!['days']);
-      }
-    } catch (e) {
-      throw ('Error fetching disabled days: $e');
-    }
-    return null; // Default to all enabled if data not found
-  }
-
-  // Update disabled days in Firebase
-  Future<void> updateDisabledDays(List<bool> disabledDays) async {
-    try {
-      await _db
-          .collection('Barbershops')
-          .doc('disabledDays')
-          .set({'days': disabledDays});
-    } catch (e) {
-      throw ('Error updating disabled days: $e');
-    }
   }
 }

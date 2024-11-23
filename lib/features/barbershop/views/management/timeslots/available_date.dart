@@ -26,13 +26,11 @@ class DateAvailable extends StatelessWidget {
                 return Wrap(
                   spacing: 10,
                   runSpacing: 10,
-                  children:
-                      List.generate(controller.daysOfWeek.length, (index) {
-                    final day = controller.daysOfWeek[index];
-                    final isDisabled = controller.disabledDaysOfWeek[index];
+                  children: controller.daysOfWeekStatus.keys.map((day) {
+                    final isDisabled = !controller.daysOfWeekStatus[day]!;
 
                     return GestureDetector(
-                      onTap: () => controller.toggleDayOfWeek(index),
+                      onTap: () => controller.toggleDayOfWeek(day),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 8),
@@ -62,7 +60,7 @@ class DateAvailable extends StatelessWidget {
                         ),
                       ),
                     );
-                  }),
+                  }).toList(),
                 );
               }),
               const SizedBox(height: 40),
@@ -118,9 +116,15 @@ class DateAvailable extends StatelessWidget {
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
-                child:
-                    ElevatedButton(onPressed: () {}, child: const Text('Save')),
-              )
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await controller.saveAvailableDays();
+                    Get.snackbar(
+                        'Success', 'Available days saved successfully');
+                  },
+                  child: const Text('Save'),
+                ),
+              ),
             ],
           ),
         ),

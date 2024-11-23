@@ -32,8 +32,8 @@ class TimeSlotModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'start_time': _timeOfDayToString(startTime), // Store time with AM/PM
-      'end_time': _timeOfDayToString(endTime), // Store time with AM/PM
+      'start_time': timeOfDayToString(startTime), // Store time with AM/PM
+      'end_time': timeOfDayToString(endTime), // Store time with AM/PM
       'max_booking': maxBooking,
       'is_available': isAvailable,
       'created_at': createdAt?.toIso8601String(),
@@ -77,7 +77,7 @@ class TimeSlotModel {
 
   String get schedule => "${formatTime(startTime)} - ${formatTime(endTime)}";
 
-  static String _timeOfDayToString(TimeOfDay time) {
+  static String timeOfDayToString(TimeOfDay time) {
     final hour = time.hourOfPeriod == 0
         ? 12
         : time.hourOfPeriod; // Convert to 12-hour format for AM/PM
