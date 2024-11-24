@@ -17,7 +17,9 @@ class BarbershopNotifications extends StatelessWidget {
       ),
       body: RefreshIndicator(
         triggerMode: RefreshIndicatorTriggerMode.anywhere,
-        onRefresh: () => controller.fetchNotifications(),
+        onRefresh: () async {
+          await controller.fetchNotifications();
+        },
         child: Obx(() {
           return ListView.builder(
             padding: const EdgeInsets.all(20),

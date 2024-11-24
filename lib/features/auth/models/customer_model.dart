@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CustomerModel {
   // keep those values final which you don't want to update
-  final String? id;
+  final String id;
   String firstName;
   String lastName;
   final String email;
@@ -25,7 +25,7 @@ class CustomerModel {
   // Static function to create an empty Customer model
   static CustomerModel empty() {
     return CustomerModel(
-      id: null,
+      id: '',
       firstName: '',
       lastName: '',
       email: '',

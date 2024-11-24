@@ -17,40 +17,50 @@ class NotificationsRepo extends GetxController {
   final userId = Get.put(AuthenticationRepository.instance.authUser?.uid);
 
   // Method to send notifications to both customer and barbershop
-  Future<void> sendBookingNotifications(
-      BarbershopModel barbershop, CustomerModel customer) async {
+  Future<void> sendBookingNotifications(BarbershopModel barbershop,
+      CustomerModel customer, String bookingId) async {
     try {
       // Notification for Barbershop: New appointment (Accept/Reject)
       final barbershopNotification = NotificationModel(
-        type: 'new_appointment',
+        bookingId: bookingId,
+        type: 'customer_appointment',
         title: 'New Appointment Request',
         message:
             'You have a new appointment request from ${customer.firstName} ${customer.lastName}. Please accept or reject.',
-        status: 'pending',
+        status: 'notRead',
         createdAt: DateTime.now(),
+        customerId: customer.id,
+        id: '',
       );
-      await _db
+      final notifDoc = await _db
           .collection('Barbershops')
           .doc(barbershop.id)
           .collection('Notifications')
           .add(barbershopNotification.toJson());
+      final bdocId = notifDoc.id;
+
+      await notifDoc.update({'id': bdocId});
+
       // Notification for Customer: Appointment confirmed
       final customerNotification = NotificationModel(
+        bookingId: bookingId,
         type: 'booking',
         title: 'You just made an appoiment',
         message:
             'Your appointment with ${barbershop.barbershopName} is pending.',
         status: 'pending',
         createdAt: DateTime.now(),
+        customerId: customer.id,
+        id: '',
       );
       final docRef = await _db
           .collection('Customers')
           .doc(userId.toString())
           .collection('Notifications')
           .add(customerNotification.toJson());
-      final id = docRef.id;
+      final docId = docRef.id;
 
-      await docRef.update({'id': id});
+      await docRef.update({'id': docId});
     } catch (e) {
       throw Exception("Failed to send notifications: $e");
     }
@@ -60,7 +70,7 @@ class NotificationsRepo extends GetxController {
     try {
       final querySnapshot = await _db
           .collection('Customers')
-          .doc(userId.toString())
+          .doc(userId)
           .collection('Notifications')
           .get();
       return querySnapshot.docs.map((doc) {

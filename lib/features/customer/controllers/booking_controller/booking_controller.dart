@@ -1,7 +1,7 @@
 import 'package:barbermate/common/widgets/toast.dart';
 import 'package:barbermate/data/models/timeslot_model/timeslot_model.dart';
 import 'package:barbermate/data/repository/auth_repo/auth_repo.dart';
-import 'package:barbermate/data/repository/customer_repos/booking_repo.dart';
+import 'package:barbermate/data/repository/booking_repo/booking_repo.dart';
 import 'package:barbermate/features/auth/models/barbershop_model.dart';
 import 'package:barbermate/features/customer/controllers/customer_controller/customer_controller.dart';
 import 'package:barbermate/features/customer/controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
@@ -58,7 +58,12 @@ class CustomerBookingController extends GetxController {
           status: 'pending',
           createdAt: DateTime.now(),
           id: '',
-          barberId: '');
+          barberId: '',
+          customerName:
+              '${customer.value.firstName} ${customer.value.lastName}',
+          barbershopName: chosenBarbershop.value.barbershopName,
+          customerPhoneNo: customer.value.phoneNo,
+          timeSlot: selectedTimeSlot.value.schedule);
 
       await _repo.addBooking(booking, chosenBarbershop.value, customer.value);
       await controller.fetchBarbershopTimeSlots(chosenBarbershop.value.id);

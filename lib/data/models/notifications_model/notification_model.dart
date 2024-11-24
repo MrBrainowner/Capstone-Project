@@ -1,20 +1,25 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class NotificationModel {
-  String? id;
+  String id;
   final String type; // e.g., "booking", "appointment_status", etc.
   final String title;
   final String message;
-  final String? status; // Optional, used for specific notifications
-  final DateTime? createdAt; // Optional field for timestamp
+  final String status; // Optional, used for specific notifications
+  final DateTime createdAt; // Optional field for timestamp
+  String bookingId;
+  String customerId;
 
   NotificationModel({
-    this.id,
+    required this.id,
     required this.type,
     required this.title,
     required this.message,
-    this.status,
-    this.createdAt,
+    required this.status,
+    required this.createdAt,
+    required this.bookingId,
+    required this.customerId,
   });
 
   // Static method for an empty Notification (if needed)
@@ -24,8 +29,10 @@ class NotificationModel {
       type: '',
       title: '',
       message: '',
-      status: null,
+      status: '',
       createdAt: DateTime.now(),
+      bookingId: '',
+      customerId: '',
     );
   }
 
@@ -33,11 +40,13 @@ class NotificationModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'bookingId': bookingId,
+      'customerId': customerId,
       'type': type,
       'title': title,
       'message': message,
       'status': status,
-      'created_at': createdAt?.toIso8601String(), // Optional field
+      'created_at': Timestamp.fromDate(createdAt), // Optional field
     };
   }
 
@@ -46,20 +55,21 @@ class NotificationModel {
       DocumentSnapshot<Map<String, dynamic>> document) {
     final data = document.data()!;
     return NotificationModel(
-      id: document.id,
-      type: data['type'] ?? '',
-      title: data['title'] ?? '',
-      message: data['message'] ?? '',
-      status: data['status'], // Can be null
-      createdAt: data['created_at'] != null
-          ? DateTime.parse(data['created_at'])
-          : null,
-    );
+        id: document.id,
+        bookingId: data['bookingId'] ?? '',
+        customerId: data['customerId'] ?? '',
+        type: data['type'] ?? '',
+        title: data['title'] ?? '',
+        message: data['message'] ?? '',
+        status: data['status'], // Can be null
+        createdAt: (data['created_at'] as Timestamp).toDate());
   }
 
   // Copy with method to update specific fields while keeping others unchanged
   NotificationModel copyWith({
     String? id,
+    String? bookingId,
+    String? customerId,
     String? type,
     String? title,
     String? message,
@@ -68,6 +78,8 @@ class NotificationModel {
   }) {
     return NotificationModel(
       id: id ?? this.id,
+      bookingId: bookingId ?? this.bookingId,
+      customerId: customerId ?? this.customerId,
       type: type ?? this.type,
       title: title ?? this.title,
       message: message ?? this.message,

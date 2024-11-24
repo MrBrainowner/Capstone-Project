@@ -1,7 +1,12 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BookingModel {
   String id;
+  String customerName;
+  String barbershopName;
+  String customerPhoneNo;
+  String timeSlot;
   String barberShopId;
   String barberId;
   String customerId;
@@ -9,10 +14,14 @@ class BookingModel {
   String date; // YYYY-MM-DD format
   String timeSlotId; // e.g., '9:00 AM'
   String status; // 'pending', 'confirmed', 'completed', 'canceled'
-  final DateTime? createdAt;
+  final DateTime createdAt;
 
   BookingModel({
     required this.id,
+    required this.customerName,
+    required this.barbershopName,
+    required this.customerPhoneNo,
+    required this.timeSlot,
     required this.barberShopId,
     required this.barberId,
     required this.customerId,
@@ -34,6 +43,10 @@ class BookingModel {
       timeSlotId: '',
       status: 'pending',
       createdAt: DateTime.now(),
+      customerName: '',
+      barbershopName: '',
+      customerPhoneNo: '',
+      timeSlot: '',
     );
   }
 
@@ -41,13 +54,17 @@ class BookingModel {
     return {
       'id': id,
       'barbershop_id': barberShopId,
+      'customerName': customerName,
+      'barbershopName': barbershopName,
+      'customerPhoneNo': customerPhoneNo,
+      'timeSlot': timeSlot,
       'barber_id': barberId,
       'customer_id': customerId,
       'haircut_id': haircutId,
       'date': date,
       'time_slot_id': timeSlotId,
       'status': status,
-      'created_at': createdAt?.toIso8601String(),
+      'created_at': Timestamp.fromDate(createdAt),
     };
   }
 
@@ -63,15 +80,21 @@ class BookingModel {
       date: data['date'] ?? '',
       timeSlotId: data['time_slot_id'] ?? '',
       status: data['status'] ?? 'pending',
-      createdAt: data['created_at'] != null
-          ? DateTime.parse(data['created_at'])
-          : null,
+      createdAt: (data['created_at'] as Timestamp).toDate(),
+      customerName: data['customerName'] ?? '' '',
+      barbershopName: data['barbershopName'] ?? '' '',
+      customerPhoneNo: data['customerPhoneNo'] ?? '' '',
+      timeSlot: data['timeSlot'] ?? '' '',
     );
   }
 
   BookingModel copyWith({
     String? id,
     String? barberShopId,
+    String? customerName,
+    String? barbershopName,
+    String? customerPhoneNo,
+    String? timeSlot,
     String? barberId,
     String? customerId,
     String? haircutId,
@@ -84,6 +107,10 @@ class BookingModel {
       id: id ?? this.id,
       barberShopId: barberShopId ?? this.barberShopId,
       barberId: barberId ?? this.barberId,
+      customerName: customerName ?? this.customerName,
+      barbershopName: barbershopName ?? this.barbershopName,
+      timeSlot: timeSlot ?? this.timeSlot,
+      customerPhoneNo: barberId ?? this.customerPhoneNo,
       customerId: customerId ?? this.customerId,
       haircutId: haircutId ?? this.haircutId,
       date: date ?? this.date,

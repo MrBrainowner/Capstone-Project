@@ -45,7 +45,7 @@ class HaircutManagementPage extends StatelessWidget {
                   .haircuts.length, // Replace with dynamic count of barbers
               itemBuilder: (context, index) {
                 final haircuts = haircut[index];
-                return HaircutCard(
+                return HaircutCard2(
                   haircut: haircuts,
                 );
               },

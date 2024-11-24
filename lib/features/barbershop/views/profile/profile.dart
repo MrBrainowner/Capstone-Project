@@ -1,10 +1,9 @@
 import 'package:barbermate/features/barbershop/controllers/barbershop_controller/barbershop_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/haircuts_controller/haircuts_controller.dart';
+import 'package:barbermate/features/barbershop/views/widgets/management/haircut_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
-
-import '../../../customer/views/widgets/booking_page/haircuts_card.dart';
 
 class BarbershopProfile extends StatelessWidget {
   const BarbershopProfile({super.key});
@@ -112,7 +111,7 @@ class BarbershopProfile extends StatelessWidget {
                               itemCount: haircutss.length,
                               itemBuilder: (BuildContext context, int index) {
                                 final barbershopHaircut = haircutss[index];
-                                return HaircutsCard(haircut: barbershopHaircut);
+                                return HaircutCard2(haircut: barbershopHaircut);
                               },
                             );
                           }

@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../management/haircut/edit.dart';
 
-class HaircutCard extends StatelessWidget {
+class HaircutCard2 extends StatelessWidget {
   final HaircutModel haircut;
 
-  const HaircutCard({
+  const HaircutCard2({
     super.key,
     required this.haircut,
   });

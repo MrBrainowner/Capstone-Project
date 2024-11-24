@@ -1,36 +1,42 @@
 import 'package:flutter/material.dart';
 
 import '../../data/models/notifications_model/notification_model.dart';
-import '../../features/customer/views/widgets/notifications_template/notification_template.dart';
+import 'notification_template.dart';
 
 Widget buildNotificationWidget(NotificationModel notification) {
   switch (notification.type) {
     case 'booking':
       return BookingNotification(
-        title: notification.title,
-        message: notification.message,
-      );
+          title: notification.title,
+          message: notification.message,
+          date: (notification.createdAt));
     case 'appointment_status':
       return AppointmentStatusNotification(
         title: notification.title,
-        status: notification.status ?? 'Pending',
+        status: notification.status,
+        date: notification.createdAt,
       );
     case 'review_prompt':
       return AppointmentReviewNotification(
         title: notification.title,
         message: notification.message,
+        date: notification.createdAt,
       );
     case 'shop_status':
       return BarbershopNotification(
         title: notification.title,
-        status: notification.status ?? 'Verified',
+        status: notification.status,
+        date: notification.createdAt,
       );
     case 'customer_appointment':
       return CustomerAppointmentNotification(
         title: notification.title,
         message: notification.message,
-        onAccept: () {},
-        onReject: () {},
+        date: notification.createdAt,
+        bookingId: notification.bookingId,
+        customerId: notification.customerId,
+        notificationId: notification.id,
+        notificationStatus: notification.status,
       );
     default:
       return NotificationCard(
@@ -40,6 +46,7 @@ Widget buildNotificationWidget(NotificationModel notification) {
         color: Colors.grey,
         elevation: 0,
         backgroundColor: Colors.grey.shade50,
+        date: notification.createdAt,
       );
   }
 }
