@@ -17,35 +17,44 @@ class TimeSlotCard extends StatelessWidget {
 
     return Obx(() {
       final isSelected = bookingController.toggleTimeSlot.value == timeSlot;
+      final isAvailable = timeSlot.isAvailable;
 
       return GestureDetector(
-        onTap: () async {
-          // Select or deselect the time slot
-          if (isSelected) {
-            bookingController.toggleTimeSlot.value = null;
-          } else {
-            bookingController.toggleTimeSlot.value = timeSlot;
-          }
-          bookingController.selectedTimeSlot.value = timeSlot;
-        },
+        onTap: isAvailable
+            ? () {
+                // Only allow selection if the timeslot is available
+                if (isSelected) {
+                  bookingController.toggleTimeSlot.value = null;
+                } else {
+                  bookingController.toggleTimeSlot.value = timeSlot;
+                }
+                bookingController.selectedTimeSlot.value = timeSlot;
+              }
+            : null, // Disable taps if not available
         child: Container(
           decoration: BoxDecoration(
-            color: isSelected
-                ? Theme.of(context).primaryColor
-                : Colors.blue.shade50,
+            color: isAvailable
+                ? (isSelected
+                    ? Theme.of(context).primaryColor
+                    : Colors.blue.shade50)
+                : Colors.grey.shade300, // Greyed out for unavailable
             borderRadius: BorderRadius.circular(5),
             border: Border.all(
               width: 2,
-              color: isSelected ? Theme.of(context).primaryColor : Colors.grey,
+              color: isAvailable
+                  ? (isSelected ? Theme.of(context).primaryColor : Colors.grey)
+                  : Colors.grey.shade500, // Grey border for unavailable
             ),
           ),
           child: Center(
             child: Text(
-              timeSlot.schedule,
+              isAvailable ? timeSlot.schedule : '${timeSlot.schedule}\nFull',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: isSelected ? Colors.white : Colors.black,
+                color: isAvailable
+                    ? (isSelected ? Colors.white : Colors.black)
+                    : Colors.grey, // Grey text for unavailable
               ),
             ),
           ),

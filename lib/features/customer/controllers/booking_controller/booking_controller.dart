@@ -3,7 +3,9 @@ import 'package:barbermate/data/models/timeslot_model/timeslot_model.dart';
 import 'package:barbermate/data/repository/auth_repo/auth_repo.dart';
 import 'package:barbermate/data/repository/customer_repos/booking_repo.dart';
 import 'package:barbermate/features/auth/models/barbershop_model.dart';
+import 'package:barbermate/features/customer/controllers/customer_controller/customer_controller.dart';
 import 'package:barbermate/features/customer/controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
+import 'package:barbermate/features/customer/controllers/notification_controller/notification_controller.dart';
 import 'package:get/get.dart';
 import '../../../../data/models/booking_model/booking_model.dart';
 import '../../../../data/models/haircut_model/haircut_model.dart';
@@ -14,16 +16,30 @@ class CustomerBookingController extends GetxController {
   static CustomerBookingController get instance => Get.find();
 
   final _repo = Get.put(BookingRepo());
+  final notifs = Get.put(CustomerNotificationController());
   final controller = Get.put(GetHaircutsAndBarbershopsController());
   final authId = Get.put(AuthenticationRepository.instance.authUser?.uid);
+  final customer = Get.put(CustomerController.instance.customer);
 
   Rx<HaircutModel?> selectedHaircut = HaircutModel.empty().obs;
   Rx<TimeSlotModel> selectedTimeSlot = TimeSlotModel.empty().obs;
-  Rx<BarbershopModel> chosenBarbershopId = BarbershopModel.empty().obs;
+  Rx<BarbershopModel> chosenBarbershop = BarbershopModel.empty().obs;
   var selectedDate = Rx<DateTime?>(null);
 
   Rx<HaircutModel?> toggleHaircut = HaircutModel.empty().obs;
   Rx<TimeSlotModel?> toggleTimeSlot = TimeSlotModel.empty().obs;
+
+  Future<void> refreshData() async {
+    await controller.fetchBarbershopTimeSlots(chosenBarbershop.value.id);
+    selectedTimeSlot.value = TimeSlotModel.empty();
+  }
+
+  void clearBookingData() {
+    chosenBarbershop.value = BarbershopModel.empty();
+    selectedHaircut.value = HaircutModel.empty();
+    selectedTimeSlot.value = TimeSlotModel.empty();
+    selectedDate.value = null;
+  }
 
   // Add a new booking
   Future<void> addBooking() async {
@@ -33,7 +49,7 @@ class CustomerBookingController extends GetxController {
           'Creating booking...', 'assets/images/animation.json');
 
       final booking = BookingModel(
-          barberShopId: chosenBarbershopId.value.id,
+          barberShopId: chosenBarbershop.value.id,
           customerId: authId.toString(),
           haircutId: selectedHaircut.value?.id ?? 'None',
           date: controller.formatDate(
@@ -44,14 +60,17 @@ class CustomerBookingController extends GetxController {
           id: '',
           barberId: '');
 
-      await _repo.addBooking(booking);
+      await _repo.addBooking(booking, chosenBarbershop.value, customer.value);
+      await controller.fetchBarbershopTimeSlots(chosenBarbershop.value.id);
+      clearBookingData();
+      await notifs.fetchNotifications();
+      ToastNotif(message: 'Booking successful', title: 'Succesful')
+          .showSuccessNotif(Get.context!);
     } catch (e) {
       FullScreenLoader.stopLoading();
       ToastNotif(message: e.toString(), title: 'Booking Failed')
           .showErrorNotif(Get.context!);
     } finally {
-      ToastNotif(message: 'Booking successful', title: 'Succesful')
-          .showSuccessNotif(Get.context!);
       FullScreenLoader.stopLoading();
     }
   }

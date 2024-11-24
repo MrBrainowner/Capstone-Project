@@ -1,4 +1,5 @@
 import 'package:barbermate/features/auth/models/barbershop_model.dart';
+import 'package:barbermate/features/barbershop/controllers/notification_controller/notification_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
@@ -13,11 +14,13 @@ class BarbershopController extends GetxController {
   final profileLoading = false.obs;
   Rx<BarbershopModel> barbershop = BarbershopModel.empty().obs;
   final barbershopRepository = Get.put(BarbershopRepository());
+  final notifs = Get.put(BarbershopNotificationController());
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
     fetchBarbershopData();
+    await notifs.fetchNotifications();
   }
 
   // Fetch Barbershop Data

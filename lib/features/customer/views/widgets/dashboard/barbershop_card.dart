@@ -160,8 +160,9 @@ class CustomerBarbershopCard extends StatelessWidget {
                                         .fetchBarbershopTimeSlots(barberhop.id);
                                     controller.fetchBarbershopAvailableDays(
                                         barberhop.id);
-                                    bookingController.chosenBarbershopId.value
-                                        .id = barberhop.id;
+                                    bookingController.chosenBarbershop.value =
+                                        barberhop;
+
                                     Get.to(() => const ChooseHaircut());
                                   },
                                   style: darkThemeOutlinedButton,

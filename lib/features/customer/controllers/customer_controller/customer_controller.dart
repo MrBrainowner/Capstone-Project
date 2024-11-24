@@ -1,7 +1,7 @@
+import 'package:barbermate/features/customer/controllers/notification_controller/notification_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-
 import '../../../../common/widgets/toast.dart';
 import '../../../../data/repository/customer_repos/customer_repo.dart';
 import '../../../auth/models/customer_model.dart';
@@ -13,11 +13,13 @@ class CustomerController extends GetxController {
   final profileLoading = false.obs;
   Rx<CustomerModel> customer = CustomerModel.empty().obs;
   final customerRepository = Get.put(CustomerRepository());
+  final notifs = Get.put(CustomerNotificationController());
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
-    fetchCustomerData();
+    await fetchCustomerData();
+    await notifs.fetchNotifications();
   }
 
   // Fetch Customer Data

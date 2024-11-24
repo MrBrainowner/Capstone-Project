@@ -26,8 +26,10 @@ class CustomerAppBar extends StatelessWidget implements PreferredSizeWidget {
         GestureDetector(
           onTap: () => Get.to(
               () => const CustomerNotifications()), // Navigate to notifications
-          child: const iconoir.Bell(
-            height: 25, // Bell Icon height
+          child: const Badge(
+            child: iconoir.Bell(
+              height: 25, // Bell Icon height
+            ),
           ),
         ),
         const SizedBox(width: 10), // Padding for right spacing

@@ -90,6 +90,8 @@ class GetHaircutsAndBarbershopsController extends GetxController {
     }
   }
 
+//======================================================================== fetch barbershop
+
 // Fetch all barbershops and update the state
   Future<void> fetchAllBarbershops() async {
     isLoading.value = true;

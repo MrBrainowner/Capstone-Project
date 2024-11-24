@@ -16,82 +16,90 @@ class ChooseHaircut extends StatelessWidget {
     final controller = Get.put(GetHaircutsAndBarbershopsController());
     final bookingController = Get.put(CustomerBookingController());
 
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        centerTitle: true,
-        title: Text(
-          'Choose a Haircut',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        actions: [
-          TextButton(
-              onPressed: () async {
-                bookingController.selectedHaircut.value?.id = null;
+    return PopScope(
+      canPop: true,
+      onPopInvoked: (didPop) {
+        bookingController.clearBookingData();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          centerTitle: true,
+          title: Text(
+            'Choose a Haircut',
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+          actions: [
+            TextButton(
+                onPressed: () async {
+                  bookingController.selectedHaircut.value?.id = null;
 
-                Get.to(() => const ChooseSchedule());
-              },
-              child: Text('Skip', style: Theme.of(context).textTheme.bodyLarge))
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Obx(() {
-          if (controller.isLoading.value) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (controller.barbershopHaircuts.isEmpty) {
-            return const Center(child: Text('No Haircut available.'));
-          } else {
-            final haircuts = controller.barbershopHaircuts;
-            return GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // 2 columns
-                mainAxisSpacing: 15, // Spacing between rows
-                crossAxisSpacing: 15, // Spacing between columns
-                childAspectRatio: 0.7,
-                mainAxisExtent: 215, // Aspect ratio for vertical cards
-              ),
-              itemCount: haircuts.length,
-              itemBuilder: (BuildContext context, int index) {
-                final barbershopHaircut = haircuts[index];
-                return HaircutsCard(haircut: barbershopHaircut);
-              },
-            );
-          }
-        }),
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            Expanded(
-                child: Row(
-              children: [
-                Expanded(
-                    child: OutlinedButton(
-                        onPressed: () async {
-                          Get.offAll(() => const CustomerDashboard());
-                        },
-                        child: const Text('Cancel'))),
-                const SizedBox(width: 10),
-                Obx(
-                  () => Expanded(
-                      child: bookingController.selectedHaircut.value?.id == null
-                          ? ElevatedButton(
-                              style: const ButtonStyle(
-                                  backgroundColor:
-                                      WidgetStatePropertyAll(Colors.grey)),
-                              onPressed: () {},
-                              child: const Text('Next'))
-                          : ElevatedButton(
-                              onPressed: () {
-                                Get.to(() => const ChooseSchedule());
-                              },
-                              child: const Text('Next'))),
-                )
-              ],
-            ))
+                  Get.to(() => const ChooseSchedule());
+                },
+                child:
+                    Text('Skip', style: Theme.of(context).textTheme.bodyLarge))
           ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Obx(() {
+            if (controller.isLoading.value) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (controller.barbershopHaircuts.isEmpty) {
+              return const Center(child: Text('No Haircut available.'));
+            } else {
+              final haircuts = controller.barbershopHaircuts;
+              return GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, // 2 columns
+                  mainAxisSpacing: 15, // Spacing between rows
+                  crossAxisSpacing: 15, // Spacing between columns
+                  childAspectRatio: 0.7,
+                  mainAxisExtent: 215, // Aspect ratio for vertical cards
+                ),
+                itemCount: haircuts.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final barbershopHaircut = haircuts[index];
+                  return HaircutsCard(haircut: barbershopHaircut);
+                },
+              );
+            }
+          }),
+        ),
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              Expanded(
+                  child: Row(
+                children: [
+                  Expanded(
+                      child: OutlinedButton(
+                          onPressed: () async {
+                            Get.offAll(() => const CustomerDashboard());
+                          },
+                          child: const Text('Cancel'))),
+                  const SizedBox(width: 10),
+                  Obx(
+                    () => Expanded(
+                        child: bookingController.selectedHaircut.value?.id ==
+                                null
+                            ? ElevatedButton(
+                                style: const ButtonStyle(
+                                    backgroundColor:
+                                        WidgetStatePropertyAll(Colors.grey)),
+                                onPressed: () {},
+                                child: const Text('Next'))
+                            : ElevatedButton(
+                                onPressed: () {
+                                  Get.to(() => const ChooseSchedule());
+                                },
+                                child: const Text('Next'))),
+                  )
+                ],
+              ))
+            ],
+          ),
         ),
       ),
     );

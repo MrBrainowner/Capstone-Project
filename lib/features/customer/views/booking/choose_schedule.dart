@@ -1,4 +1,5 @@
 import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
+import 'package:barbermate/features/customer/views/dashboard/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -21,113 +22,120 @@ class ChooseSchedule extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyLarge,
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  Container(
-                      height: 50,
-                      decoration: BoxDecoration(
-                          border: Border.all(width: 1),
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(5))),
-                      child: Center(
-                          child: Obx(() => Text(
-                              'Selected Date: ${controller.formatDate(bookingController.selectedDate.value ?? controller.getNextAvailableDate())}')))),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                        onPressed: () {
-                          Get.dialog(
-                            Dialog(
-                              shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(5), // Dialog radius
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(2),
-                                child: SizedBox(
-                                  height: 400,
-                                  child: Card(
-                                    elevation: 0, // Add shadow effect
-                                    child: SfDateRangePicker(
-                                      enablePastDates: false,
-                                      monthViewSettings:
-                                          DateRangePickerMonthViewSettings(
-                                        weekendDays: controller
-                                            .disabledDaysOfWeek, // Saturday and Sunday
-                                        blackoutDates: controller
-                                            .availableDays.value?.disabledDates,
+      body: RefreshIndicator(
+        triggerMode: RefreshIndicatorTriggerMode.anywhere,
+        onRefresh: () => bookingController.refreshData(),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    Container(
+                        height: 50,
+                        decoration: BoxDecoration(
+                            border: Border.all(width: 1),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(5))),
+                        child: Center(
+                            child: Obx(() => Text(
+                                'Selected Date: ${controller.formatDate(bookingController.selectedDate.value ?? controller.getNextAvailableDate())}')))),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                          onPressed: () {
+                            Get.dialog(
+                              Dialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.circular(5), // Dialog radius
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(2),
+                                  child: SizedBox(
+                                    height: 400,
+                                    child: Card(
+                                      elevation: 0, // Add shadow effect
+                                      child: SfDateRangePicker(
+                                        enablePastDates: false,
+                                        monthViewSettings:
+                                            DateRangePickerMonthViewSettings(
+                                          weekendDays: controller
+                                              .disabledDaysOfWeek, // Saturday and Sunday
+                                          blackoutDates: controller
+                                              .availableDays
+                                              .value
+                                              ?.disabledDates,
+                                        ),
+                                        selectableDayPredicate: (date) {
+                                          // Block the days in the disabledDaysOfWeek list
+                                          return !controller.disabledDaysOfWeek
+                                              .contains(date.weekday);
+                                        },
+                                        showActionButtons: true,
+                                        initialSelectedDate:
+                                            controller.getNextAvailableDate(),
+                                        onSelectionChanged:
+                                            (DateRangePickerSelectionChangedArgs
+                                                args) {
+                                          final DateTime selectedDate =
+                                              args.value;
+                                          bookingController.selectedDate.value =
+                                              selectedDate;
+                                        },
+                                        onSubmit: (val) {
+                                          Get.back();
+                                        },
+                                        onCancel: () {
+                                          Get.back();
+                                        },
                                       ),
-                                      selectableDayPredicate: (date) {
-                                        // Block the days in the disabledDaysOfWeek list
-                                        return !controller.disabledDaysOfWeek
-                                            .contains(date.weekday);
-                                      },
-                                      showActionButtons: true,
-                                      initialSelectedDate:
-                                          controller.getNextAvailableDate(),
-                                      onSelectionChanged:
-                                          (DateRangePickerSelectionChangedArgs
-                                              args) {
-                                        final DateTime selectedDate =
-                                            args.value;
-                                        bookingController.selectedDate.value =
-                                            selectedDate;
-                                      },
-                                      onSubmit: (val) {
-                                        Get.back();
-                                      },
-                                      onCancel: () {
-                                        Get.back();
-                                      },
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          );
-                        },
-                        child: const Text('Select Date')),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text('Select Time Slot'),
-            SizedBox(
-              height: 400,
-              child: Obx(() {
-                if (controller.isLoading.value) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (controller.timeSlots.isEmpty) {
-                  return const Center(child: Text('No Timeslots available.'));
-                } else {
-                  return Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 8.0,
-                        crossAxisSpacing: 8.0,
-                        childAspectRatio: 3,
-                      ),
-                      itemCount: controller.timeSlots.length,
-                      itemBuilder: (context, index) {
-                        final timeSlot = controller.timeSlots[index];
-                        return TimeSlotCard(timeSlot: timeSlot);
-                      },
+                            );
+                          },
+                          child: const Text('Select Date')),
                     ),
-                  );
-                }
-              }),
-            ),
-          ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text('Select Time Slot'),
+              SizedBox(
+                height: 400,
+                child: Obx(() {
+                  if (controller.isLoading.value) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (controller.timeSlots.isEmpty) {
+                    return const Center(child: Text('No Timeslots available.'));
+                  } else {
+                    return Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 8.0,
+                          crossAxisSpacing: 8.0,
+                          childAspectRatio: 3,
+                        ),
+                        itemCount: controller.timeSlots.length,
+                        itemBuilder: (context, index) {
+                          final timeSlot = controller.timeSlots[index];
+                          return TimeSlotCard(timeSlot: timeSlot);
+                        },
+                      ),
+                    );
+                  }
+                }),
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: Padding(
@@ -268,10 +276,11 @@ class ChooseSchedule extends StatelessWidget {
                                             // Confirm Button
                                             Expanded(
                                               child: ElevatedButton(
-                                                onPressed: () {
-                                                  bookingController
+                                                onPressed: () async {
+                                                  await bookingController
                                                       .addBooking();
-                                                  Get.back();
+                                                  Get.offAll(() =>
+                                                      const CustomerDashboard());
                                                 },
                                                 child: const Text('Confirm'),
                                               ),

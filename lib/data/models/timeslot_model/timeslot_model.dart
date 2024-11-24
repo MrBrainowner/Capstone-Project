@@ -6,7 +6,7 @@ class TimeSlotModel {
   final TimeOfDay startTime; // Start time of the time slot
   final TimeOfDay endTime; // End time of the time slot
   int maxBooking; // Max bookings per time slot
-  bool? isAvailable; // If the time slot is available or not
+  bool isAvailable; // If the time slot is available or not
   final DateTime? createdAt;
 
   TimeSlotModel({
@@ -14,7 +14,7 @@ class TimeSlotModel {
     required this.startTime,
     required this.endTime,
     required this.maxBooking,
-    this.isAvailable,
+    required this.isAvailable,
     this.createdAt,
   });
 
