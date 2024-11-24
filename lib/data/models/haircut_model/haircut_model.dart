@@ -11,7 +11,7 @@ class HaircutModel {
   final DateTime? createdAt;
 
   HaircutModel({
-    this.id,
+    required this.id,
     required this.name,
     required this.description,
     required this.price,

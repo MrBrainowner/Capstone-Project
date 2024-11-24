@@ -2,7 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BarbershopModel {
-  final String id;
+  String id;
   String firstName;
   String lastName;
   final String email;

@@ -1,7 +1,7 @@
 import 'package:barbermate/data/repository/barbershop_repo/barbershop_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'package:intl/intl.dart';
 import '../../../../data/models/available_days/available_days.dart';
 import '../../../../data/models/haircut_model/haircut_model.dart';
 import '../../../../common/widgets/toast.dart';
@@ -23,7 +23,6 @@ class GetHaircutsAndBarbershopsController extends GetxController {
   RxList<HaircutModel> barbershopHaircuts = <HaircutModel>[].obs;
   RxList<BarbershopModel> barbershops = <BarbershopModel>[].obs;
   Rx<AvailableDaysModel?> availableDays = Rx<AvailableDaysModel?>(null);
-  var selectedDate = Rx<DateTime?>(null);
 
   var isLoading = true.obs;
   var error = ''.obs;
@@ -139,14 +138,30 @@ class GetHaircutsAndBarbershopsController extends GetxController {
     }
   }
 
+  //======================================================================== available days
   // Fetch available days for the barbershop
   Future<void> fetchBarbershopAvailableDays(String barbershopId) async {
     try {
       final data =
           await _timeslotsRepository.getBarbershopAvailableDays(barbershopId);
-      availableDays.value = data; // Store the fetched data
+      availableDays.value = data;
+      getNextAvailableDate(); // Store the fetched data
     } catch (e) {
       throw ("Error fetching available days: $e");
     }
   }
+
+  String formatDate(DateTime date) {
+    return DateFormat('MMMM dd, yyyy').format(date);
+  }
+
+  DateTime getNextAvailableDate() {
+    DateTime currentDate = DateTime.now();
+    while (disabledDaysOfWeek.contains(currentDate.weekday)) {
+      currentDate = currentDate.add(const Duration(days: 1));
+    }
+    return currentDate;
+  }
+
+  var disabledDaysOfWeek = [6, 1, 7];
 }

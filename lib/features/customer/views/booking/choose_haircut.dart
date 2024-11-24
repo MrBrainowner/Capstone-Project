@@ -3,8 +3,8 @@ import 'package:barbermate/features/customer/views/booking/choose_schedule.dart'
 import 'package:barbermate/features/customer/views/widgets/booking_page/haircuts_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../data/models/haircut_model/haircut_model.dart';
 import '../../controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
+import '../dashboard/dashboard.dart';
 
 class ChooseHaircut extends StatelessWidget {
   const ChooseHaircut({
@@ -18,11 +18,21 @@ class ChooseHaircut extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         centerTitle: true,
         title: Text(
           'Choose a Haircut',
           style: Theme.of(context).textTheme.bodyLarge,
         ),
+        actions: [
+          TextButton(
+              onPressed: () async {
+                bookingController.selectedHaircut.value?.id = null;
+
+                Get.to(() => const ChooseSchedule());
+              },
+              child: Text('Skip', style: Theme.of(context).textTheme.bodyLarge))
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -60,12 +70,9 @@ class ChooseHaircut extends StatelessWidget {
                 Expanded(
                     child: OutlinedButton(
                         onPressed: () async {
-                          bookingController.selectedHaircut.value =
-                              HaircutModel.empty();
-
-                          Get.to(() => const ChooseSchedule());
+                          Get.offAll(() => const CustomerDashboard());
                         },
-                        child: const Text('Skip'))),
+                        child: const Text('Cancel'))),
                 const SizedBox(width: 10),
                 Obx(
                   () => Expanded(

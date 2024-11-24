@@ -1,26 +1,58 @@
+import 'package:barbermate/common/widgets/toast.dart';
 import 'package:barbermate/data/models/timeslot_model/timeslot_model.dart';
+import 'package:barbermate/data/repository/auth_repo/auth_repo.dart';
 import 'package:barbermate/data/repository/customer_repos/booking_repo.dart';
+import 'package:barbermate/features/auth/models/barbershop_model.dart';
+import 'package:barbermate/features/customer/controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
 import 'package:get/get.dart';
 import '../../../../data/models/booking_model/booking_model.dart';
 import '../../../../data/models/haircut_model/haircut_model.dart';
+import '../../../../utils/popups/full_screen_loader.dart';
 // Import your BookingModel
 
 class CustomerBookingController extends GetxController {
   static CustomerBookingController get instance => Get.find();
 
   final _repo = Get.put(BookingRepo());
+  final controller = Get.put(GetHaircutsAndBarbershopsController());
+  final authId = Get.put(AuthenticationRepository.instance.authUser?.uid);
 
   Rx<HaircutModel?> selectedHaircut = HaircutModel.empty().obs;
-  Rx<TimeSlotModel?> selectedTimeSlot = TimeSlotModel.empty().obs;
-  Rx<DateTime?> selectedDate = Rx<DateTime?>(null);
+  Rx<TimeSlotModel> selectedTimeSlot = TimeSlotModel.empty().obs;
+  Rx<BarbershopModel> chosenBarbershopId = BarbershopModel.empty().obs;
+  var selectedDate = Rx<DateTime?>(null);
+
+  Rx<HaircutModel?> toggleHaircut = HaircutModel.empty().obs;
+  Rx<TimeSlotModel?> toggleTimeSlot = TimeSlotModel.empty().obs;
 
   // Add a new booking
-  Future<void> addBooking(BookingModel booking, TimeSlotModel timeSlot,
-      String? haicutId, DateTime date, String barbershopId) async {
+  Future<void> addBooking() async {
     try {
-      await _repo.addBooking(booking, timeSlot, haicutId, date, barbershopId);
+      //Start Loading
+      FullScreenLoader.openLoadingDialog(
+          'Creating booking...', 'assets/images/animation.json');
+
+      final booking = BookingModel(
+          barberShopId: chosenBarbershopId.value.id,
+          customerId: authId.toString(),
+          haircutId: selectedHaircut.value?.id ?? 'None',
+          date: controller.formatDate(
+              selectedDate.value ?? controller.getNextAvailableDate()),
+          timeSlotId: selectedTimeSlot.value.id.toString(),
+          status: 'pending',
+          createdAt: DateTime.now(),
+          id: '',
+          barberId: '');
+
+      await _repo.addBooking(booking);
     } catch (e) {
-      throw ('Error adding booking: $e');
+      FullScreenLoader.stopLoading();
+      ToastNotif(message: e.toString(), title: 'Booking Failed')
+          .showErrorNotif(Get.context!);
+    } finally {
+      ToastNotif(message: 'Booking successful', title: 'Succesful')
+          .showSuccessNotif(Get.context!);
+      FullScreenLoader.stopLoading();
     }
   }
 

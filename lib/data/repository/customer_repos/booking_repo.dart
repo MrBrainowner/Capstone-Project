@@ -1,5 +1,4 @@
 import 'package:barbermate/data/models/booking_model/booking_model.dart';
-import 'package:barbermate/data/models/timeslot_model/timeslot_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 
@@ -10,19 +9,23 @@ class BookingRepo extends GetxController {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   // create booking
-  Future<void> addBooking(BookingModel booking, TimeSlotModel timeSlot,
-      String? haircutId, DateTime date, String barbershopId) async {
+  Future<void> addBooking(BookingModel booking) async {
     try {
-      final docRef = _db
+      // First, create the booking document without the 'id' field
+      final docRef = await _db
           .collection('Barbershops')
-          .doc(barbershopId)
+          .doc(booking.barberShopId)
           .collection('Bookings')
-          .doc();
+          .add(booking
+              .toJson()); // Firestore will generate the ID for this document
 
-      final bookingId = booking.copyWith(id: docRef.id);
-      await docRef.set(bookingId.toJson());
+      // After the document is created, update the BookingModel with the generated document ID
+      booking.id = docRef.id;
+
+      // Optionally, you can update the document with the generated ID (this step is optional since we used add() above)
+      await docRef.update({'id': booking.id});
     } catch (e) {
-      throw Exception("Failed to create time slot: $e");
+      throw Exception("Failed to create booking: $e");
     }
   }
 

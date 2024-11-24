@@ -16,16 +16,17 @@ class TimeSlotCard extends StatelessWidget {
     final bookingController = Get.put(CustomerBookingController());
 
     return Obx(() {
-      final isSelected = bookingController.selectedTimeSlot.value == timeSlot;
+      final isSelected = bookingController.toggleTimeSlot.value == timeSlot;
 
       return GestureDetector(
-        onTap: () {
+        onTap: () async {
           // Select or deselect the time slot
           if (isSelected) {
-            bookingController.selectedTimeSlot.value = null;
+            bookingController.toggleTimeSlot.value = null;
           } else {
-            bookingController.selectedTimeSlot.value = timeSlot;
+            bookingController.toggleTimeSlot.value = timeSlot;
           }
+          bookingController.selectedTimeSlot.value = timeSlot;
         },
         child: Container(
           decoration: BoxDecoration(

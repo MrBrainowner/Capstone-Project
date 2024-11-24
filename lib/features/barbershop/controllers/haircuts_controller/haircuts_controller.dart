@@ -73,7 +73,7 @@ class HaircutController extends GetxController {
           duration: int.parse(durationController.text),
           category: selectedCategories,
           imageUrls: [], // Empty list for now, will be updated after uploading images
-          createdAt: DateTime.now(),
+          createdAt: DateTime.now(), id: '',
         );
 
         // Add the haircut model to Firestore and get the document ID

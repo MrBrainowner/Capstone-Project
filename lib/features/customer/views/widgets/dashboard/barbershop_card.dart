@@ -1,12 +1,11 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
-
 import 'package:barbermate/features/auth/models/barbershop_model.dart';
 import 'package:barbermate/features/customer/views/barbershop/barbershop.dart';
 import 'package:barbermate/utils/themes/text_theme.dart';
-
 import '../../../../../utils/themes/outline_button_theme.dart';
 import '../../../controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
 import '../../booking/choose_haircut.dart';
@@ -25,6 +24,7 @@ class CustomerBarbershopCard extends StatelessWidget {
         BarbermateOutlinedButton.darkThemeOutlinedButton.style;
     final forOutlinedDarkText = BarbermateTextTheme.darkTextTheme.bodyMedium;
     final controller = Get.put(GetHaircutsAndBarbershopsController());
+    final bookingController = Get.put(CustomerBookingController());
 
     const ngolor = Color.fromRGBO(238, 238, 238, 1);
     return SizedBox(
@@ -160,6 +160,8 @@ class CustomerBarbershopCard extends StatelessWidget {
                                         .fetchBarbershopTimeSlots(barberhop.id);
                                     controller.fetchBarbershopAvailableDays(
                                         barberhop.id);
+                                    bookingController.chosenBarbershopId.value
+                                        .id = barberhop.id;
                                     Get.to(() => const ChooseHaircut());
                                   },
                                   style: darkThemeOutlinedButton,
