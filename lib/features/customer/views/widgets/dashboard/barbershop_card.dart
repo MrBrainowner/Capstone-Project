@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
+import 'package:barbermate/features/customer/controllers/review_controller/review_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
@@ -25,6 +26,7 @@ class CustomerBarbershopCard extends StatelessWidget {
     final forOutlinedDarkText = BarbermateTextTheme.darkTextTheme.bodyMedium;
     final controller = Get.put(GetHaircutsAndBarbershopsController());
     final bookingController = Get.put(CustomerBookingController());
+    final controllerReview = Get.put(ReviewControllerCustomer());
 
     const ngolor = Color.fromRGBO(238, 238, 238, 1);
     return SizedBox(
@@ -59,17 +61,21 @@ class CustomerBarbershopCard extends StatelessWidget {
                         ),
                         height: 20,
                         width: 50,
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            iconoir.StarSolid(
+                            const iconoir.StarSolid(
                               height: 15,
                               color: Colors.white,
                             ),
-                            SizedBox(width: 3),
-                            Text(
-                              '4.5',
-                              style: TextStyle(color: ngolor),
+                            const SizedBox(width: 3),
+                            Flexible(
+                              child: Text(
+                                '${controllerReview.averageRating}',
+                                overflow: TextOverflow.clip,
+                                maxLines: 1,
+                                style: const TextStyle(color: ngolor),
+                              ),
                             )
                           ],
                         ),
@@ -141,6 +147,12 @@ class CustomerBarbershopCard extends StatelessWidget {
                                 onPressed: () async {
                                   await controller
                                       .fetchAllBarbershoHaircuts(barberhop.id);
+                                  controller
+                                      .fetchBarbershopTimeSlots(barberhop.id);
+                                  controller.fetchBarbershopAvailableDays(
+                                      barberhop.id);
+                                  bookingController.chosenBarbershop.value =
+                                      barberhop;
                                   Get.to(() => BarbershopProfilePage(
                                       barbershop: barberhop));
                                 },

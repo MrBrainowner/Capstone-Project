@@ -26,47 +26,41 @@ class VerifyBarbershop extends StatelessWidget {
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 16),
-              // Use Obx here to only rebuild the ListView when the observable changes
+              // Individual buttons for each document type
               Obx(() {
-                return Expanded(
-                  child: ListView.builder(
-                    itemCount: controller.requiredDocumentTypes.length,
-                    itemBuilder: (context, index) {
-                      final documentType =
-                          controller.requiredDocumentTypes[index];
-                      final selectedFile =
-                          controller.selectedFiles[documentType];
+                return Column(
+                  children:
+                      controller.requiredDocumentTypes.map((documentType) {
+                    final selectedFile = controller.selectedFiles[documentType];
 
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        child: ListTile(
-                          title: Text(
-                              documentType.replaceAll('_', ' ').toUpperCase()),
-                          subtitle: selectedFile == null
-                              ? const Text('No file selected')
-                              : Text(
-                                  'Selected: ${selectedFile.path.split('/').last}'),
-                          trailing: IconButton(
-                            icon: const iconoir.Attachment(),
-                            onPressed: () {
-                              controller.pickFile(documentType);
-                            },
-                          ),
-                          leading: selectedFile == null
-                              ? const iconoir.Page()
-                              : IconButton(
-                                  icon: const Icon(Icons.check_circle,
-                                      color: Colors.green),
-                                  onPressed: () {},
-                                ),
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      child: ListTile(
+                        title: Text(
+                          documentType.replaceAll('_', ' ').toUpperCase(),
                         ),
-                      );
-                    },
-                  ),
+                        subtitle: Text(selectedFile != null
+                            ? 'Selected: ${selectedFile.path.split('/').last}'
+                            : 'No file selected'),
+                        trailing: IconButton(
+                          icon: const iconoir.Attachment(),
+                          onPressed: () {
+                            controller.pickFile(documentType);
+                          },
+                        ),
+                        leading: selectedFile == null
+                            ? const iconoir.Page()
+                            : const Icon(
+                                Icons.check_circle,
+                                color: Colors.green,
+                              ),
+                      ),
+                    );
+                  }).toList(),
                 );
               }),
               const SizedBox(height: 24),
-              // The Submit Button does not need to be wrapped in Obx as it is not dependent on observable variables
+              // Submit Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

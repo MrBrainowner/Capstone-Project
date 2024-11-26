@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -13,6 +16,7 @@ class CustomerRepository extends GetxController {
   static CustomerRepository get instance => Get.find();
 
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final _storage = FirebaseStorage.instance;
 
   @override
   void onInit() async {
@@ -144,4 +148,42 @@ class CustomerRepository extends GetxController {
   }
 
   //======================================= Upload any image
+
+  Future<String?> fetchProfileImage(String customerId) async {
+    try {
+      final doc = await _db.collection('Customers').doc(customerId).get();
+      if (doc.exists) {
+        return doc.data()?['profile_image'];
+      }
+    } catch (e) {
+      return null;
+    }
+    return null;
+  }
+
+  Future<String?> uploadImageToStorage(String customerId, File file) async {
+    try {
+      final fileName = 'profile_images/$customerId.jpg';
+      final ref = _storage.ref().child(fileName);
+
+      await ref.putFile(file);
+
+      // Get the download URL
+      final downloadUrl = await ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<void> updateProfileImageInFirestore(
+      String customerId, String imageUrl) async {
+    try {
+      await _db.collection('Customers').doc(customerId).update({
+        'profile_image': imageUrl,
+      });
+    } catch (e) {
+      throw Exception('Failed to update profile image in Firestore');
+    }
+  }
 }

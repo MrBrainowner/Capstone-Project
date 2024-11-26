@@ -7,20 +7,25 @@ Widget buildNotificationWidget(NotificationModel notification) {
   switch (notification.type) {
     case 'booking':
       return BookingNotification(
-          title: notification.title,
-          message: notification.message,
-          date: (notification.createdAt));
-    case 'appointment_status':
-      return AppointmentStatusNotification(
         title: notification.title,
         status: notification.status,
         date: notification.createdAt,
+        message: notification.message,
+      );
+    case 'appointment_status':
+      return AppointmentStatusNotification(
+        title: notification.title,
+        message: notification.message,
+        date: notification.createdAt,
+        status: notification.status,
       );
     case 'review_prompt':
       return AppointmentReviewNotification(
         title: notification.title,
         message: notification.message,
         date: notification.createdAt,
+        status: notification.status,
+        barbershopId: notification.barbershopId,
       );
     case 'shop_status':
       return BarbershopNotification(

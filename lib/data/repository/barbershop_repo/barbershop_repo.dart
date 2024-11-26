@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:barbermate/data/models/haircut_model/haircut_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
@@ -14,6 +17,7 @@ class BarbershopRepository extends GetxController {
   static BarbershopRepository get instance => Get.find();
 
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final _storage = FirebaseStorage.instance;
   final Logger logger = Logger();
 
   //======================================= Save the barbershop data to firestore
@@ -65,18 +69,18 @@ class BarbershopRepository extends GetxController {
   }
 
   //======================================= Update customer data in Firestore (also sync it to Users collection)
-  Future<void> updateBarbershopData(BarbershopModel updateCustomer) async {
+  Future<void> updateBarbershopData(BarbershopModel updateBarbershop) async {
     try {
       // Update both collections (Customers and Users) concurrently
       final futures = [
         _db
             .collection("Barbershops")
-            .doc(updateCustomer.id)
-            .update(updateCustomer.toJson()),
+            .doc(updateBarbershop.id)
+            .update(updateBarbershop.toJson()),
         _db
             .collection("Users")
-            .doc(updateCustomer.id)
-            .update(updateCustomer.toJson()),
+            .doc(updateBarbershop.id)
+            .update(updateBarbershop.toJson()),
       ];
 
       // Execute all updates concurrently
@@ -189,4 +193,42 @@ class BarbershopRepository extends GetxController {
   }
 
   //======================================= Upload any image
+
+  Future<String?> fetchProfileImage(String barbershopId) async {
+    try {
+      final doc = await _db.collection('Barbershops').doc(barbershopId).get();
+      if (doc.exists) {
+        return doc.data()?['profile_image'];
+      }
+    } catch (e) {
+      return null;
+    }
+    return null;
+  }
+
+  Future<String?> uploadImageToStorage(String barbershopId, File file) async {
+    try {
+      final fileName = 'profile_images/$barbershopId.jpg';
+      final ref = _storage.ref().child(fileName);
+
+      await ref.putFile(file);
+
+      // Get the download URL
+      final downloadUrl = await ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<void> updateProfileImageInFirestore(
+      String barbershopId, String imageUrl) async {
+    try {
+      await _db.collection('Barbershops').doc(barbershopId).update({
+        'profile_image': imageUrl,
+      });
+    } catch (e) {
+      throw Exception('Failed to update profile image in Firestore');
+    }
+  }
 }

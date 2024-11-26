@@ -84,7 +84,7 @@ class BarbershopDrawer extends StatelessWidget {
             leading: const iconoir.Shop(
               height: 25,
             ),
-            title: const Text('Barbershop Profile'),
+            title: const Text('Barbershop'),
             onTap: () {
               // Handle profile navigation
               Get.to(() => const BarbershopProfile());

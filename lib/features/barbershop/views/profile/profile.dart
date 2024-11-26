@@ -1,5 +1,7 @@
 import 'package:barbermate/features/barbershop/controllers/barbershop_controller/barbershop_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/haircuts_controller/haircuts_controller.dart';
+import 'package:barbermate/features/barbershop/controllers/review_controller/review_controller.dart';
+import 'package:barbermate/features/barbershop/views/reviews/reviews.dart';
 import 'package:barbermate/features/barbershop/views/widgets/management/haircut_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -12,17 +14,18 @@ class BarbershopProfile extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(BarbershopController());
     final haircut = Get.put(HaircutController());
+    final reviewsController = Get.put(ReviewController());
 
-    return DefaultTabController(
-      initialIndex: 1,
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Barbershop Profile'),
-          centerTitle: true,
-          automaticallyImplyLeading: true,
-        ),
-        body: SingleChildScrollView(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Barbershop'),
+        centerTitle: true,
+        automaticallyImplyLeading: true,
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async {},
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
@@ -52,77 +55,80 @@ class BarbershopProfile extends StatelessWidget {
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const SizedBox(height: 8.0),
-                      const Row(
-                        children: [
-                          iconoir.StarSolid(
-                            height: 15,
-                          ),
-                          SizedBox(width: 3),
-                          Text(
-                            '4.5',
-                          )
-                        ],
+                      Text(
+                        controller.barbershop.value.phoneNo,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 8.0),
+                      GestureDetector(
+                        onTap: () => Get.to(() => const ReviewsPage()),
+                        child: Row(
+                          children: [
+                            Card(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  children: [
+                                    const iconoir.StarSolid(
+                                      height: 15,
+                                    ),
+                                    const SizedBox(width: 3),
+                                    Text(
+                                      '${reviewsController.averageRating}',
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      'Reviews',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 10.0),
                     ],
                   ),
                 ),
-                // kani ang tab name
-                SizedBox(
-                  height: 30,
-                  child: TabBar(tabs: [
-                    Tab(
-                      child: Text(
-                        'Haircuts',
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                    ),
-                    Tab(
-                      child: Text('Reviews',
-                          style: Theme.of(context).textTheme.bodyLarge),
-                    )
-                  ]),
+                const SizedBox(height: 10.0),
+                Text(
+                  'Haircuts',
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
+                const SizedBox(height: 20.0),
                 //kani ang body sa mga tab
                 SizedBox(
-                  height: 500,
-                  child: TabBarView(children: [
-                    Tab(
-                      child: SizedBox(
-                        child: Obx(() {
-                          if (haircut.isLoading.value) {
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          } else if (haircut.haircuts.isEmpty) {
-                            return const Center(
-                                child: Text('No barber available.'));
-                          } else {
-                            final haircutss = haircut.haircuts;
-                            return GridView.builder(
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2, // 2 columns
-                                mainAxisSpacing: 15, // Spacing between rows
-                                crossAxisSpacing: 15, // Spacing between columns
-                                childAspectRatio: 0.7,
-                                mainAxisExtent:
-                                    215, // Aspect ratio for vertical cards
-                              ),
-                              itemCount: haircutss.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                final barbershopHaircut = haircutss[index];
-                                return HaircutCard2(haircut: barbershopHaircut);
-                              },
-                            );
-                          }
-                        }),
-                      ),
-                    ),
-                    const Tab(
-                      child: Text('Reviews Page'),
-                    )
-                  ]),
-                )
+                  height: 400,
+                  child: Obx(() {
+                    if (haircut.isLoading.value) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (haircut.haircuts.isEmpty) {
+                      return const Center(child: Text('No barber available.'));
+                    } else {
+                      final haircutss = haircut.haircuts;
+                      return GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2, // 2 columns
+                          mainAxisSpacing: 15, // Spacing between rows
+                          crossAxisSpacing: 15, // Spacing between columns
+                          childAspectRatio: 0.7,
+                          mainAxisExtent:
+                              215, // Aspect ratio for vertical cards
+                        ),
+                        itemCount: haircutss.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          final barbershopHaircut = haircutss[index];
+                          return HaircutCard2(haircut: barbershopHaircut);
+                        },
+                      );
+                    }
+                  }),
+                ),
               ],
             ),
           ),

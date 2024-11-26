@@ -178,7 +178,7 @@ class BarberController extends GetxController {
       isLoading(true);
       barbers.value = await _barberRepository.fetchBarbers();
     } catch (e) {
-      ToastNotif(message: 'Error Fetching Haircuts', title: 'Error')
+      ToastNotif(message: 'Error Fetching Barbers', title: 'Error')
           .showErrorNotif(Get.context!);
     } finally {
       isLoading(false);

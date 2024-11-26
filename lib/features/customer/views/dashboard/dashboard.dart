@@ -1,4 +1,5 @@
 import 'package:barbermate/features/customer/controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
+import 'package:barbermate/features/customer/controllers/review_controller/review_controller.dart';
 import 'package:barbermate/features/customer/views/face_shape_detector/face_shape_detection_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -17,6 +18,7 @@ class CustomerDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
     final controller = Get.put(CustomerController());
+    final controllerReview = Get.put(ReviewControllerCustomer());
     final haircutBarber = Get.put(GetHaircutsAndBarbershopsController());
     final DateTime now = DateTime.now();
     final String formattedDate = DateFormat('MMMM d, y').format(now);
@@ -129,6 +131,8 @@ class CustomerDashboard extends StatelessWidget {
                           itemBuilder: (context, index) {
                             final shops = barbershop[index];
                             haircutBarber.checkIsOpenNow(shops.openHours);
+                            controllerReview.review.value.barberShopId =
+                                shops.id;
                             return CustomerBarbershopCard(
                               barberhop: shops,
                             );

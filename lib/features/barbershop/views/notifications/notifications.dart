@@ -21,12 +21,20 @@ class BarbershopNotifications extends StatelessWidget {
           await controller.fetchNotifications();
         },
         child: Obx(() {
+          // Sort notifications by creation date in descending order
+          final sortedNotifications = controller.notifications.toList()
+            ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
           return ListView.builder(
             padding: const EdgeInsets.all(20),
-            itemCount: controller.notifications.length,
+            itemCount: sortedNotifications.length,
             itemBuilder: (context, index) {
-              final notification = controller.notifications[index];
-              return buildNotificationWidget(notification);
+              final notification = sortedNotifications[index];
+              return GestureDetector(
+                  onTap: () async {
+                    await controller.updateNotifAsRead(notification);
+                  },
+                  child: buildNotificationWidget(notification));
             },
           );
         }),

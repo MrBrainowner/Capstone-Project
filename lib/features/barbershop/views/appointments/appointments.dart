@@ -1,8 +1,7 @@
-import 'package:barbermate/common/widgets/notification_template.dart';
 import 'package:barbermate/features/barbershop/controllers/booking_controller/booking_controller.dart';
+import 'package:barbermate/features/barbershop/views/widgets/appoiments/appoiments_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
 
 class BarbershopAppointments extends StatelessWidget {
   const BarbershopAppointments({super.key});
@@ -12,56 +11,99 @@ class BarbershopAppointments extends StatelessWidget {
     final controller = Get.put(BarbershopBookingController());
     // Fetch appointments when the UI is built
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Appointments'),
-        centerTitle: true,
-        automaticallyImplyLeading: true,
-      ),
-      body: RefreshIndicator(
-        triggerMode: RefreshIndicatorTriggerMode.anywhere,
-        onRefresh: () async {
-          await controller.fetchBookings();
-        },
-        child: Obx(() {
-          if (controller.bookings.isEmpty) {
-            return const Center(child: Text('No appointments found.'));
-          }
+    return DefaultTabController(
+      initialIndex: 1,
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Appointments'),
+          centerTitle: true,
+          automaticallyImplyLeading: true,
+          bottom: TabBar(tabs: [
+            Tab(
+                child:
+                    Text('New', style: Theme.of(context).textTheme.bodyLarge)),
+            Tab(
+                child: Text('Cofirmed',
+                    style: Theme.of(context).textTheme.bodyLarge)),
+            Tab(
+                child:
+                    Text('Done', style: Theme.of(context).textTheme.bodyLarge)),
+          ]),
+        ),
+        body: TabBarView(
+          children: [
+            // Tab for "Pending" bookings
+            RefreshIndicator(
+              triggerMode: RefreshIndicatorTriggerMode.anywhere,
+              onRefresh: () async {
+                await controller.fetchBookings();
+              },
+              child: Obx(() {
+                return ListView.builder(
+                  padding: const EdgeInsets.all(20),
+                  itemCount: controller.pendingBookings.length,
+                  itemBuilder: (context, index) {
+                    final booking = controller.pendingBookings[index];
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(20),
-            itemCount: controller.bookings.length,
-            itemBuilder: (context, index) {
-              final booking = controller.bookings[index];
+                    return AppointmentCard(
+                      title: 'New Appoiments',
+                      message: 'Name: ${booking.customerName}',
+                      booking: booking,
+                    );
+                  },
+                );
+              }),
+            ),
 
-              return NotificationCard2(
-                  title: booking.date,
-                  message: 'Client: ${booking.customerName}',
-                  icon: const iconoir.Calendar(),
-                  color: Colors.green,
-                  elevation: 1,
-                  backgroundColor: Colors.white,
-                  date: '${booking.date} || ${booking.timeSlot}');
-            },
-          );
-        }),
+            // Tab for "Confirmed" bookings
+            RefreshIndicator(
+              triggerMode: RefreshIndicatorTriggerMode.anywhere,
+              onRefresh: () async {
+                await controller.fetchBookings();
+              },
+              child: Obx(() {
+                return ListView.builder(
+                  padding: const EdgeInsets.all(20),
+                  itemCount: controller.confirmedBookings.length,
+                  itemBuilder: (context, index) {
+                    final booking = controller.confirmedBookings[index];
+
+                    return AppointmentConfirmedCard(
+                      title: 'Scheduled Appointment',
+                      message: 'Name: ${booking.customerName}',
+                      booking: booking,
+                    );
+                  },
+                );
+              }),
+            ),
+
+            // Tab for "Done" bookings
+            RefreshIndicator(
+              triggerMode: RefreshIndicatorTriggerMode.anywhere,
+              onRefresh: () async {
+                await controller.fetchBookings();
+              },
+              child: Obx(() {
+                return ListView.builder(
+                  padding: const EdgeInsets.all(20),
+                  itemCount: controller.doneBookings.length,
+                  itemBuilder: (context, index) {
+                    final booking = controller.doneBookings[index];
+
+                    return AppointmentDoneCard(
+                      title: 'Appointment Complete',
+                      message: 'Name: ${booking.customerName}',
+                      booking: booking,
+                    );
+                  },
+                );
+              }),
+            ),
+          ],
+        ),
       ),
     );
-  }
-
-  // Helper to map status to colors
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'pending':
-        return Colors.orange;
-      case 'confirmed':
-        return Colors.green;
-      case 'completed':
-        return Colors.blue;
-      case 'canceled':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
   }
 }

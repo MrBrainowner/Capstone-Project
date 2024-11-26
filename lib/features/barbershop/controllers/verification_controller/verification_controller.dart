@@ -16,7 +16,7 @@ class VerificationController extends GetxController {
     'business_registration',
     'barangay_clearance',
     'mayors_permit',
-  ];
+  ].obs;
 
   // A map to hold selected files for each document type
   final RxMap<String, File?> selectedFiles = <String, File?>{}.obs;
@@ -42,22 +42,22 @@ class VerificationController extends GetxController {
   }
 
   // Pick file for a document
+  // Method to pick a file and update the map
   Future<void> pickFile(String documentType) async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
-      );
+      FilePickerResult? result = await FilePicker.platform.pickFiles();
 
-      if (result != null && result.files.isNotEmpty) {
-        final file = File(result.files.single.path!);
-        selectedFiles[documentType] = file;
-        logger.i('File selected for $documentType: ${file.path}');
+      if (result != null && result.files.single.path != null) {
+        // Update the map and trigger reactivity
+        selectedFiles[documentType] = File(result.files.single.path!);
+        selectedFiles.refresh(); // Important to trigger UI updates
+        logger
+            .i('File selected for $documentType: ${result.files.single.path}');
       } else {
         logger.w('No file selected for $documentType');
       }
     } catch (e) {
-      logger.e('Error picking file: $e');
+      logger.e('Error picking file for $documentType: $e');
     }
   }
 

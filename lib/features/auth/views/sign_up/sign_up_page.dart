@@ -60,6 +60,16 @@ class SignUpPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       MyTextField(
+                        controller: controller.phone,
+                        validator: (value) =>
+                            validator.validatePhoneNumber(value),
+                        keyboardtype: TextInputType.number,
+                        labelText: 'Phone',
+                        obscureText: false,
+                        icon: const Icon(Icons.phone),
+                      ),
+                      const SizedBox(height: 10),
+                      MyTextField(
                         controller: controller.email,
                         validator: (value) => validator.validateEmail(value),
                         keyboardtype: TextInputType.emailAddress,

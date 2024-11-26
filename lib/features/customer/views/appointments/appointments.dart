@@ -1,110 +1,99 @@
+import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
+import 'package:barbermate/features/customer/views/widgets/dashboard/appointment_card.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class CustomerAppointments extends StatelessWidget {
   const CustomerAppointments({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-    return Scaffold(
-      key: scaffoldKey,
-      appBar: AppBar(
-        title: const Text('Appointments'),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              // Upcoming Appointments
-              const Text(
-                'Upcoming Appointments',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8.0),
-              _buildAppointmentList([
-                _Appointment(
-                    '2024-08-20 10:00 AM', 'The Classic Barber', 'Confirmed'),
-                _Appointment('2024-08-22 2:00 PM', 'Modern Cuts', 'Pending'),
-              ]),
-              const SizedBox(height: 24.0),
+    final controller = Get.put(CustomerBookingController());
+    // Fetch appointments when the UI is built
 
-              // Past Appointments
-              const Text(
-                'Past Appointments',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8.0),
-              _buildAppointmentList([
-                _Appointment('2024-07-15 1:00 PM', 'Urban Styles', 'Completed'),
-                _Appointment(
-                    '2024-07-10 3:00 PM', 'The Classic Barber', 'Completed'),
-              ]),
-            ],
-          ),
+    return DefaultTabController(
+      initialIndex: 0,
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Appointments'),
+          centerTitle: true,
+          automaticallyImplyLeading: true,
+          bottom: TabBar(tabs: [
+            Tab(
+                child: Text('My Appointments',
+                    style: Theme.of(context).textTheme.bodyLarge)),
+            Tab(
+                child: Text('History',
+                    style: Theme.of(context).textTheme.bodyLarge)),
+          ]),
+        ),
+        body: TabBarView(
+          children: [
+            // Tab for "Pending" bookings
+            RefreshIndicator(
+              triggerMode: RefreshIndicatorTriggerMode.anywhere,
+              onRefresh: () async {
+                await controller.fetchBookings();
+              },
+              child: Obx(() {
+                return ListView.builder(
+                  padding: const EdgeInsets.all(20),
+                  itemCount: controller.confirmedBookings.length,
+                  itemBuilder: (context, index) {
+                    final booking = controller.confirmedBookings[index];
+
+                    return AppointmentConfirmedCardCustomers(
+                        title: 'Appointment Confirmerd',
+                        message:
+                            'Your appointment with ${booking.barbershopName} is confirmed.',
+                        booking: booking);
+                  },
+                );
+              }),
+            ),
+
+            // Tab for "Confirmed" bookings
+            RefreshIndicator(
+              triggerMode: RefreshIndicatorTriggerMode.anywhere,
+              onRefresh: () async {
+                await controller.fetchBookings();
+              },
+              child: Obx(() {
+                return ListView.builder(
+                  padding: const EdgeInsets.all(20),
+                  itemCount: controller.doneBookings.length,
+                  itemBuilder: (context, index) {
+                    final booking = controller.doneBookings[index];
+
+                    return AppointmentDoneCardCustomers(
+                      title: 'Appointment Complete',
+                      message: 'Name: ${booking.customerName}',
+                      booking: booking,
+                    );
+                  },
+                );
+              }),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildAppointmentList(List<_Appointment> appointments) {
-    return Column(
-      children: appointments.map((appointment) {
-        return Card(
-          margin: const EdgeInsets.only(bottom: 8.0),
-          child: ListTile(
-            title: Text(appointment.dateTime),
-            subtitle: Text(appointment.barbershopName),
-            trailing: _buildStatusIndicator(appointment.status),
-            onTap: () {
-              // Implement appointment details navigation or modal here
-            },
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildStatusIndicator(String status) {
-    Color color;
-    if (status == 'Confirmed') {
-      color = Colors.green;
-    } else if (status == 'Pending') {
-      color = Colors.orange;
-    } else if (status == 'Completed') {
-      color = Colors.grey;
-    } else {
-      color = Colors.red;
+  // Helper to map status to colors
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'pending':
+        return Colors.orange;
+      case 'confirmed':
+        return Colors.green;
+      case 'completed':
+        return Colors.blue;
+      case 'canceled':
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: Text(
-        status,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
   }
-}
-
-class _Appointment {
-  final String dateTime;
-  final String barbershopName;
-  final String status;
-
-  _Appointment(this.dateTime, this.barbershopName, this.status);
 }

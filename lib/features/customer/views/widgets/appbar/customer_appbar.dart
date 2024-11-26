@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:barbermate/features/customer/controllers/notification_controller/notification_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
@@ -17,20 +18,27 @@ class CustomerAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(CustomerNotificationController());
+
     return AppBar(
       centerTitle: centertitle,
       title: title,
 
       leading: AppBarIcon(scaffoldKey: scaffoldKey), // Drawer Icon
       actions: [
-        GestureDetector(
-          onTap: () => Get.to(
-              () => const CustomerNotifications()), // Navigate to notifications
-          child: const Badge(
-            child: iconoir.Bell(
-              height: 25, // Bell Icon height
-            ),
-          ),
+        Obx(
+          () => GestureDetector(
+              onTap: () => Get.to(() =>
+                  const CustomerNotifications()), // Navigate to notifications
+              child: controller.hasUnreadNotifications
+                  ? const iconoir.Bell(
+                      height: 25, // Bell Icon height
+                    )
+                  : const Badge(
+                      child: iconoir.Bell(
+                        height: 25, // Bell Icon height
+                      ),
+                    )),
         ),
         const SizedBox(width: 10), // Padding for right spacing
       ],

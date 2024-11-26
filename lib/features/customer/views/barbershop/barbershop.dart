@@ -1,5 +1,7 @@
 import 'package:barbermate/features/auth/models/barbershop_model.dart';
+import 'package:barbermate/features/customer/controllers/review_controller/review_controller.dart';
 import 'package:barbermate/features/customer/views/booking/choose_haircut.dart';
+import 'package:barbermate/features/customer/views/reviews/reviews.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
@@ -17,6 +19,7 @@ class BarbershopProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(GetHaircutsAndBarbershopsController());
+    final controllerReviews = Get.put(ReviewControllerCustomer());
 
     return Scaffold(
       appBar: AppBar(
@@ -52,16 +55,43 @@ class BarbershopProfilePage extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 8.0),
-              const Row(
-                children: [
-                  iconoir.StarSolid(
-                    height: 15,
-                  ),
-                  SizedBox(width: 3),
-                  Text(
-                    '4.5',
-                  )
-                ],
+              Text(
+                barbershop.phoneNo,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 8.0),
+              GestureDetector(
+                onTap: () async {
+                  controllerReviews.review.value.barberShopId = barbershop.id;
+                  await controllerReviews.fetchReviews();
+                  Get.to(
+                      () => CustomerReviewsPage(barbershopId: barbershop.id));
+                },
+                child: Row(
+                  children: [
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            const iconoir.StarSolid(
+                              height: 15,
+                            ),
+                            const SizedBox(width: 3),
+                            const Text(
+                              '4.5',
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              'Reviews',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 10.0),
               SizedBox(

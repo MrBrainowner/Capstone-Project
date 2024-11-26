@@ -24,7 +24,7 @@ class HaircutsCard extends StatelessWidget {
         onTap: () {
           // Toggle selection: Select if not selected, deselect if already selected
           if (isSelected) {
-            controller.selectedHaircut.value = null;
+            controller.selectedHaircut.value.id = null;
           } else {
             controller.selectedHaircut.value = haircut;
           }

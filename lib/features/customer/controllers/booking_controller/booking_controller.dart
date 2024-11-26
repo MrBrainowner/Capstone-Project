@@ -20,8 +20,9 @@ class CustomerBookingController extends GetxController {
   final controller = Get.put(GetHaircutsAndBarbershopsController());
   final authId = Get.put(AuthenticationRepository.instance.authUser?.uid);
   final customer = Get.put(CustomerController.instance.customer);
+  final notificationController = Get.put(CustomerNotificationController());
 
-  Rx<HaircutModel?> selectedHaircut = HaircutModel.empty().obs;
+  Rx<HaircutModel> selectedHaircut = HaircutModel.empty().obs;
   Rx<TimeSlotModel> selectedTimeSlot = TimeSlotModel.empty().obs;
   Rx<BarbershopModel> chosenBarbershop = BarbershopModel.empty().obs;
   var selectedDate = Rx<DateTime?>(null);
@@ -29,10 +30,41 @@ class CustomerBookingController extends GetxController {
   Rx<HaircutModel?> toggleHaircut = HaircutModel.empty().obs;
   Rx<TimeSlotModel?> toggleTimeSlot = TimeSlotModel.empty().obs;
 
+  // Create a reactive RxList for pending bookings
+  RxList<BookingModel> pendingBookings = <BookingModel>[].obs;
+  RxList<BookingModel> confirmedBookings = <BookingModel>[].obs;
+  RxList<BookingModel> doneBookings = <BookingModel>[].obs;
+
+  @override
+  void onInit() async {
+    super.onInit();
+    fetchBookings();
+  }
+
+// Listen to changes in bookings and filter them for 'pending' status
+  void filterPendingBookings() {
+    pendingBookings.value =
+        bookings.where((booking) => booking.status == 'pending').toList();
+  }
+
+  void filterConfirmedBookings() {
+    confirmedBookings.value =
+        bookings.where((booking) => booking.status == 'confirmed').toList();
+  }
+
+  void filterDoneBookings() {
+    doneBookings.value = bookings
+        .where((booking) =>
+            booking.status == 'done' || booking.status == 'canceled')
+        .toList();
+  }
+
   Future<void> refreshData() async {
     await controller.fetchBarbershopTimeSlots(chosenBarbershop.value.id);
     selectedTimeSlot.value = TimeSlotModel.empty();
   }
+
+  RxList<BookingModel> bookings = <BookingModel>[].obs;
 
   void clearBookingData() {
     chosenBarbershop.value = BarbershopModel.empty();
@@ -46,12 +78,14 @@ class CustomerBookingController extends GetxController {
     try {
       //Start Loading
       FullScreenLoader.openLoadingDialog(
-          'Creating booking...', 'assets/images/animation.json');
+          'Please wait...', 'assets/images/animation.json');
 
       final booking = BookingModel(
+          haircutName: selectedHaircut.value.name,
+          haircutPrice: selectedHaircut.value.price,
           barberShopId: chosenBarbershop.value.id,
           customerId: authId.toString(),
-          haircutId: selectedHaircut.value?.id ?? 'None',
+          haircutId: selectedHaircut.value.id ?? 'None',
           date: controller.formatDate(
               selectedDate.value ?? controller.getNextAvailableDate()),
           timeSlotId: selectedTimeSlot.value.id.toString(),
@@ -80,23 +114,38 @@ class CustomerBookingController extends GetxController {
     }
   }
 
-  // Update an existing booking (e.g., reschedule)
-  Future<void> updateBooking(String bookingId, BookingModel booking) async {
-    try {} catch (e) {
-      throw ('Error updating booking: $e');
-    }
-  }
-
   // Cancel a booking
-  Future<void> cancelBooking(String bookingId) async {
-    try {} catch (e) {
-      throw ('Error canceling booking: $e');
+  Future<void> cancelBooking(BookingModel booking) async {
+    try {
+      await _repo.cancelBooking(booking);
+
+      await notificationController.sendNotifWhenBookingUpdatedCustomers(
+          booking,
+          'booking',
+          'Appointment Canceled',
+          '${booking.customerName} canceled this appointment',
+          'notRead');
+      await fetchBookings();
+      ToastNotif(message: 'Appointment canceled', title: 'Success')
+          .showSuccessNotif(Get.context!);
+    } catch (e) {
+      ToastNotif(message: 'Error canceling appoiment $e', title: 'Error')
+          .showErrorNotif(Get.context!);
     }
   }
 
   // Get a specific booking by ID
-  Future<BookingModel?> getBookingById(String bookingId) async {
-    return null;
+  Future<void> fetchBookings() async {
+    try {
+      final data = await _repo.fetchBookingsCustomer();
+      bookings.value = data;
+      filterPendingBookings();
+      filterConfirmedBookings();
+      filterDoneBookings();
+    } catch (e) {
+      ToastNotif(message: 'Error fetching bookings $e', title: 'Error')
+          .showErrorNotif(Get.context!);
+    }
   }
 }
 

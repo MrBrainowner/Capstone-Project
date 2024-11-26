@@ -1,5 +1,7 @@
+import 'package:barbermate/data/models/booking_model/booking_model.dart';
 import 'package:barbermate/features/barbershop/controllers/booking_controller/booking_controller.dart';
-import 'package:barbermate/features/barbershop/controllers/notification_controller/notification_controller.dart';
+import 'package:barbermate/features/customer/controllers/review_controller/review_controller.dart';
+import 'package:barbermate/features/customer/views/reviews/reviews.dart';
 import 'package:barbermate/utils/constants/format_date.dart';
 import 'package:barbermate/utils/popups/confirm_cancel_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -10,13 +12,15 @@ import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
 class BookingNotification extends StatelessWidget {
   final DateTime date;
   final String title;
+  final String status;
   final String message;
 
   const BookingNotification({
     super.key,
     required this.title,
-    required this.message,
+    required this.status,
     required this.date,
+    required this.message,
   });
 
   @override
@@ -25,9 +29,11 @@ class BookingNotification extends StatelessWidget {
       title: title,
       message: message,
       icon: const iconoir.Calendar(),
-      color: Theme.of(context).primaryColor,
-      elevation: 1,
-      backgroundColor: Colors.white,
+      color: status == 'read'
+          ? Colors.grey.shade500
+          : Theme.of(context).primaryColor,
+      elevation: status == 'read' ? 0 : 1,
+      backgroundColor: status == 'read' ? Colors.grey.shade100 : Colors.white,
       date: date,
     );
   }
@@ -39,16 +45,22 @@ class AppointmentReviewNotification extends StatelessWidget {
   final DateTime date;
   final String title;
   final String message;
+  final String status;
+  final String barbershopId;
 
   const AppointmentReviewNotification({
     super.key,
     required this.title,
     required this.message,
     required this.date,
+    required this.status,
+    required this.barbershopId,
   });
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(ReviewControllerCustomer());
+
     return NotificationCard(
       title: title,
       message: message,
@@ -58,7 +70,10 @@ class AppointmentReviewNotification extends StatelessWidget {
         children: [
           Expanded(
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () async {
+                await controller.fetchReviews();
+                Get.to(() => CustomerReviewsPage(barbershopId: barbershopId));
+              },
               child: const Text('Write Review'),
             ),
           ),
@@ -76,40 +91,48 @@ class AppointmentReviewNotification extends StatelessWidget {
 class AppointmentStatusNotification extends StatelessWidget {
   final DateTime date;
   final String title;
+  final String message;
   final String status;
 
   const AppointmentStatusNotification({
     super.key,
     required this.title,
-    required this.status,
+    required this.message,
     required this.date,
+    required this.status,
   });
 
   @override
   Widget build(BuildContext context) {
-    final statusColor = _getStatusColor(status);
+    final statusColor = _getStatusColor(title);
 
     return NotificationCard(
       title: title,
-      message: 'Your appointment status is: $status',
+      message: message,
       icon: const iconoir.InfoCircle(),
       color: statusColor,
-      elevation: 1,
-      backgroundColor: Colors.white,
+      elevation: status == 'read' ? 0 : 1,
+      backgroundColor: status == 'read' ? Colors.grey.shade100 : Colors.white,
       date: date,
     );
   }
 
-  Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'pending':
-        return Colors.orange;
-      case 'confirmed':
-        return Colors.blue;
-      case 'rejected':
-        return Colors.red;
-      default:
-        return Colors.grey;
+  Color _getStatusColor(String title) {
+    if (status == 'read') {
+      return Colors.green.shade200;
+    } else {
+      switch (title.toLowerCase()) {
+        case 'booking confirmed':
+          return Colors.green;
+        case 'booking declined':
+          return Colors.red;
+        case 'appointment complete':
+          return Colors.green;
+        case 'appointment canceled':
+          return Colors.red;
+        default:
+          return Colors.grey;
+      }
     }
   }
 }
@@ -169,17 +192,17 @@ class CustomerAppointmentNotification extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(BarbershopBookingController());
-    final notifController = Get.put(BarbershopNotificationController());
+    // final controller = Get.put(BarbershopBookingController());
+    // final notifController = Get.put(BarbershopNotificationController());
 
     return NotificationCard(
       title: title,
       message: message,
       icon: const iconoir.Calendar(),
-      color: notificationStatus != 'read'
+      color: notificationStatus != 'isRead'
           ? Theme.of(context).primaryColor
           : Colors.grey.shade600,
-      action: notificationStatus != 'read'
+      action: notificationStatus != 'isRead'
           ? Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -193,12 +216,7 @@ class CustomerAppointmentNotification extends StatelessWidget {
                             'Are you sure you want to accept the appoinment?',
                         textConfirm: 'Confirm',
                         textCancel: 'Cancel',
-                        onConfirm: () async {
-                          await controller.acceptBooking(
-                              bookingId, customerId, notificationId);
-                          await notifController.fetchNotifications();
-                          Get.back();
-                        },
+                        onConfirm: () async {},
                       );
                     },
                     child: const Text('Accept'),
@@ -215,12 +233,7 @@ class CustomerAppointmentNotification extends StatelessWidget {
                             'Are you sure you want to reject the appoinment?',
                         textConfirm: 'Confirm',
                         textCancel: 'Cancel',
-                        onConfirm: () async {
-                          await controller.rejectBooking(
-                              bookingId, customerId, notificationId);
-                          await notifController.fetchNotifications();
-                          Get.back();
-                        },
+                        onConfirm: () async {},
                       );
                     },
                     child: const Text('Reject'),
@@ -255,6 +268,77 @@ class CustomerAppointmentNotification extends StatelessWidget {
       backgroundColor:
           notificationStatus != 'read' ? Colors.white : Colors.grey.shade300,
       date: date,
+    );
+  }
+} //=================================================================================
+
+class AppointmentPending extends StatelessWidget {
+  final String title;
+  final String message;
+  final BookingModel booking;
+
+  const AppointmentPending({
+    super.key,
+    required this.title,
+    required this.message,
+    required this.booking,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = Get.put(BarbershopBookingController());
+    final dateFormatter = Get.put(BFormatter());
+
+    return NotificationCard(
+      title: title,
+      message: message,
+      icon: const iconoir.Calendar(),
+      color: Colors.orange,
+      action: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Expanded(
+            child: ElevatedButton(
+              onPressed: () async {
+                ConfirmCancelPopUp.showDialog(
+                  context: context,
+                  title: 'Confirm Booking',
+                  description: 'Do you want to confirm this request?',
+                  textConfirm: 'Confirm',
+                  textCancel: 'Cancel',
+                  onConfirm: () {
+                    controller.acceptBooking(booking);
+                    Get.back();
+                  },
+                );
+              },
+              child: const Text('Confirm'),
+            ),
+          ),
+          const SizedBox(width: 5),
+          Expanded(
+            child: OutlinedButton(
+              onPressed: () {
+                ConfirmCancelPopUp.showDialog(
+                  context: context,
+                  title: 'Decline Booking',
+                  description: 'Do you want to decline this request?',
+                  textConfirm: 'Confirm',
+                  textCancel: 'Cancel',
+                  onConfirm: () async {
+                    controller.rejectBooking(booking);
+                    Get.back();
+                  },
+                );
+              },
+              child: const Text('Decline'),
+            ),
+          ),
+        ],
+      ),
+      elevation: 1,
+      backgroundColor: Colors.white,
+      date: dateFormatter.parseDate(booking.date),
     );
   }
 }
@@ -312,67 +396,6 @@ class NotificationCard extends StatelessWidget {
             const SizedBox(height: 5),
             Text(dateFormatter.formatDateTime(date),
                 style: Theme.of(context).textTheme.labelSmall),
-            const SizedBox(height: 10),
-            Text(message, style: Theme.of(context).textTheme.bodyMedium),
-            if (action != null) ...[
-              const SizedBox(height: 10),
-              action!,
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class NotificationCard2 extends StatelessWidget {
-  final String date;
-  final String title;
-  final String message;
-  final Widget icon;
-  final Color color;
-  final Widget? action;
-  final double elevation;
-  final Color backgroundColor;
-
-  const NotificationCard2({
-    super.key,
-    required this.title,
-    required this.message,
-    required this.icon,
-    required this.color,
-    this.action,
-    required this.elevation,
-    required this.backgroundColor,
-    required this.date,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: elevation,
-      color: backgroundColor,
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                icon,
-                const SizedBox(width: 10),
-                Text(
-                  title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(color: color),
-                ),
-              ],
-            ),
-            const SizedBox(height: 5),
-            Text(date, style: Theme.of(context).textTheme.labelSmall),
             const SizedBox(height: 10),
             Text(message, style: Theme.of(context).textTheme.bodyMedium),
             if (action != null) ...[

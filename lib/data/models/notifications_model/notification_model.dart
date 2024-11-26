@@ -10,6 +10,7 @@ class NotificationModel {
   final DateTime createdAt; // Optional field for timestamp
   String bookingId;
   String customerId;
+  String barbershopId;
 
   NotificationModel({
     required this.id,
@@ -20,6 +21,7 @@ class NotificationModel {
     required this.createdAt,
     required this.bookingId,
     required this.customerId,
+    required this.barbershopId,
   });
 
   // Static method for an empty Notification (if needed)
@@ -33,6 +35,7 @@ class NotificationModel {
       createdAt: DateTime.now(),
       bookingId: '',
       customerId: '',
+      barbershopId: '',
     );
   }
 
@@ -41,6 +44,7 @@ class NotificationModel {
     return {
       'id': id,
       'bookingId': bookingId,
+      'barbershopId': barbershopId,
       'customerId': customerId,
       'type': type,
       'title': title,
@@ -57,6 +61,7 @@ class NotificationModel {
     return NotificationModel(
         id: document.id,
         bookingId: data['bookingId'] ?? '',
+        barbershopId: data['barbershopId'] ?? '',
         customerId: data['customerId'] ?? '',
         type: data['type'] ?? '',
         title: data['title'] ?? '',
@@ -69,6 +74,7 @@ class NotificationModel {
   NotificationModel copyWith({
     String? id,
     String? bookingId,
+    String? barbershopId,
     String? customerId,
     String? type,
     String? title,
@@ -79,6 +85,7 @@ class NotificationModel {
     return NotificationModel(
       id: id ?? this.id,
       bookingId: bookingId ?? this.bookingId,
+      barbershopId: barbershopId ?? this.barbershopId,
       customerId: customerId ?? this.customerId,
       type: type ?? this.type,
       title: title ?? this.title,

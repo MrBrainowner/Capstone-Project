@@ -268,7 +268,7 @@ class BarbershopSignUpController extends GetxController {
         firstName: firstName.text.trim(),
         lastName: lastName.text.trim(),
         email: email.text.trim(),
-        phoneNo: '',
+        phoneNo: phone.text.trim(),
         role: 'barbershop',
         createdAt: DateTime.now(),
         barbershopName: barbershopName.text.trim(),
@@ -282,6 +282,7 @@ class BarbershopSignUpController extends GetxController {
         postal: postalCodeValue,
         streetAddress: streetAddress.text.trim(),
         floorNumber: floorUnit.text.trim(),
+        profileImage: '',
       );
 
       final userRepository = Get.put(BarbershopRepository());

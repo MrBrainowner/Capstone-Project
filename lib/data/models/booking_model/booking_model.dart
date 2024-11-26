@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class BookingModel {
   String id;
   String customerName;
+  String haircutName;
+  double haircutPrice;
   String barbershopName;
   String customerPhoneNo;
   String timeSlot;
@@ -19,6 +21,8 @@ class BookingModel {
   BookingModel({
     required this.id,
     required this.customerName,
+    required this.haircutName,
+    required this.haircutPrice,
     required this.barbershopName,
     required this.customerPhoneNo,
     required this.timeSlot,
@@ -39,6 +43,8 @@ class BookingModel {
       barberId: '',
       customerId: '',
       haircutId: '',
+      haircutName: '', // empty name for haircut
+      haircutPrice: 0.0, // default price of 0
       date: '',
       timeSlotId: '',
       status: 'pending',
@@ -61,6 +67,8 @@ class BookingModel {
       'barber_id': barberId,
       'customer_id': customerId,
       'haircut_id': haircutId,
+      'haircutName': haircutName, // Add haircut name
+      'haircutPrice': haircutPrice, // Add haircut price
       'date': date,
       'time_slot_id': timeSlotId,
       'status': status,
@@ -77,14 +85,16 @@ class BookingModel {
       barberId: data['barber_id'] ?? '',
       customerId: data['customer_id'] ?? '',
       haircutId: data['haircut_id'] ?? '',
+      haircutName: data['haircutName'] ?? '', // Retrieve haircut name
+      haircutPrice: data['haircutPrice'] ?? 0.0, // Retrieve haircut price
       date: data['date'] ?? '',
       timeSlotId: data['time_slot_id'] ?? '',
       status: data['status'] ?? 'pending',
       createdAt: (data['created_at'] as Timestamp).toDate(),
-      customerName: data['customerName'] ?? '' '',
-      barbershopName: data['barbershopName'] ?? '' '',
-      customerPhoneNo: data['customerPhoneNo'] ?? '' '',
-      timeSlot: data['timeSlot'] ?? '' '',
+      customerName: data['customerName'] ?? '',
+      barbershopName: data['barbershopName'] ?? '',
+      customerPhoneNo: data['customerPhoneNo'] ?? '',
+      timeSlot: data['timeSlot'] ?? '',
     );
   }
 
@@ -98,6 +108,8 @@ class BookingModel {
     String? barberId,
     String? customerId,
     String? haircutId,
+    String? haircutName,
+    double? haircutPrice,
     String? date,
     String? timeSlotId,
     String? status,
@@ -110,9 +122,11 @@ class BookingModel {
       customerName: customerName ?? this.customerName,
       barbershopName: barbershopName ?? this.barbershopName,
       timeSlot: timeSlot ?? this.timeSlot,
-      customerPhoneNo: barberId ?? this.customerPhoneNo,
+      customerPhoneNo: customerPhoneNo ?? this.customerPhoneNo,
       customerId: customerId ?? this.customerId,
       haircutId: haircutId ?? this.haircutId,
+      haircutName: haircutName ?? this.haircutName, // Update haircut name
+      haircutPrice: haircutPrice ?? this.haircutPrice, // Update haircut price
       date: date ?? this.date,
       timeSlotId: timeSlotId ?? this.timeSlotId,
       status: status ?? this.status,

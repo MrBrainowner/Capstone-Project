@@ -116,20 +116,20 @@ class BookingRepo extends GetxController {
   }
 
   // cancel booking
-  Future<void> cancelBooking(String bookingId, String barbershopId) async {
+  Future<void> cancelBooking(BookingModel booking) async {
     try {
       await _db
           .collection('Barbershops')
-          .doc(barbershopId)
+          .doc(booking.barberShopId)
           .collection('Bookings')
-          .doc(bookingId)
+          .doc(booking.id)
           .update({'status': 'canceled'});
 
       await _db
           .collection('Customers')
           .doc(authId)
           .collection('Bookings')
-          .doc(bookingId)
+          .doc(booking.id)
           .update({'status': 'canceled'});
     } on FirebaseException catch (e) {
       throw BFirebaseException(e.code).message;
@@ -143,27 +143,20 @@ class BookingRepo extends GetxController {
   }
 
   // accept booking
-  Future<void> acceptBooking(
-      String bookingId, String customerId, String notificationId) async {
+  Future<void> acceptBooking(String bookingId, String customerId) async {
     try {
       await _db
           .collection('Barbershops')
           .doc(authId)
           .collection('Bookings')
           .doc(bookingId)
-          .update({'status': 'accepted'});
+          .update({'status': 'confirmed'});
       await _db
           .collection('Customers')
           .doc(customerId)
           .collection('Bookings')
           .doc(bookingId)
-          .update({'status': 'accepted'});
-      await _db
-          .collection('Barbershops')
-          .doc(authId)
-          .collection('Notifications')
-          .doc(notificationId)
-          .update({'status': 'read'});
+          .update({'status': 'confirmed'});
     } on FirebaseException catch (e) {
       throw BFirebaseException(e.code).message;
     } on FormatException catch (_) {
@@ -176,27 +169,20 @@ class BookingRepo extends GetxController {
   }
 
   // reject booking
-  Future<void> rejectBooking(
-      String bookingId, String customerId, String notificationId) async {
+  Future<void> rejectBooking(String bookingId, String customerId) async {
     try {
       await _db
           .collection('Barbershops')
           .doc(authId)
           .collection('Bookings')
           .doc(bookingId)
-          .update({'status': 'rejected'});
+          .update({'status': 'declined'});
       await _db
           .collection('Customers')
           .doc(customerId)
           .collection('Bookings')
           .doc(bookingId)
-          .update({'status': 'rejected'});
-      await _db
-          .collection('Barbershops')
-          .doc(authId)
-          .collection('Notifications')
-          .doc(notificationId)
-          .update({'status': 'read'});
+          .update({'status': 'declined'});
     } on FirebaseException catch (e) {
       throw BFirebaseException(e.code).message;
     } on FormatException catch (_) {
@@ -215,7 +201,6 @@ class BookingRepo extends GetxController {
           .collection('Barbershops')
           .doc(authId)
           .collection('Bookings')
-          .where('status', isEqualTo: 'accepted')
           .get();
       return querySnapshot.docs.map((doc) {
         return BookingModel.fromSnapshot(
@@ -231,4 +216,95 @@ class BookingRepo extends GetxController {
       throw 'Something went wrong. Please try again';
     }
   }
+
+  Future<List<BookingModel>> fetchBookingsCustomer() async {
+    try {
+      final querySnapshot = await _db
+          .collection('Customers')
+          .doc(authId)
+          .collection('Bookings')
+          .get();
+      return querySnapshot.docs.map((doc) {
+        return BookingModel.fromSnapshot(
+            doc as DocumentSnapshot<Map<String, dynamic>>);
+      }).toList();
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      throw BPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Something went wrong. Please try again';
+    }
+  }
+
+  // mark appointment as done
+  Future<void> markAsDone(BookingModel booking) async {
+    try {
+      await _db
+          .collection('Barbershops')
+          .doc(authId)
+          .collection('Bookings')
+          .doc(booking.id)
+          .update({'status': 'done'});
+
+      await _db
+          .collection('Customers')
+          .doc(booking.customerId)
+          .collection('Bookings')
+          .doc(booking.id)
+          .update({'status': 'done'});
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      throw BPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Something went wrong. Please try again';
+    }
+  }
+
+  // cancel booking
+  Future<void> cancelBookingForBarbershop(
+      String bookingId, String customerId) async {
+    try {
+      await _db
+          .collection('Barbershops')
+          .doc(authId)
+          .collection('Bookings')
+          .doc(bookingId)
+          .update({'status': 'canceled'});
+
+      await _db
+          .collection('Customers')
+          .doc()
+          .collection('Bookings')
+          .doc(bookingId)
+          .update({'status': 'canceled'});
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      throw BPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Something went wrong. Please try again';
+    }
+  }
 }
+
+
+// await _db
+//           .collection('Barbershops')
+//           .doc(authId)
+//           .collection('Notifications')
+//           .doc(notificationId)
+//           .update({'status': 'isRead'});
+  // await _db
+  //         .collection('Barbershops')
+  //         .doc(authId)
+  //         .collection('Notifications')
+  //         .doc(notificationId)
+  //         .update({'status': 'isRead'});

@@ -1,43 +1,8 @@
 import 'package:barbermate/features/admin/controllers/admin_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
 import '../../../../data/repository/auth_repo/auth_repo.dart';
 import '../../../../utils/popups/confirm_cancel_pop_up.dart';
-import 'notification.dart';
-
-class AdminAppDrawer extends StatelessWidget implements PreferredSizeWidget {
-  final Widget? title;
-  final bool? centertitle;
-  const AdminAppDrawer({
-    super.key,
-    required this.title,
-    this.centertitle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      centerTitle: centertitle,
-      title: title,
-      automaticallyImplyLeading: true, // Drawer Icon
-      actions: [
-        GestureDetector(
-          onTap: () => Get.to(
-              () => const AdminNotifications()), // Navigate to notifications
-          child: const iconoir.Bell(
-            height: 25, // Bell Icon height
-          ),
-        ),
-        const SizedBox(width: 10), // Padding for right spacing
-      ],
-    );
-  }
-
-  // This is necessary to implement the PreferredSizeWidget
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-}
 
 // Drawer Widget
 class AdminDrawer extends StatelessWidget {
@@ -52,8 +17,8 @@ class AdminDrawer extends StatelessWidget {
           // Custom Drawer Header with CircleAvatar
           Obx(
             () => DrawerHeader(
-              decoration: const BoxDecoration(
-                color: Colors.blue,
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
               ),
               child: Row(
                 children: <Widget>[
@@ -62,7 +27,7 @@ class AdminDrawer extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       const Text(
-                        'Admin Panel',
+                        'Admin',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20.0,

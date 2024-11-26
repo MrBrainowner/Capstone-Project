@@ -1,3 +1,4 @@
+import 'package:barbermate/features/auth/models/barbershop_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
@@ -9,6 +10,7 @@ class BarbershopDetailPage extends StatelessWidget {
   final String barbershopName;
   final String status;
   final String recipientEmail;
+  final BarbershopModel barbershop;
 
   const BarbershopDetailPage({
     super.key,
@@ -16,6 +18,7 @@ class BarbershopDetailPage extends StatelessWidget {
     required this.status,
     required this.barbershopName,
     required this.recipientEmail,
+    required this.barbershop,
   });
 
   @override
@@ -41,19 +44,12 @@ class BarbershopDetailPage extends StatelessWidget {
               Row(
                 children: [
                   Obx(() {
-                    final barbershop = controller.barbershops
-                        .firstWhereOrNull((b) => b.id == barbershopId);
-                    final profileImageUrl =
-                        barbershop?.barbershopProfileImage ?? '';
-
                     // Debug print
                     // print('Profile Image URL: $profileImageUrl');
 
                     return CircleAvatar(
-                      backgroundImage: profileImageUrl.isNotEmpty
-                          ? NetworkImage(profileImageUrl)
-                          : const AssetImage(
-                              'assets/images/prof.jpg'), // Fallback image
+                      backgroundImage: NetworkImage(
+                          barbershop.profileImage), // Fallback image
                       radius: 50.0,
                     );
                   }),
@@ -113,14 +109,6 @@ class BarbershopDetailPage extends StatelessWidget {
 
               // ListTile for each document type based on available documents
               Obx(() {
-                if (controller.documents.isEmpty) {
-                  return const Center(
-                      child: CircularProgressIndicator()); // Loading indicator
-                }
-
-                // print(
-                //     'Documents in Obx: ${controller.documents.toString()}'); // Debug print
-
                 return Column(
                   children: controller.documents.keys.map((documentId) {
                     final documentUrl = controller.documents[documentId];

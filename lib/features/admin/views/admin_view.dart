@@ -1,3 +1,4 @@
+import 'package:barbermate/features/admin/views/widgets/appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/admin_controller.dart';
@@ -10,13 +11,16 @@ class AdminPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(AdminController());
+    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
-      appBar: AdminAppDrawer(
+      key: scaffoldKey,
+      appBar: AdminAppBar(
         title: Text(
-          'Admin Panel',
+          '',
           style: Theme.of(context).textTheme.headlineSmall,
         ),
+        scaffoldKey: scaffoldKey,
       ),
       drawer: const AdminDrawer(),
       body: DefaultTabController(
@@ -62,10 +66,8 @@ class AdminPanel extends StatelessWidget {
 
           return ListTile(
             leading: CircleAvatar(
-              backgroundImage: barbershop.barbershopProfileImage.isNotEmpty
-                  ? NetworkImage(barbershop.barbershopProfileImage)
-                  : const AssetImage(
-                      'assets/images/prof.jpg'), // Assuming `profileImageUrl` is a field in `BarbershopModel`
+              backgroundImage: NetworkImage(barbershop
+                  .profileImage), // Assuming `profileImageUrl` is a field in `BarbershopModel`
               radius: 30.0,
             ),
             title: Text(barbershop.barbershopName),
@@ -76,6 +78,7 @@ class AdminPanel extends StatelessWidget {
                     status: status,
                     barbershopName: barbershop.barbershopName,
                     recipientEmail: barbershop.email,
+                    barbershop: barbershop,
                   ));
             },
           );

@@ -188,7 +188,7 @@ class HaircutController extends GetxController {
       isLoading(true);
       haircuts.value = await _haircutRepository.fetchHaircuts();
     } catch (e) {
-      ToastNotif(message: 'Error Fetching Haircuts', title: 'Error')
+      ToastNotif(message: 'BAng Fetchinggg Haircuts $e', title: 'Error')
           .showErrorNotif(Get.context!);
     } finally {
       isLoading(false);

@@ -1,17 +1,17 @@
 import 'package:barbermate/data/models/booking_model/booking_model.dart';
-import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
+import 'package:barbermate/features/barbershop/controllers/booking_controller/booking_controller.dart';
 import 'package:barbermate/utils/constants/format_date.dart';
 import 'package:barbermate/utils/popups/confirm_cancel_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
 
-class AppointmentCardCustomers extends StatelessWidget {
+class AppointmentCard extends StatelessWidget {
   final String title;
   final String message;
   final BookingModel booking;
 
-  const AppointmentCardCustomers({
+  const AppointmentCard({
     super.key,
     required this.title,
     required this.message,
@@ -20,7 +20,7 @@ class AppointmentCardCustomers extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(CustomerBookingController());
+    final controller = Get.put(BarbershopBookingController());
     final formatterController = Get.put(BFormatter());
 
     return Card(
@@ -75,21 +75,40 @@ class AppointmentCardCustomers extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Expanded(
-                  child: OutlinedButton(
+                  child: ElevatedButton(
                     onPressed: () {
                       ConfirmCancelPopUp.showDialog(
                         context: context,
-                        title: 'Cancel Appointment',
-                        description: 'Do you want to cancel this appointment?',
+                        title: 'Confirm Booking',
+                        description: 'Do you want to confirm this request?',
                         textConfirm: 'Confirm',
                         textCancel: 'Cancel',
                         onConfirm: () async {
-                          controller.cancelBooking(booking);
+                          controller.acceptBooking(booking);
                           Get.back();
                         },
                       );
                     },
-                    child: const Text('Cancel'),
+                    child: const Text('Confirm'),
+                  ),
+                ),
+                const SizedBox(width: 5),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      ConfirmCancelPopUp.showDialog(
+                        context: context,
+                        title: 'Decline Booking',
+                        description: 'Do you want to decline this request?',
+                        textConfirm: 'Confirm',
+                        textCancel: 'Cancel',
+                        onConfirm: () async {
+                          controller.rejectBooking(booking);
+                          Get.back();
+                        },
+                      );
+                    },
+                    child: const Text('Decline'),
                   ),
                 ),
               ],
@@ -101,12 +120,12 @@ class AppointmentCardCustomers extends StatelessWidget {
   }
 }
 
-class AppointmentConfirmedCardCustomers extends StatelessWidget {
+class AppointmentConfirmedCard extends StatelessWidget {
   final String title;
   final String message;
   final BookingModel booking;
 
-  const AppointmentConfirmedCardCustomers({
+  const AppointmentConfirmedCard({
     super.key,
     required this.title,
     required this.message,
@@ -115,7 +134,7 @@ class AppointmentConfirmedCardCustomers extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(CustomerBookingController());
+    final controller = Get.put(BarbershopBookingController());
     final formatterController = Get.put(BFormatter());
 
     return Card(
@@ -170,6 +189,26 @@ class AppointmentConfirmedCardCustomers extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      ConfirmCancelPopUp.showDialog(
+                        context: context,
+                        title: 'Appointment Complete',
+                        description:
+                            'Do you want manually complete this appoiment?',
+                        textConfirm: 'Confirm',
+                        textCancel: 'Cancel',
+                        onConfirm: () async {
+                          controller.markAsDone(booking);
+                          Get.back();
+                        },
+                      );
+                    },
+                    child: const Text('Complete'),
+                  ),
+                ),
+                const SizedBox(width: 5),
+                Expanded(
                   child: OutlinedButton(
                     onPressed: () {
                       ConfirmCancelPopUp.showDialog(
@@ -179,7 +218,8 @@ class AppointmentConfirmedCardCustomers extends StatelessWidget {
                         textConfirm: 'Confirm',
                         textCancel: 'Cancel',
                         onConfirm: () async {
-                          controller.cancelBooking(booking);
+                          controller.cancelBookingForBarbershop(
+                              booking, booking.customerId);
                           Get.back();
                         },
                       );
@@ -196,12 +236,12 @@ class AppointmentConfirmedCardCustomers extends StatelessWidget {
   }
 }
 
-class AppointmentDoneCardCustomers extends StatelessWidget {
+class AppointmentDoneCard extends StatelessWidget {
   final String title;
   final String message;
   final BookingModel booking;
 
-  const AppointmentDoneCardCustomers({
+  const AppointmentDoneCard({
     super.key,
     required this.title,
     required this.message,
@@ -213,8 +253,8 @@ class AppointmentDoneCardCustomers extends StatelessWidget {
     final formatterController = Get.put(BFormatter());
 
     return Card(
-      elevation: 1,
-      color: Colors.white,
+      elevation: 0,
+      color: Colors.grey.shade300,
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -269,18 +309,21 @@ class AppointmentDoneCardCustomers extends StatelessWidget {
   }
 }
 
+// Helper to map status to colors
 Color _getStatusColor(String status) {
-  switch (status.toLowerCase()) {
-    case 'done':
-      return Colors.green;
-    case 'declined':
-      return Colors.red;
+  switch (status) {
     case 'pending':
       return Colors.orange;
+    case 'confirmed':
+      return Colors.blue;
+    case 'done':
+      return Colors.green;
     case 'canceled':
       return Colors.red;
+    case 'declined':
+      return Colors.red;
     default:
-      return Colors.grey.shade400;
+      return Colors.grey;
   }
 }
 

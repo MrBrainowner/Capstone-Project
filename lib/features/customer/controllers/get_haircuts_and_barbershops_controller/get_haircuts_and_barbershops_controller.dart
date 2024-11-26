@@ -1,4 +1,5 @@
 import 'package:barbermate/data/repository/barbershop_repo/barbershop_repo.dart';
+import 'package:barbermate/features/customer/controllers/review_controller/review_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -23,6 +24,7 @@ class GetHaircutsAndBarbershopsController extends GetxController {
   RxList<HaircutModel> barbershopHaircuts = <HaircutModel>[].obs;
   RxList<BarbershopModel> barbershops = <BarbershopModel>[].obs;
   Rx<AvailableDaysModel?> availableDays = Rx<AvailableDaysModel?>(null);
+  final controller = Get.put(ReviewControllerCustomer());
 
   var isLoading = true.obs;
   var error = ''.obs;
@@ -32,6 +34,7 @@ class GetHaircutsAndBarbershopsController extends GetxController {
   void onInit() async {
     super.onInit();
     await fetchAllBarbershops();
+    await controller.fetchReviews();
   }
 
   Future<void> refreshData() async {

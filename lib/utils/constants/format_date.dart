@@ -9,6 +9,10 @@ class BFormatter extends GetxController {
     return DateFormat('MMMM dd, yyyy').format(date);
   }
 
+  DateTime parseDate(String dateString) {
+    return DateFormat('MMMM dd, yyyy').parse(dateString);
+  }
+
   String formatTimestamp(Timestamp timestamp) {
     // Convert Firebase Timestamp to DateTime
     DateTime dateTime = timestamp.toDate();

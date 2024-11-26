@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:barbermate/features/auth/models/barbershop_model.dart';
 import 'package:barbermate/features/barbershop/controllers/booking_controller/booking_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/notification_controller/notification_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../common/widgets/toast.dart';
 import '../../../../data/repository/barbershop_repo/barbershop_repo.dart';
@@ -18,12 +22,47 @@ class BarbershopController extends GetxController {
   final notifs = Get.put(BarbershopNotificationController());
   final bookings = Get.put(BarbershopBookingController());
 
+  final firstName = TextEditingController();
+  final lastName = TextEditingController();
+
+  RxString profileImageUrl = ''.obs;
+  final ImagePicker _picker = ImagePicker();
+
   @override
   void onInit() async {
     super.onInit();
     fetchBarbershopData();
     await notifs.fetchNotifications();
     await bookings.fetchBookings();
+  }
+
+  Future<void> uploadProfileImage() async {
+    try {
+      // Pick an image from the gallery
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile == null) return;
+
+      final file = File(pickedFile.path);
+
+      // Upload the image to Firebase Storage
+      final downloadUrl = await barbershopRepository.uploadImageToStorage(
+          barbershop.value.id, file);
+
+      if (downloadUrl != null) {
+        // Update Firestore with the image URL
+        await barbershopRepository.updateProfileImageInFirestore(
+            barbershop.value.id, downloadUrl);
+
+        // Update the local state
+        profileImageUrl.value = downloadUrl;
+        ToastNotif(
+                message: 'Profile image updated successfully', title: 'Success')
+            .showSuccessNotif(Get.context!);
+      }
+    } catch (e) {
+      ToastNotif(message: 'Failed to upload profile image', title: 'Error')
+          .showSuccessNotif(Get.context!);
+    }
   }
 
   // Fetch Barbershop Data
@@ -41,11 +80,8 @@ class BarbershopController extends GetxController {
 
   // Save Barbershop data from any registration provider
   Future<void> saveBarbershopData({
-    String? firstName,
-    String? lastName,
-    String? email,
-    String? phoneNo,
-    String? profileImage,
+    String? firstNamee,
+    String? lastNamee,
   }) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -60,19 +96,19 @@ class BarbershopController extends GetxController {
 
         // Create an updated model only with the fields you want to change
         final updatedBarbershop = existingData.copyWith(
-          firstName: firstName ?? existingData.firstName,
-          lastName: lastName ?? existingData.lastName,
-          email: email ?? existingData.email,
-          phoneNo: phoneNo ?? existingData.phoneNo,
+          firstName: firstNamee ?? existingData.firstName,
+          lastName: lastNamee ?? existingData.lastName,
         );
 
         // Update the barbershop data in Firestore
         await barbershopRepository.updateBarbershopData(updatedBarbershop);
+        await fetchBarbershopData();
+        ToastNotif(message: 'Update Successful', title: 'Success')
+            .showSuccessNotif(Get.context!);
       }
     } catch (e) {
       ToastNotif(
-              message:
-                  'Someting went wrong while saving your information. You can re-save your data in your profile.',
+              message: 'Someting went wrong while saving your information. $e.',
               title: 'Data not saved')
           .showWarningNotif(Get.context!);
     }

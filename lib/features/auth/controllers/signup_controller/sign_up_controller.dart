@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../../common/widgets/toast.dart';
 import '../../../../data/repository/auth_repo/auth_repo.dart';
-import '../../../../data/repository/customer_repos/customer_repo.dart';
+import '../../../../data/repository/customer_repo/customer_repo.dart';
 import '../../../../utils/popups/full_screen_loader.dart';
 import '../../models/customer_model.dart';
 import '../../views/email_verification/email_verification.dart';
@@ -58,7 +58,7 @@ class SignUpController extends GetxController {
         lastName: lastName.text.trim(),
         email: email.text.trim(),
         profileImage: '',
-        phoneNo: '',
+        phoneNo: phone.text.trim(),
         role: 'customer',
         createdAt: DateTime.now(),
       );

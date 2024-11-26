@@ -14,6 +14,7 @@ class TimeSlotController extends GetxController {
 
   //variables
   var isLoading = false.obs;
+  var number = 1.obs;
 
   //================================================== time slots
 
@@ -189,6 +190,27 @@ class TimeSlotController extends GetxController {
   }
 
   //============================================================================ Time Slots
+
+  void increment() {
+    if (number.value < 10) {
+      // Ensure it doesn't go beyond 10
+      number.value++;
+    } else {
+      ToastNotif(
+              message: 'You hit the max number of this timeslot.',
+              title: 'Oh snap!')
+          .showErrorNotif(Get.context!);
+    }
+  }
+
+  void decrement() {
+    if (number.value > 1) {
+      number.value--;
+    } else {
+      ToastNotif(message: "You can't get lower than 1.", title: 'Oh snap!')
+          .showErrorNotif(Get.context!);
+    }
+  }
 
   bool isTimeSlotConflict(TimeOfDay startTime, TimeOfDay endTime) {
     for (var timeSlot in timeSlots) {

@@ -9,6 +9,7 @@ class BarbershopModel {
   String phoneNo;
   final String barbershopName;
   String barbershopProfileImage;
+  String profileImage;
   String barbershopBannerImage;
   final String role;
   String status;
@@ -30,6 +31,7 @@ class BarbershopModel {
     required this.phoneNo,
     required this.barbershopName,
     required this.barbershopProfileImage,
+    required this.profileImage,
     required this.barbershopBannerImage,
     required this.role,
     required this.status,
@@ -41,7 +43,7 @@ class BarbershopModel {
     required this.postal,
     required this.streetAddress,
     required this.floorNumber,
-    this.openHours, // Optional field for open hours as a string
+    this.openHours,
   });
 
   static BarbershopModel empty() {
@@ -64,7 +66,7 @@ class BarbershopModel {
       postal: 0,
       streetAddress: '',
       floorNumber: '',
-      openHours: null, // Default to null
+      openHours: null, profileImage: '', // Default to null
     );
   }
 
@@ -76,6 +78,7 @@ class BarbershopModel {
       'email': email,
       'phone_no': phoneNo,
       'barbershop_name': barbershopName,
+      'profile_image': profileImage,
       'barbershop_profile_image': barbershopProfileImage,
       'barbershop_banner_image': barbershopBannerImage,
       'role': role,
@@ -102,6 +105,7 @@ class BarbershopModel {
       email: data['email'] ?? '',
       phoneNo: data['phone_no'] ?? '',
       barbershopName: data['barbershop_name'] ?? '',
+      profileImage: data['profile_image'] ?? '',
       barbershopProfileImage: data['barbershop_profile_image'] ?? '',
       barbershopBannerImage: data['barbershop_banner_image'] ?? '',
       role: data['role'] ?? '',
@@ -127,6 +131,7 @@ class BarbershopModel {
     String? email,
     String? phoneNo,
     String? barbershopName,
+    String? profileImage,
     String? barbershopProfileImage,
     String? barbershopBannerImage,
     String? role,
@@ -147,6 +152,7 @@ class BarbershopModel {
       lastName: lastName ?? this.lastName,
       email: email ?? this.email,
       phoneNo: phoneNo ?? this.phoneNo,
+      profileImage: phoneNo ?? this.profileImage,
       barbershopName: barbershopName ?? this.barbershopName,
       barbershopProfileImage:
           barbershopProfileImage ?? this.barbershopProfileImage,

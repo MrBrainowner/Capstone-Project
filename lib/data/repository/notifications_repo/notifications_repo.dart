@@ -1,3 +1,4 @@
+import 'package:barbermate/data/models/booking_model/booking_model.dart';
 import 'package:barbermate/data/repository/auth_repo/auth_repo.dart';
 import 'package:barbermate/features/auth/models/barbershop_model.dart';
 import 'package:barbermate/features/auth/models/customer_model.dart';
@@ -23,14 +24,15 @@ class NotificationsRepo extends GetxController {
       // Notification for Barbershop: New appointment (Accept/Reject)
       final barbershopNotification = NotificationModel(
         bookingId: bookingId,
-        type: 'customer_appointment',
-        title: 'New Appointment Request',
+        type: 'booking',
+        title: 'New Appointment',
         message:
             'You have a new appointment request from ${customer.firstName} ${customer.lastName}. Please accept or reject.',
         status: 'notRead',
         createdAt: DateTime.now(),
         customerId: customer.id,
         id: '',
+        barbershopId: barbershop.id,
       );
       final notifDoc = await _db
           .collection('Barbershops')
@@ -48,10 +50,11 @@ class NotificationsRepo extends GetxController {
         title: 'You just made an appoiment',
         message:
             'Your appointment with ${barbershop.barbershopName} is pending.',
-        status: 'pending',
+        status: 'notRead',
         createdAt: DateTime.now(),
         customerId: customer.id,
         id: '',
+        barbershopId: barbershop.id,
       );
       final docRef = await _db
           .collection('Customers')
@@ -63,6 +66,141 @@ class NotificationsRepo extends GetxController {
       await docRef.update({'id': docId});
     } catch (e) {
       throw Exception("Failed to send notifications: $e");
+    }
+  }
+
+  Future<void> updateNotifAsRead(NotificationModel notif) async {
+    try {
+      await _db
+          .collection('Barbershops')
+          .doc(userId)
+          .collection('Notifications')
+          .doc(notif.id)
+          .update({'status': 'read'});
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      throw BPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Something went wrong. Please try again';
+    }
+  }
+
+  Future<void> updateNotifAsReadCustomer(NotificationModel notif) async {
+    try {
+      await _db
+          .collection('Customers')
+          .doc(userId)
+          .collection('Notifications')
+          .doc(notif.id)
+          .update({'status': 'read'});
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      throw BPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Something went wrong. Please try again';
+    }
+  }
+
+  Future<void> updateNotifAsReadCustomers(NotificationModel notif) async {
+    try {
+      await _db
+          .collection('Customers')
+          .doc(userId)
+          .collection('Notifications')
+          .doc(notif.id)
+          .update({'status': 'read'});
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      throw BPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Something went wrong. Please try again';
+    }
+  }
+
+  Future<void> sendNotifWhenBookingUpdated(
+    BookingModel booking,
+    String type,
+    String title,
+    String message,
+    String status,
+  ) async {
+    try {
+      final customerNotification = NotificationModel(
+        bookingId: booking.id,
+        type: type,
+        title: title,
+        message: message,
+        status: status,
+        createdAt: DateTime.now(),
+        customerId: booking.customerId,
+        id: '',
+        barbershopId: booking.barberShopId,
+      );
+
+      final docRef = await _db
+          .collection('Customers')
+          .doc(booking.customerId)
+          .collection('Notifications')
+          .add(customerNotification.toJson());
+      final docId = docRef.id;
+
+      await docRef.update({'id': docId});
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      throw BPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Something went wrong. Please try again';
+    }
+  }
+
+  Future<void> sendNotifWhenBookingUpdatedCustomers(
+    BookingModel booking,
+    String type,
+    String title,
+    String message,
+    String status,
+  ) async {
+    try {
+      final barbershopNotification = NotificationModel(
+        bookingId: booking.id,
+        type: type,
+        title: title,
+        message: message,
+        status: status,
+        createdAt: DateTime.now(),
+        customerId: booking.customerId,
+        id: '',
+        barbershopId: booking.barberShopId,
+      );
+
+      final docRef = await _db
+          .collection('Barbershops')
+          .doc(booking.barberShopId)
+          .collection('Notifications')
+          .add(barbershopNotification.toJson());
+      final docId = docRef.id;
+
+      await docRef.update({'id': docId});
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      throw BPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Something went wrong. Please try again';
     }
   }
 
