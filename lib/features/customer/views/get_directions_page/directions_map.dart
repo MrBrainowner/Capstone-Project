@@ -73,9 +73,12 @@ class MapWidget extends StatelessWidget {
             height: 30,
           ),
         ),
-      ...controller.barbershopsInfo.asMap().entries.map((entry) {
+      ...controller.barbershopsController.barbershops
+          .asMap()
+          .entries
+          .map((entry) {
         final index = entry.key;
-        final barbershop = controller.barbershopsInfo[index];
+        final barbershop = controller.barbershopsController.barbershops[index];
         final location = LatLng(barbershop.latitude, barbershop.longitude);
         final logoUrl = barbershop.barbershopProfileImage;
 

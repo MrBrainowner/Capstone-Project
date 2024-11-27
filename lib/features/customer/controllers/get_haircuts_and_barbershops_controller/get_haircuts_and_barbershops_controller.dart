@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:barbermate/data/repository/barbershop_repo/barbershop_repo.dart';
 import 'package:barbermate/features/customer/controllers/review_controller/review_controller.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +9,6 @@ import '../../../../data/models/available_days/available_days.dart';
 import '../../../../data/models/haircut_model/haircut_model.dart';
 import '../../../../common/widgets/toast.dart';
 import '../../../../data/models/timeslot_model/timeslot_model.dart';
-import '../../../../data/repository/barbershop_repo/haircut_repository.dart';
 import '../../../../data/repository/barbershop_repo/timeslot_repository.dart';
 import '../../../auth/models/barbershop_model.dart';
 // Import your HaircutModel
@@ -15,8 +16,8 @@ import '../../../auth/models/barbershop_model.dart';
 class GetHaircutsAndBarbershopsController extends GetxController {
   static GetHaircutsAndBarbershopsController get instace => Get.find();
 
-  final HaircutRepository _haircutRepository = HaircutRepository();
-  final BarbershopRepository _barbershopRepository = BarbershopRepository();
+  final BarbershopRepository _barbershopRepository =
+      Get.put(BarbershopRepository());
   final TimeslotRepository _timeslotsRepository = Get.put(TimeslotRepository());
 
   RxList<HaircutModel> haircuts = <HaircutModel>[].obs;
@@ -24,22 +25,25 @@ class GetHaircutsAndBarbershopsController extends GetxController {
   RxList<HaircutModel> barbershopHaircuts = <HaircutModel>[].obs;
   RxList<BarbershopModel> barbershops = <BarbershopModel>[].obs;
   Rx<AvailableDaysModel?> availableDays = Rx<AvailableDaysModel?>(null);
-  final controller = Get.put(ReviewControllerCustomer());
+
+  final ReviewControllerCustomer controller = Get.find();
+
+  StreamSubscription? _reviewsStreamSubscription;
+  StreamSubscription? _reviewsStreamSubscription2;
+  StreamSubscription? _reviewsStreamSubscription3;
+  StreamSubscription? _reviewsStreamSubscription4;
 
   var isLoading = true.obs;
   var error = ''.obs;
   RxBool isOpenNow = false.obs;
 
   @override
-  void onInit() async {
+  void onInit() {
     super.onInit();
-    await fetchAllBarbershops();
-    await controller.fetchReviews();
+    listenToBarbershopsStream(); // Start listening when the controller is initialized
   }
 
-  Future<void> refreshData() async {
-    await fetchAllBarbershops();
-  }
+  Future<void> refreshData() async {}
 
 //======================================================================== open hours logic
 
@@ -81,79 +85,110 @@ class GetHaircutsAndBarbershopsController extends GetxController {
   }
 
 //======================================================================== fetch haircuts
-  Future<void> fetchHaircuts() async {
-    try {
-      isLoading(true);
-      haircuts.value = await _haircutRepository.fetchHaircuts();
-    } catch (e) {
-      ToastNotif(message: 'Error Fetching Haircuts', title: 'Error')
-          .showErrorNotif(Get.context!);
-    } finally {
-      isLoading(false);
-    }
-  }
 
 //======================================================================== fetch barbershop
 
-// Fetch all barbershops and update the state
-  Future<void> fetchAllBarbershops() async {
-    isLoading.value = true;
-    try {
-      // Fetch data from the repository
+  // Listen to the stream for new barbershops
+  void listenToBarbershopsStream() {
+    isLoading(true); // Set loading to true while the first fetch occurs
+    _barbershopRepository.fetchAllBarbershops().listen(
+      (newBarbershops) {
+        // Update the list of barbershops
+        barbershops.assignAll(newBarbershops);
 
-      barbershops.value = await _barbershopRepository.fetchAllBarbershops();
-    } catch (e) {
-      // Handle and display error
-      ToastNotif(message: 'Error fetching barbershops', title: 'Error')
-          .showErrorNotif(Get.context!);
-    } finally {
-      isLoading.value = false;
-    }
+        // Once the first data comes in, stop loading
+        if (isLoading.value) {
+          isLoading(false);
+        }
+      },
+      onError: (error) {
+        // Handle error if any occurs in the stream
+        ToastNotif(
+                message: 'Error fetching barbershops: $error', title: 'Error')
+            .showErrorNotif(Get.context!);
+
+        // Stop loading in case of error
+        isLoading(false);
+      },
+    );
   }
 
-  // Fetch all barbershop haircuts
-  Future<void> fetchAllBarbershoHaircuts(String barbershopId) async {
-    isLoading.value = true;
-    try {
-      // fetch data from the repo
+  /// Listen to the stream for haircuts in a specific barbershop
+  void listenToHaircutsStream(String barbershopId) {
+    isLoading(true); // Set loading to true while fetching
+    _barbershopRepository.fetchBarbershopHaircuts(barbershopId).listen(
+      (newHaircuts) {
+        // Update the list of haircuts
+        barbershopHaircuts.assignAll(newHaircuts);
+        // Once the first data comes in, stop loading
+        if (isLoading.value) {
+          isLoading(false);
+        }
 
-      barbershopHaircuts.value =
-          await _barbershopRepository.fetchBarbershopHaircuts(barbershopId);
-    } catch (e) {
-      // Handle and display error
-      ToastNotif(message: 'Error fetching barbershops', title: 'Error')
-          .showErrorNotif(Get.context!);
-    } finally {
-      isLoading.value = false;
-    }
+        listenToBarbershopStreams(barbershopId);
+      },
+      onError: (error) {
+        // Handle error if any occurs in the stream
+        ToastNotif(message: 'Error fetching haircuts: $error', title: 'Error')
+            .showErrorNotif(Get.context!);
+      },
+      onDone: () {
+        isLoading(false); // Stop loading when the stream is done
+      },
+    );
   }
 
   //======================================================================== timeslots
 
-  Future<void> fetchBarbershopTimeSlots(String barbershopID) async {
+  void listenToBarbershopTimeSlotsStream(String barbershopId) {
     isLoading.value = true;
-    try {
-      timeSlots.value =
-          await _timeslotsRepository.fetchBarbershopTimeSlots(barbershopID);
-    } catch (e) {
-      ToastNotif(message: 'Error Fetching TimeSlots', title: 'Error')
-          .showErrorNotif(Get.context!);
-    } finally {
-      isLoading.value = false;
-    }
+    _timeslotsRepository.fetchBarbershopTimeSlotsStream(barbershopId).listen(
+      (newTimeSlots) {
+        // Update the timeSlots list with new data
+        timeSlots.assignAll(newTimeSlots);
+        // Once the first data comes in, stop loading
+        if (isLoading.value) {
+          isLoading(false);
+        }
+      },
+      onError: (error) {
+        // Handle error in the stream
+        ToastNotif(message: 'Error fetching TimeSlots: $error', title: 'Error')
+            .showErrorNotif(Get.context!);
+      },
+      onDone: () {
+        isLoading.value = false; // Stop loading when the stream is done
+      },
+    );
+  }
+
+  void listenToBarbershopStreams(String shopId) {
+    listenToBarbershopTimeSlotsStream(shopId);
+    listenToBarbershopAvailableDaysStream(shopId);
   }
 
   //======================================================================== available days
   // Fetch available days for the barbershop
-  Future<void> fetchBarbershopAvailableDays(String barbershopId) async {
-    try {
-      final data =
-          await _timeslotsRepository.getBarbershopAvailableDays(barbershopId);
-      availableDays.value = data;
-      getNextAvailableDate(); // Store the fetched data
-    } catch (e) {
-      throw ("Error fetching available days: $e");
-    }
+  void listenToBarbershopAvailableDaysStream(String barbershopId) {
+    _timeslotsRepository
+        .getAvailableDaysWhenCustomerIsCurrentUserStream(barbershopId)
+        .listen(
+      (data) {
+        availableDays.value = data;
+        getNextAvailableDate(); // Store the fetched data
+        // Once the first data comes in, stop loading
+        if (isLoading.value) {
+          isLoading(false);
+        }
+      },
+      onError: (error) {
+        // Handle error in the stream
+        ToastNotif(
+                message: 'Error fetching available days: $error',
+                title: 'Error')
+            .showErrorNotif(Get.context!);
+      },
+    );
   }
 
   String formatDate(DateTime date) {
@@ -169,4 +204,14 @@ class GetHaircutsAndBarbershopsController extends GetxController {
   }
 
   var disabledDaysOfWeek = [6, 1, 7];
+
+  @override
+  void onClose() {
+    // Cancel the stream subscription to prevent memory leaks
+    _reviewsStreamSubscription?.cancel();
+    _reviewsStreamSubscription2?.cancel();
+    _reviewsStreamSubscription3?.cancel();
+    _reviewsStreamSubscription4?.cancel();
+    super.onClose();
+  }
 }

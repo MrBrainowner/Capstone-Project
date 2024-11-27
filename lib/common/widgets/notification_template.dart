@@ -59,7 +59,7 @@ class AppointmentReviewNotification extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(ReviewControllerCustomer());
+    final ReviewControllerCustomer controller = Get.find();
 
     return NotificationCard(
       title: title,
@@ -71,7 +71,7 @@ class AppointmentReviewNotification extends StatelessWidget {
           Expanded(
             child: ElevatedButton(
               onPressed: () async {
-                await controller.fetchReviews();
+                controller.listenToReviewsStream(barbershopId);
                 Get.to(() => CustomerReviewsPage(barbershopId: barbershopId));
               },
               child: const Text('Write Review'),

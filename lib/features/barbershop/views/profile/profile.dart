@@ -3,6 +3,7 @@ import 'package:barbermate/features/barbershop/controllers/haircuts_controller/h
 import 'package:barbermate/features/barbershop/controllers/review_controller/review_controller.dart';
 import 'package:barbermate/features/barbershop/views/reviews/reviews.dart';
 import 'package:barbermate/features/barbershop/views/widgets/management/haircut_card.dart';
+import 'package:barbermate/utils/constants/format_date.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
@@ -15,6 +16,7 @@ class BarbershopProfile extends StatelessWidget {
     final controller = Get.put(BarbershopController());
     final haircut = Get.put(HaircutController());
     final reviewsController = Get.put(ReviewController());
+    final formatter = Get.put(BFormatter());
 
     return Scaffold(
       appBar: AppBar(
@@ -51,12 +53,29 @@ class BarbershopProfile extends StatelessWidget {
                       ),
                       const SizedBox(height: 8.0),
                       Text(
-                        controller.barbershop.value.address,
+                        'Address: ${controller.barbershop.value.streetAddress}',
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const SizedBox(height: 8.0),
                       Text(
-                        controller.barbershop.value.phoneNo,
+                        'Phone Number: ${controller.barbershop.value.phoneNo}',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 8.0),
+                      Text(
+                        'Land Mark: ${controller.barbershop.value.landMark}',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 8.0),
+                      Text(
+                        'Email: ${controller.barbershop.value.email}',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 8.0),
+                      Text(
+                        controller.barbershop.value.floorNumber.isEmpty
+                            ? 'Floor Number: None'
+                            : 'Floor Number: ${controller.barbershop.value.floorNumber}',
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const SizedBox(height: 8.0),

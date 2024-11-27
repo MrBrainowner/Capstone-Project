@@ -1,3 +1,4 @@
+import 'package:barbermate/routes/app_pages.dart';
 import 'package:barbermate/utils/popups/animation_loader.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +43,7 @@ class MyApp extends StatelessWidget {
         theme: BarbermateTheme.lightTheme,
         darkTheme: BarbermateTheme.darktTheme,
         initialBinding: GeneralBindings(),
+        smartManagement: SmartManagement.full,
         home: Scaffold(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: const Center(

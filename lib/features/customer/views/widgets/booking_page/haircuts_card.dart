@@ -14,7 +14,7 @@ class HaircutsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(CustomerBookingController());
+    final CustomerBookingController controller = Get.find();
 
     return Obx(() {
       // Check if the haircut is selected

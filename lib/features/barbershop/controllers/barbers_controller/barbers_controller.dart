@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -53,9 +52,9 @@ class BarberController extends GetxController {
   );
 
   @override
-  void onInit() async {
+  void onInit() {
     super.onInit();
-    fetchBarbers();
+    listenToBarbersStream(); // Start listening when the controller is initialized
   }
 
   //================================= selecting time
@@ -166,23 +165,30 @@ class BarberController extends GetxController {
         ToastNotif(message: 'Error adding barbers', title: 'Error')
             .showErrorNotif(Get.context!);
       } finally {
-        fetchBarbers();
         FullScreenLoader.stopLoading();
       }
     }
   }
 
   //==================================================================== fetching barbers
-  Future<void> fetchBarbers() async {
-    try {
-      isLoading(true);
-      barbers.value = await _barberRepository.fetchBarbers();
-    } catch (e) {
-      ToastNotif(message: 'Error Fetching Barbers', title: 'Error')
-          .showErrorNotif(Get.context!);
-    } finally {
-      isLoading(false);
-    }
+  // Listen to the stream for new barbers
+  void listenToBarbersStream() {
+    isLoading(true); // Set loading to true while fetching
+    _barberRepository.fetchBarbers().listen(
+      (newBarbers) {
+        // Update the list of barbers
+        barbers.assignAll(newBarbers);
+        isLoading(false);
+      },
+      onError: (error) {
+        // Handle error if any occurs in the stream
+        ToastNotif(message: 'Error fetching barbers: $error', title: 'Error')
+            .showErrorNotif(Get.context!);
+      },
+      onDone: () {
+        isLoading(false); // Stop loading when the stream is done
+      },
+    );
   }
 
   //===================================================================== saving schedules
@@ -249,7 +255,6 @@ class BarberController extends GetxController {
         ToastNotif(message: 'Error updating barber', title: 'Error')
             .showErrorNotif(Get.context!);
       } finally {
-        fetchBarbers();
         FullScreenLoader.stopLoading();
       }
     }
@@ -269,7 +274,6 @@ class BarberController extends GetxController {
       ToastNotif(message: 'Error deleting barber', title: 'Error')
           .showErrorNotif(Get.context!);
     } finally {
-      fetchBarbers();
       FullScreenLoader.stopLoading();
     }
   }

@@ -10,7 +10,7 @@ class CustomerAccount extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final customerController = Get.put(CustomerController());
+    final CustomerController customerController = Get.find();
 
     return Scaffold(
       appBar: AppBar(

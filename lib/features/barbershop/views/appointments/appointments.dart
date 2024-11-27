@@ -8,7 +8,7 @@ class BarbershopAppointments extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(BarbershopBookingController());
+    final BarbershopBookingController controller = Get.find();
     // Fetch appointments when the UI is built
 
     return DefaultTabController(
@@ -36,9 +36,7 @@ class BarbershopAppointments extends StatelessWidget {
             // Tab for "Pending" bookings
             RefreshIndicator(
               triggerMode: RefreshIndicatorTriggerMode.anywhere,
-              onRefresh: () async {
-                await controller.fetchBookings();
-              },
+              onRefresh: () async {},
               child: Obx(() {
                 return ListView.builder(
                   padding: const EdgeInsets.all(20),
@@ -59,9 +57,7 @@ class BarbershopAppointments extends StatelessWidget {
             // Tab for "Confirmed" bookings
             RefreshIndicator(
               triggerMode: RefreshIndicatorTriggerMode.anywhere,
-              onRefresh: () async {
-                await controller.fetchBookings();
-              },
+              onRefresh: () async {},
               child: Obx(() {
                 return ListView.builder(
                   padding: const EdgeInsets.all(20),
@@ -82,9 +78,7 @@ class BarbershopAppointments extends StatelessWidget {
             // Tab for "Done" bookings
             RefreshIndicator(
               triggerMode: RefreshIndicatorTriggerMode.anywhere,
-              onRefresh: () async {
-                await controller.fetchBookings();
-              },
+              onRefresh: () async {},
               child: Obx(() {
                 return ListView.builder(
                   padding: const EdgeInsets.all(20),

@@ -1,3 +1,4 @@
+import 'package:barbermate/common/widgets/toast.dart';
 import 'package:barbermate/features/barbershop/controllers/notification_controller/notification_controller.dart';
 import 'package:barbermate/common/widgets/notifications_case.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,20 @@ class BarbershopNotifications extends StatelessWidget {
       body: RefreshIndicator(
         triggerMode: RefreshIndicatorTriggerMode.anywhere,
         onRefresh: () async {
-          await controller.fetchNotifications();
+          try {
+            // Optionally rebind the stream to ensure it's still active
+            Get.find<BarbershopNotificationController>()
+                .bindNotificationsStream();
+
+            // Show a toast or log for user feedback if needed
+            // print("Stream reinitialized for notifications.");
+          } catch (e) {
+            // Handle any potential errors during refresh
+            ToastNotif(
+              message: 'Error refreshing notifications',
+              title: 'Error',
+            ).showErrorNotif(Get.context!);
+          }
         },
         child: Obx(() {
           // Sort notifications by creation date in descending order

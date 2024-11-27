@@ -8,7 +8,7 @@ class CustomerNotifications extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(CustomerNotificationController());
+    final CustomerNotificationController controller = Get.find();
 
     return Scaffold(
       appBar: AppBar(
@@ -17,7 +17,7 @@ class CustomerNotifications extends StatelessWidget {
       ),
       body: RefreshIndicator(
         triggerMode: RefreshIndicatorTriggerMode.anywhere,
-        onRefresh: () => controller.fetchNotifications(),
+        onRefresh: () async {},
         child: Obx(() {
           // Sort notifications by creation date in descending order
           final sortedNotifications = controller.notifications.toList()

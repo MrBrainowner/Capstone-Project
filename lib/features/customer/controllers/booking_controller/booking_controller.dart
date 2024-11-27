@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:barbermate/common/widgets/toast.dart';
 import 'package:barbermate/data/models/timeslot_model/timeslot_model.dart';
 import 'package:barbermate/data/repository/auth_repo/auth_repo.dart';
@@ -16,11 +18,14 @@ class CustomerBookingController extends GetxController {
   static CustomerBookingController get instance => Get.find();
 
   final _repo = Get.put(BookingRepo());
-  final notifs = Get.put(CustomerNotificationController());
-  final controller = Get.put(GetHaircutsAndBarbershopsController());
   final authId = Get.put(AuthenticationRepository.instance.authUser?.uid);
-  final customer = Get.put(CustomerController.instance.customer);
-  final notificationController = Get.put(CustomerNotificationController());
+
+  // final notifs = Get.put(CustomerNotificationController());
+  // final controller = Get.put(GetHaircutsAndBarbershopsController());
+  // final notificationController = Get.put(CustomerNotificationController());
+  final GetHaircutsAndBarbershopsController controller = Get.find();
+  final CustomerNotificationController notificationController = Get.find();
+  final CustomerController customer = Get.find();
 
   Rx<HaircutModel> selectedHaircut = HaircutModel.empty().obs;
   Rx<TimeSlotModel> selectedTimeSlot = TimeSlotModel.empty().obs;
@@ -29,38 +34,22 @@ class CustomerBookingController extends GetxController {
 
   Rx<HaircutModel?> toggleHaircut = HaircutModel.empty().obs;
   Rx<TimeSlotModel?> toggleTimeSlot = TimeSlotModel.empty().obs;
+  RxBool isLoading = false.obs;
 
   // Create a reactive RxList for pending bookings
   RxList<BookingModel> pendingBookings = <BookingModel>[].obs;
   RxList<BookingModel> confirmedBookings = <BookingModel>[].obs;
   RxList<BookingModel> doneBookings = <BookingModel>[].obs;
 
+  StreamSubscription? _reviewsStreamSubscription;
+
   @override
-  void onInit() async {
+  void onInit() {
     super.onInit();
-    fetchBookings();
-  }
-
-// Listen to changes in bookings and filter them for 'pending' status
-  void filterPendingBookings() {
-    pendingBookings.value =
-        bookings.where((booking) => booking.status == 'pending').toList();
-  }
-
-  void filterConfirmedBookings() {
-    confirmedBookings.value =
-        bookings.where((booking) => booking.status == 'confirmed').toList();
-  }
-
-  void filterDoneBookings() {
-    doneBookings.value = bookings
-        .where((booking) =>
-            booking.status == 'done' || booking.status == 'canceled')
-        .toList();
+    listenToBookingsStream(); // Start listening when the controller is initialized
   }
 
   Future<void> refreshData() async {
-    await controller.fetchBarbershopTimeSlots(chosenBarbershop.value.id);
     selectedTimeSlot.value = TimeSlotModel.empty();
   }
 
@@ -94,15 +83,15 @@ class CustomerBookingController extends GetxController {
           id: '',
           barberId: '',
           customerName:
-              '${customer.value.firstName} ${customer.value.lastName}',
+              '${customer.customer.value.firstName} ${customer.customer.value.lastName}',
           barbershopName: chosenBarbershop.value.barbershopName,
-          customerPhoneNo: customer.value.phoneNo,
+          customerPhoneNo: customer.customer.value.phoneNo,
           timeSlot: selectedTimeSlot.value.schedule);
 
-      await _repo.addBooking(booking, chosenBarbershop.value, customer.value);
-      await controller.fetchBarbershopTimeSlots(chosenBarbershop.value.id);
+      await _repo.addBooking(
+          booking, chosenBarbershop.value, customer.customer.value);
+
       clearBookingData();
-      await notifs.fetchNotifications();
       ToastNotif(message: 'Booking successful', title: 'Succesful')
           .showSuccessNotif(Get.context!);
     } catch (e) {
@@ -125,7 +114,7 @@ class CustomerBookingController extends GetxController {
           'Appointment Canceled',
           '${booking.customerName} canceled this appointment',
           'notRead');
-      await fetchBookings();
+
       ToastNotif(message: 'Appointment canceled', title: 'Success')
           .showSuccessNotif(Get.context!);
     } catch (e) {
@@ -134,47 +123,59 @@ class CustomerBookingController extends GetxController {
     }
   }
 
-  // Get a specific booking by ID
-  Future<void> fetchBookings() async {
-    try {
-      final data = await _repo.fetchBookingsCustomer();
-      bookings.value = data;
-      filterPendingBookings();
-      filterConfirmedBookings();
-      filterDoneBookings();
-    } catch (e) {
-      ToastNotif(message: 'Error fetching bookings $e', title: 'Error')
-          .showErrorNotif(Get.context!);
-    }
+  // Listen to the stream for new bookings
+  void listenToBookingsStream() {
+    isLoading.value = true;
+    // Fetch bookings as a stream
+    _repo.fetchBookingsCustomer().listen(
+      (newBookings) {
+        // If there is new data, update the bookings and show toast
+        bookings.assignAll(newBookings);
+        filterPendingBookings();
+        filterConfirmedBookings();
+        filterDoneBookings();
+
+        // Show success toast for a new booking
+        ToastNotif(message: 'New booking received!', title: 'Success')
+            .showSuccessNotif(Get.context!);
+        // Once the first data comes in, stop loading
+        if (isLoading.value) {
+          isLoading(false);
+        }
+      },
+      onError: (error) {
+        // Handle error if any occurs in the stream
+        ToastNotif(message: 'Error fetching bookings: $error', title: 'Error')
+            .showErrorNotif(Get.context!);
+      },
+      onDone: () {
+        isLoading.value = false; // Stop loading when stream is done
+      },
+    );
+  }
+
+  // Listen to changes in bookings and filter them for 'pending' status
+  void filterPendingBookings() {
+    pendingBookings.value =
+        bookings.where((booking) => booking.status == 'pending').toList();
+  }
+
+  void filterConfirmedBookings() {
+    confirmedBookings.value =
+        bookings.where((booking) => booking.status == 'confirmed').toList();
+  }
+
+  void filterDoneBookings() {
+    doneBookings.value = bookings
+        .where((booking) =>
+            booking.status == 'done' || booking.status == 'canceled')
+        .toList();
+  }
+
+  @override
+  void onClose() {
+    // Cancel the stream subscription to prevent memory leaks
+    _reviewsStreamSubscription?.cancel();
+    super.onClose();
   }
 }
-
-  // Get all bookings for a specific customer
-  // Future<List<BookingModel>> getBookingsForCustomer(String customerId) async {
-  //   try {
-  //     QuerySnapshot querySnapshot = await bookingsCollection
-  //         .where('customer_id', isEqualTo: customerId)
-  //         .get();
-  //     return querySnapshot.docs
-  //         .map((doc) => BookingModel.fromSnapshot(
-  //             doc as DocumentSnapshot<Map<String, dynamic>>))
-  //         .toList();
-  //   } catch (e) {
-  //     throw ('Error fetching bookings: $e');
-  //   }
-  // }
-
-  // Get all bookings for a specific date
-  // Future<List<BookingModel>> getBookingsForDate(String date) async {
-  //   try {
-  //     QuerySnapshot querySnapshot =
-  //         await bookingsCollection.where('date', isEqualTo: date).get();
-  //     return querySnapshot.docs
-  //         .map((doc) => BookingModel.fromSnapshot(
-  //             doc as DocumentSnapshot<Map<String, dynamic>>))
-  //         .toList();
-  //   } catch (e) {
-  //     throw ('Error fetching bookings: $e');
-  //   }
-  // }
-

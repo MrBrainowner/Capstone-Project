@@ -46,17 +46,19 @@ class BarbershopRepository extends GetxController {
   }
 
   //======================================= Fetch barbershop details based on user ID
-  Future<BarbershopModel> fetchBarbershopDetails() async {
+  Stream<BarbershopModel> barbershopDetailsStream() {
     try {
-      final documentSnapshot = await _db
+      return _db
           .collection("Barbershops")
           .doc(AuthenticationRepository.instance.authUser?.uid)
-          .get();
-      if (documentSnapshot.exists) {
-        return BarbershopModel.fromSnapshot(documentSnapshot);
-      } else {
-        return BarbershopModel.empty();
-      }
+          .snapshots()
+          .map((documentSnapshot) {
+        if (documentSnapshot.exists) {
+          return BarbershopModel.fromSnapshot(documentSnapshot);
+        } else {
+          return BarbershopModel.empty();
+        }
+      });
     } on FirebaseException catch (e) {
       throw BFirebaseException(e.code).message;
     } on FormatException catch (_) {
@@ -147,63 +149,40 @@ class BarbershopRepository extends GetxController {
   }
 
   //======================================= Fetch all barbershops
-  Future<List<BarbershopModel>> fetchAllBarbershops() async {
+  Stream<List<BarbershopModel>> fetchAllBarbershops() {
     try {
-      final querySnapshot = await _db
+      return _db
           .collection("Barbershops")
           .where('status', isEqualTo: 'approved')
-          .get();
-      return querySnapshot.docs.map((doc) {
-        return BarbershopModel.fromSnapshot(
-            doc as DocumentSnapshot<Map<String, dynamic>>);
-      }).toList();
-    } on FirebaseException catch (e) {
-      throw BFirebaseException(e.code).message;
-    } on FormatException catch (_) {
-      throw BFormatException('').message;
-    } on PlatformException catch (e) {
-      throw BPlatformException(e.code).message;
+          .snapshots()
+          .map((querySnapshot) {
+        return querySnapshot.docs.map((doc) {
+          return BarbershopModel.fromSnapshot(
+              doc as DocumentSnapshot<Map<String, dynamic>>);
+        }).toList();
+      });
     } catch (e) {
-      throw 'Something went wrong. Please try again';
+      throw 'Error fetching barbershops: $e';
     }
   }
 
   // Fetch a barbershop haircuts
-  Future<List<HaircutModel>> fetchBarbershopHaircuts(
-      String barbershopId) async {
+  Stream<List<HaircutModel>> fetchBarbershopHaircuts(String barbershopId) {
     try {
-      final querySnapshot = await _db
+      return _db
           .collection("Barbershops")
           .doc(barbershopId)
           .collection('Haircuts')
-          .get();
-      return querySnapshot.docs.map((doc) {
-        return HaircutModel.fromSnapshot(
-            doc as DocumentSnapshot<Map<String, dynamic>>);
-      }).toList();
-    } on FirebaseException catch (e) {
-      throw BFirebaseException(e.code).message;
-    } on FormatException catch (_) {
-      throw BFormatException('').message;
-    } on PlatformException catch (e) {
-      throw BPlatformException(e.code).message;
+          .snapshots()
+          .map((querySnapshot) {
+        return querySnapshot.docs.map((doc) {
+          return HaircutModel.fromSnapshot(
+              doc as DocumentSnapshot<Map<String, dynamic>>);
+        }).toList();
+      });
     } catch (e) {
-      throw 'Something went wrong. Please try again';
+      throw 'Error fetching barbershop haircuts: $e';
     }
-  }
-
-  //======================================= Upload any image
-
-  Future<String?> fetchProfileImage(String barbershopId) async {
-    try {
-      final doc = await _db.collection('Barbershops').doc(barbershopId).get();
-      if (doc.exists) {
-        return doc.data()?['profile_image'];
-      }
-    } catch (e) {
-      return null;
-    }
-    return null;
   }
 
   Future<String?> uploadImageToStorage(String barbershopId, File file) async {

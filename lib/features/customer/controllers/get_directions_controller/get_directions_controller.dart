@@ -1,3 +1,5 @@
+import 'package:barbermate/features/customer/controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
+import 'package:barbermate/features/customer/views/booking/choose_haircut.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -5,23 +7,21 @@ import 'package:flutter_map_geojson/flutter_map_geojson.dart';
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 
-import '../../../../data/repository/barbershop_repo/barbershop_repo.dart';
 import '../../../../data/services/map/direction_services.dart';
 import '../../../../data/services/map/location_services.dart';
-import '../../../auth/models/barbershop_model.dart';
 
 class GetDirectionsController extends GetxController {
   static GetDirectionsController get instace => Get.find();
   final LocationService _locationService = LocationService();
   final DirectionsService _directionsService = DirectionsService();
-  final BarbershopRepository _barbershopRepository = BarbershopRepository();
 
-  RxList<BarbershopModel> barbershopsInfo = <BarbershopModel>[].obs;
   Rx<LatLng?> currentLocation = Rx<LatLng?>(null);
   Rx<LatLng?> selectedBarbershopLocation = Rx<LatLng?>(null);
   RxDouble mapHeightRatio = 0.8.obs;
   RxList<LatLng> routeCoordinates = <LatLng>[].obs;
   RxMap<int, double> barbershopDistances = <int, double>{}.obs;
+
+  final GetHaircutsAndBarbershopsController barbershopsController = Get.find();
 
   final geoJsonParser = GeoJsonParser();
   var markers = <Marker>[].obs;
@@ -40,7 +40,6 @@ class GetDirectionsController extends GetxController {
     super.onInit();
     loadGeoJson();
     await getCurrentLocation();
-    await fetchBarbershops();
     await calculateAllDistances();
   }
 
@@ -52,17 +51,14 @@ class GetDirectionsController extends GetxController {
     }
   }
 
-  Future<void> fetchBarbershops() async {
-    barbershopsInfo.value = await _barbershopRepository.fetchAllBarbershops();
-  }
-
   Future<void> calculateAllDistances() async {
-    if (currentLocation.value == null || barbershopsInfo.isEmpty) return;
+    if (currentLocation.value == null) return;
 
-    for (int i = 0; i < barbershopsInfo.length; i++) {
+    for (int i = 0; i < barbershopsController.barbershops.length; i++) {
       final distance = await _directionsService.getDistance(
           currentLocation.value!,
-          LatLng(barbershopsInfo[i].latitude, barbershopsInfo[i].longitude));
+          LatLng(barbershopsController.barbershops[i].latitude,
+              barbershopsController.barbershops[i].longitude));
 
       if (distance != null) {
         barbershopDistances[i] = distance;
@@ -183,7 +179,7 @@ class GetDirectionsController extends GetxController {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        // Add booking functionality here
+                        // Get.to(() => const ChooseHaircut());
                       },
                       child: const Text('Book Now'),
                     ),

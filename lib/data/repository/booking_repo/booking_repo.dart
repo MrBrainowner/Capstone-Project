@@ -194,49 +194,34 @@ class BookingRepo extends GetxController {
     }
   }
 
-  //fetch booking
-  Future<List<BookingModel>> fetchBookings() async {
-    try {
-      final querySnapshot = await _db
-          .collection('Barbershops')
-          .doc(authId)
-          .collection('Bookings')
-          .get();
+  // Stream of bookings for barbershop
+  Stream<List<BookingModel>> fetchBookingsBarbershop() {
+    return _db
+        .collection('Barbershops')
+        .doc(authId)
+        .collection('Bookings')
+        .snapshots()
+        .map((querySnapshot) {
       return querySnapshot.docs.map((doc) {
         return BookingModel.fromSnapshot(
             doc as DocumentSnapshot<Map<String, dynamic>>);
       }).toList();
-    } on FirebaseException catch (e) {
-      throw BFirebaseException(e.code).message;
-    } on FormatException catch (_) {
-      throw BFormatException('').message;
-    } on PlatformException catch (e) {
-      throw BPlatformException(e.code).message;
-    } catch (e) {
-      throw 'Something went wrong. Please try again';
-    }
+    });
   }
 
-  Future<List<BookingModel>> fetchBookingsCustomer() async {
-    try {
-      final querySnapshot = await _db
-          .collection('Customers')
-          .doc(authId)
-          .collection('Bookings')
-          .get();
+  // Stream of bookings for customer
+  Stream<List<BookingModel>> fetchBookingsCustomer() {
+    return _db
+        .collection('Customers')
+        .doc(authId)
+        .collection('Bookings')
+        .snapshots()
+        .map((querySnapshot) {
       return querySnapshot.docs.map((doc) {
         return BookingModel.fromSnapshot(
             doc as DocumentSnapshot<Map<String, dynamic>>);
       }).toList();
-    } on FirebaseException catch (e) {
-      throw BFirebaseException(e.code).message;
-    } on FormatException catch (_) {
-      throw BFormatException('').message;
-    } on PlatformException catch (e) {
-      throw BPlatformException(e.code).message;
-    } catch (e) {
-      throw 'Something went wrong. Please try again';
-    }
+    });
   }
 
   // mark appointment as done
@@ -308,3 +293,48 @@ class BookingRepo extends GetxController {
   //         .collection('Notifications')
   //         .doc(notificationId)
   //         .update({'status': 'isRead'});
+
+  // Future<List<BookingModel>> fetchBookingsCustomer() async {
+  //   try {
+  //     final querySnapshot = await _db
+  //         .collection('Customers')
+  //         .doc(authId)
+  //         .collection('Bookings')
+  //         .get();
+  //     return querySnapshot.docs.map((doc) {
+  //       return BookingModel.fromSnapshot(
+  //           doc as DocumentSnapshot<Map<String, dynamic>>);
+  //     }).toList();
+  //   } on FirebaseException catch (e) {
+  //     throw BFirebaseException(e.code).message;
+  //   } on FormatException catch (_) {
+  //     throw BFormatException('').message;
+  //   } on PlatformException catch (e) {
+  //     throw BPlatformException(e.code).message;
+  //   } catch (e) {
+  //     throw 'Something went wrong. Please try again';
+  //   }
+  // }
+
+  // //fetch booking
+  // Future<List<BookingModel>> fetchBookingsBarbershop() async {
+  //   try {
+  //     final querySnapshot = await _db
+  //         .collection('Barbershops')
+  //         .doc(authId)
+  //         .collection('Bookings')
+  //         .get();
+  //     return querySnapshot.docs.map((doc) {
+  //       return BookingModel.fromSnapshot(
+  //           doc as DocumentSnapshot<Map<String, dynamic>>);
+  //     }).toList();
+  //   } on FirebaseException catch (e) {
+  //     throw BFirebaseException(e.code).message;
+  //   } on FormatException catch (_) {
+  //     throw BFormatException('').message;
+  //   } on PlatformException catch (e) {
+  //     throw BPlatformException(e.code).message;
+  //   } catch (e) {
+  //     throw 'Something went wrong. Please try again';
+  //   }
+  // }

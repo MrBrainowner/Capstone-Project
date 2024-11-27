@@ -1,8 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:barbermate/features/auth/models/barbershop_model.dart';
-import 'package:barbermate/features/barbershop/controllers/booking_controller/booking_controller.dart';
-import 'package:barbermate/features/barbershop/controllers/notification_controller/notification_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +18,6 @@ class BarbershopController extends GetxController {
   final profileLoading = false.obs;
   Rx<BarbershopModel> barbershop = BarbershopModel.empty().obs;
   final barbershopRepository = Get.put(BarbershopRepository());
-  final notifs = Get.put(BarbershopNotificationController());
-  final bookings = Get.put(BarbershopBookingController());
 
   final firstName = TextEditingController();
   final lastName = TextEditingController();
@@ -28,12 +25,12 @@ class BarbershopController extends GetxController {
   RxString profileImageUrl = ''.obs;
   final ImagePicker _picker = ImagePicker();
 
+  StreamSubscription? _reviewsStreamSubscription;
+
   @override
-  void onInit() async {
+  void onInit() {
     super.onInit();
-    fetchBarbershopData();
-    await notifs.fetchNotifications();
-    await bookings.fetchBookings();
+    listenToBarbershopStream();
   }
 
   Future<void> uploadProfileImage() async {
@@ -66,16 +63,16 @@ class BarbershopController extends GetxController {
   }
 
   // Fetch Barbershop Data
-  Future<void> fetchBarbershopData() async {
-    try {
-      profileLoading.value = true;
-      final barbershop = await barbershopRepository.fetchBarbershopDetails();
-      this.barbershop(barbershop);
-    } catch (e) {
-      barbershop(BarbershopModel.empty());
-    } finally {
+  void listenToBarbershopStream() {
+    profileLoading.value = true;
+    barbershopRepository.barbershopDetailsStream().listen((barbershopDetails) {
+      barbershop(barbershopDetails);
+      if (profileLoading.value) {
+        profileLoading(false);
+      }
+    }, onError: (error) {
       profileLoading.value = false;
-    }
+    });
   }
 
   // Save Barbershop data from any registration provider
@@ -96,13 +93,12 @@ class BarbershopController extends GetxController {
 
         // Create an updated model only with the fields you want to change
         final updatedBarbershop = existingData.copyWith(
-          firstName: firstNamee ?? existingData.firstName,
-          lastName: lastNamee ?? existingData.lastName,
+          firstName: firstNamee ?? barbershop.value.firstName,
+          lastName: lastNamee ?? barbershop.value.lastName,
         );
 
         // Update the barbershop data in Firestore
         await barbershopRepository.updateBarbershopData(updatedBarbershop);
-        await fetchBarbershopData();
         ToastNotif(message: 'Update Successful', title: 'Success')
             .showSuccessNotif(Get.context!);
       }
@@ -112,5 +108,12 @@ class BarbershopController extends GetxController {
               title: 'Data not saved')
           .showWarningNotif(Get.context!);
     }
+  }
+
+  @override
+  void onClose() {
+    // Cancel the stream subscription to prevent memory leaks
+    _reviewsStreamSubscription?.cancel();
+    super.onClose();
   }
 }

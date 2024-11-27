@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:barbermate/data/models/booking_model/booking_model.dart';
 import 'package:barbermate/data/models/notifications_model/notification_model.dart';
 import 'package:barbermate/data/repository/notifications_repo/notifications_repo.dart';
@@ -14,27 +16,42 @@ class CustomerNotificationController extends GetxController {
 
   // Check for unread notifications
   bool get hasUnreadNotifications {
-    return notificationsss.any((notification) => notification.status == 'read');
+    return notificationsss
+        .any((notification) => notification.status == 'notRead');
+  }
+
+  StreamSubscription? _reviewsStreamSubscription;
+
+  @override
+  void onInit() {
+    super.onInit();
+    listenToNotificationsStream();
   }
 
   // fetch notification
-  Future<void> fetchNotifications() async {
+  // Bind the stream to the notifications list
+  void listenToNotificationsStream() {
     isLoading.value = true;
-    try {
-      notifications.value = await _repo.fetchNotificationsCustomers();
-      notificationsss.assignAll(notifications);
-    } catch (e) {
-      ToastNotif(message: 'Error Fetching Notifications', title: 'Error')
-          .showErrorNotif(Get.context!);
-    } finally {
-      isLoading.value = false;
-    }
+
+    // You can fetch notifications using a stream from the repository
+    _repo.fetchNotificationsCustomers().listen(
+      (data) {
+        notifications.assignAll(data); // Updates the notifications list
+        notificationsss.assignAll(notifications);
+      },
+      onError: (error) {
+        ToastNotif(message: 'Error Fetching Notifications', title: 'Error')
+            .showErrorNotif(Get.context!);
+      },
+      onDone: () {
+        isLoading.value = false;
+      },
+    );
   }
 
   Future<void> updateNotifAsReadCustomer(NotificationModel notif) async {
     try {
       await _repo.updateNotifAsReadCustomer(notif);
-      fetchNotifications();
     } catch (e) {
       ToastNotif(message: 'Error Updating Notifications $e', title: 'Error')
           .showErrorNotif(Get.context!);
@@ -51,7 +68,6 @@ class CustomerNotificationController extends GetxController {
     try {
       await _repo.sendNotifWhenBookingUpdatedCustomers(
           booking, type, title, message, status);
-      fetchNotifications();
     } catch (e) {
       ToastNotif(message: 'Error Sending Notifications', title: 'Error')
           .showErrorNotif(Get.context!);
@@ -61,4 +77,11 @@ class CustomerNotificationController extends GetxController {
   // receive notification
 
   // send notification
+
+  @override
+  void onClose() {
+    // Cancel the stream subscription to prevent memory leaks
+    _reviewsStreamSubscription?.cancel();
+    super.onClose();
+  }
 }

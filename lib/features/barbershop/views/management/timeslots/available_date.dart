@@ -17,53 +17,53 @@ class DateAvailable extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Text(
-                'Disable Recurring Days',
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-              const SizedBox(height: 20),
-              Obx(() {
-                return Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: controller.daysOfWeekStatus.keys.map((day) {
-                    final isDisabled = !controller.daysOfWeekStatus[day]!;
+              // Text(
+              //   'Disable Recurring Days',
+              //   style: Theme.of(context).textTheme.bodyLarge,
+              // ),
+              // const SizedBox(height: 20),
+              // Obx(() {
+              //   return Wrap(
+              //     spacing: 10,
+              //     runSpacing: 10,
+              //     children: controller.daysOfWeekStatus.keys.map((day) {
+              //       final isDisabled = !controller.daysOfWeekStatus[day]!;
 
-                    return GestureDetector(
-                      onTap: () => controller.toggleDayOfWeek(day),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          color: isDisabled
-                              ? Colors.red.shade300
-                              : Colors.transparent,
-                          border: Border.all(
-                            color: isDisabled
-                                ? Theme.of(context).primaryColor
-                                : Theme.of(context).dividerColor,
-                          ),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          day,
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: isDisabled
-                                        ? Colors.white
-                                        : Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.color,
-                                  ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                );
-              }),
-              const SizedBox(height: 40),
+              //       return GestureDetector(
+              //         onTap: () => controller.toggleDayOfWeek(day),
+              //         child: Container(
+              //           padding: const EdgeInsets.symmetric(
+              //               horizontal: 10, vertical: 8),
+              //           decoration: BoxDecoration(
+              //             borderRadius: BorderRadius.circular(5),
+              //             color: isDisabled
+              //                 ? Colors.red.shade300
+              //                 : Colors.transparent,
+              //             border: Border.all(
+              //               color: isDisabled
+              //                   ? Theme.of(context).primaryColor
+              //                   : Theme.of(context).dividerColor,
+              //             ),
+              //           ),
+              //           alignment: Alignment.center,
+              //           child: Text(
+              //             day,
+              //             style:
+              //                 Theme.of(context).textTheme.bodyMedium?.copyWith(
+              //                       color: isDisabled
+              //                           ? Colors.white
+              //                           : Theme.of(context)
+              //                               .textTheme
+              //                               .bodyMedium
+              //                               ?.color,
+              //                     ),
+              //           ),
+              //         ),
+              //       );
+              //     }).toList(),
+              //   );
+              // }),
+              // const SizedBox(height: 40),
               Text(
                 'Disable Specific Dates',
                 style: Theme.of(context).textTheme.bodyLarge,

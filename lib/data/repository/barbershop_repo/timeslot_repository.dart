@@ -125,24 +125,20 @@ class TimeslotRepository extends GetxController {
     }
   }
 
-  Future<List<TimeSlotModel>> fetchBarbershopTimeSlots(
-      String barbershopID) async {
+  Stream<List<TimeSlotModel>> fetchBarbershopTimeSlotsStream(
+      String barbershopId) {
     try {
-      final querySnapshot = await _db
+      return _db
           .collection('Barbershops')
-          .doc(barbershopID)
+          .doc(barbershopId)
           .collection('Timeslots')
-          .get();
-      return querySnapshot.docs.map((doc) {
-        return TimeSlotModel.fromSnapshot(
-            doc as DocumentSnapshot<Map<String, dynamic>>);
-      }).toList();
-    } on FirebaseException catch (e) {
-      throw BFirebaseException(e.code).message;
-    } on FormatException catch (_) {
-      throw BFormatException('').message;
-    } on PlatformException catch (e) {
-      throw BPlatformException(e.code).message;
+          .snapshots()
+          .map((querySnapshot) {
+        return querySnapshot.docs.map((doc) {
+          return TimeSlotModel.fromSnapshot(
+              doc as DocumentSnapshot<Map<String, dynamic>>);
+        }).toList();
+      });
     } catch (e) {
       throw 'Something went wrong. Please try again';
     }
@@ -174,24 +170,21 @@ class TimeslotRepository extends GetxController {
     }
   }
 
-  Future<AvailableDaysModel?> getBarbershopAvailableDays(String shopId) async {
+  Stream<AvailableDaysModel?> getAvailableDaysWhenCustomerIsCurrentUserStream(
+      String shopId) {
     try {
-      DocumentSnapshot snapshot = await _db
+      return _db
           .collection('Barbershops')
           .doc(shopId)
           .collection('AvailableDays')
           .doc('settings') // Assuming settings document
-          .get();
-      if (snapshot.exists) {
-        return AvailableDaysModel.fromSnapshot(snapshot);
-      }
-      return null;
-    } on FirebaseException catch (e) {
-      throw BFirebaseException(e.code).message;
-    } on FormatException catch (_) {
-      throw BFormatException('').message;
-    } on PlatformException catch (e) {
-      throw BPlatformException(e.code).message;
+          .snapshots()
+          .map((snapshot) {
+        if (snapshot.exists) {
+          return AvailableDaysModel.fromSnapshot(snapshot);
+        }
+        return null;
+      });
     } catch (e) {
       throw ("Error fetching available days: $e");
     }

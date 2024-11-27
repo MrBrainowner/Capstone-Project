@@ -204,17 +204,40 @@ class NotificationsRepo extends GetxController {
     }
   }
 
-  Future<List<NotificationModel>> fetchNotificationsCustomers() async {
+  // Future<List<NotificationModel>> fetchNotificationsCustomers() async {
+  //   try {
+  //     final querySnapshot = await _db
+  //         .collection('Customers')
+  //         .doc(userId)
+  //         .collection('Notifications')
+  //         .get();
+  //     return querySnapshot.docs.map((doc) {
+  //       return NotificationModel.fromSnapshot(
+  //           doc as DocumentSnapshot<Map<String, dynamic>>);
+  //     }).toList();
+  //   } on FirebaseException catch (e) {
+  //     throw BFirebaseException(e.code).message;
+  //   } on FormatException catch (_) {
+  //     throw BFormatException('').message;
+  //   } on PlatformException catch (e) {
+  //     throw BPlatformException(e.code).message;
+  //   } catch (e) {
+  //     throw 'Something went wrong. Please try again';
+  //   }
+  // }
+  Stream<List<NotificationModel>> fetchNotificationsCustomers() {
     try {
-      final querySnapshot = await _db
+      return _db
           .collection('Customers')
           .doc(userId)
           .collection('Notifications')
-          .get();
-      return querySnapshot.docs.map((doc) {
-        return NotificationModel.fromSnapshot(
-            doc as DocumentSnapshot<Map<String, dynamic>>);
-      }).toList();
+          .snapshots()
+          .map((querySnapshot) {
+        return querySnapshot.docs.map((doc) {
+          return NotificationModel.fromSnapshot(
+              doc as DocumentSnapshot<Map<String, dynamic>>);
+        }).toList();
+      });
     } on FirebaseException catch (e) {
       throw BFirebaseException(e.code).message;
     } on FormatException catch (_) {
@@ -226,17 +249,19 @@ class NotificationsRepo extends GetxController {
     }
   }
 
-  Future<List<NotificationModel>> fetchNotificationsBarbershop() async {
+  Stream<List<NotificationModel>> fetchNotificationsBarbershop() {
     try {
-      final querySnapshot = await _db
+      return _db
           .collection('Barbershops')
           .doc(userId)
           .collection('Notifications')
-          .get();
-      return querySnapshot.docs.map((doc) {
-        return NotificationModel.fromSnapshot(
-            doc as DocumentSnapshot<Map<String, dynamic>>);
-      }).toList();
+          .snapshots()
+          .map((querySnapshot) {
+        return querySnapshot.docs.map((doc) {
+          return NotificationModel.fromSnapshot(
+              doc as DocumentSnapshot<Map<String, dynamic>>);
+        }).toList();
+      });
     } on FirebaseException catch (e) {
       throw BFirebaseException(e.code).message;
     } on FormatException catch (_) {

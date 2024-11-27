@@ -10,7 +10,7 @@ class EditName extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final validator = Get.put(ValidatorController());
-    final controller = Get.put(CustomerController());
+    final CustomerController controller = Get.find();
 
     return Scaffold(
       appBar: AppBar(

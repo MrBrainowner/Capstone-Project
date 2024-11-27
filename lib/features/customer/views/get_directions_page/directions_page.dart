@@ -10,8 +10,7 @@ class GetDirectionsPage2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final GetDirectionsController controller =
-        Get.put(GetDirectionsController());
+    final controller = Get.put(GetDirectionsController());
 
     return Scaffold(
       body: Stack(

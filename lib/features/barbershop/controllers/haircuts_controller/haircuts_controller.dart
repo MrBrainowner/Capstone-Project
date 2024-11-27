@@ -13,7 +13,7 @@ import '../barbershop_controller/barbershop_controller.dart';
 class HaircutController extends GetxController {
   static HaircutController get instance => Get.find();
 
-  final barbershopController = Get.put(BarbershopController());
+  final BarbershopController barbershopController = Get.find();
 
   final HaircutRepository _haircutRepository = HaircutRepository();
 
@@ -40,7 +40,7 @@ class HaircutController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    fetchHaircuts();
+    listenToHaircutsStream();
   }
 
   void resetForm() {
@@ -90,7 +90,7 @@ class HaircutController extends GetxController {
                 message: 'Haircut added successfully',
                 title: 'New Haircut Added')
             .showSuccessNotif(Get.context!);
-        fetchHaircuts();
+
         tempImageFiles.clear();
         Get.back();
       } catch (e) {
@@ -155,7 +155,6 @@ class HaircutController extends GetxController {
         ToastNotif(message: 'Error updaing haircuts', title: 'Error')
             .showErrorNotif(Get.context!);
       } finally {
-        fetchHaircuts();
         FullScreenLoader.stopLoading();
       }
     }
@@ -178,21 +177,28 @@ class HaircutController extends GetxController {
       ToastNotif(
               message: 'Haicut deleted successfuly', title: 'Haircut Deleted')
           .showSuccessNotif(Get.context!);
-      fetchHaircuts();
+
       FullScreenLoader.stopLoading();
     }
   }
 
-  Future<void> fetchHaircuts() async {
-    try {
-      isLoading(true);
-      haircuts.value = await _haircutRepository.fetchHaircuts();
-    } catch (e) {
-      ToastNotif(message: 'BAng Fetchinggg Haircuts $e', title: 'Error')
-          .showErrorNotif(Get.context!);
-    } finally {
-      isLoading(false);
-    }
+  void listenToHaircutsStream() {
+    isLoading(true); // Show loading indicator
+    _haircutRepository.fetchHaircuts().listen(
+      (haircutsList) {
+        // Update the list of haircuts
+        haircuts.assignAll(haircutsList);
+        isLoading(false);
+      },
+      onError: (error) {
+        // Handle error if any occurs in the stream
+        ToastNotif(message: 'Error fetching haircuts: $error', title: 'Error')
+            .showErrorNotif(Get.context!);
+      },
+      onDone: () {
+        isLoading(false); // Stop loading when the stream is done
+      },
+    );
   }
 
   void removeCategory(String category) {
@@ -210,7 +216,6 @@ class HaircutController extends GetxController {
   Future<void> deleteImages(String id, List<String> imageUrl) async {
     try {
       await _haircutRepository.deleteImageAndRemoveUrl(id, imageUrl);
-      await fetchHaircuts();
     } catch (e) {
       ToastNotif(message: 'Error deleting image', title: 'Error')
           .showErrorNotif(Get.context!);

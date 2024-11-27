@@ -47,23 +47,20 @@ class CustomerRepository extends GetxController {
   }
 
   //======================================= Fetch customer details based on user ID
-  Future<CustomerModel> fetchCustomerDetails() async {
+  Stream<CustomerModel> fetchCustomerDetails() {
     try {
-      final documentSnapshot = await _db
+      // Use snapshots to listen to real-time updates
+      return _db
           .collection("Customers")
           .doc(AuthenticationRepository.instance.authUser?.uid)
-          .get();
-      if (documentSnapshot.exists) {
-        return CustomerModel.fromSnapshot(documentSnapshot);
-      } else {
-        return CustomerModel.empty();
-      }
-    } on FirebaseException catch (e) {
-      throw BFirebaseException(e.code).message;
-    } on FormatException catch (_) {
-      throw BFormatException('').message;
-    } on PlatformException catch (e) {
-      throw BPlatformException(e.code).message;
+          .snapshots()
+          .map((documentSnapshot) {
+        if (documentSnapshot.exists) {
+          return CustomerModel.fromSnapshot(documentSnapshot);
+        } else {
+          return CustomerModel.empty();
+        }
+      });
     } catch (e) {
       throw 'Something went wrong. Please try again';
     }

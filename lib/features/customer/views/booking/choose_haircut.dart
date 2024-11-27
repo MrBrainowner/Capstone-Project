@@ -13,8 +13,8 @@ class ChooseHaircut extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(GetHaircutsAndBarbershopsController());
-    final bookingController = Get.put(CustomerBookingController());
+    final GetHaircutsAndBarbershopsController controller = Get.find();
+    final CustomerBookingController bookingController = Get.find();
 
     return PopScope(
       canPop: true,
@@ -32,7 +32,7 @@ class ChooseHaircut extends StatelessWidget {
           actions: [
             TextButton(
                 onPressed: () async {
-                  bookingController.selectedHaircut.value?.id = null;
+                  bookingController.selectedHaircut.value.id = null;
 
                   Get.to(() => const ChooseSchedule());
                 },
@@ -76,13 +76,14 @@ class ChooseHaircut extends StatelessWidget {
                   Expanded(
                       child: OutlinedButton(
                           onPressed: () async {
+                            bookingController.clearBookingData();
                             Get.offAll(() => const CustomerDashboard());
                           },
                           child: const Text('Cancel'))),
                   const SizedBox(width: 10),
                   Obx(
                     () => Expanded(
-                        child: bookingController.selectedHaircut.value?.id ==
+                        child: bookingController.selectedHaircut.value.id ==
                                 null
                             ? ElevatedButton(
                                 style: const ButtonStyle(

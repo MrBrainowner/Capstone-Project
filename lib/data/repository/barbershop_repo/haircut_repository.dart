@@ -163,19 +163,16 @@ class HaircutRepository extends GetxController {
     }
   }
 
-  Future<List<HaircutModel>> fetchHaircuts() async {
+  Stream<List<HaircutModel>> fetchHaircuts() {
     try {
-      final querySnapshot = await haircutsCollection.get();
-      return querySnapshot.docs.map((doc) {
-        return HaircutModel.fromSnapshot(
-            doc as DocumentSnapshot<Map<String, dynamic>>);
-      }).toList();
-    } on FirebaseException catch (e) {
-      throw BFirebaseException(e.code).message;
-    } on FormatException catch (_) {
-      throw BFormatException('').message;
-    } on PlatformException catch (e) {
-      throw BPlatformException(e.code).message;
+      return haircutsCollection.snapshots().map(
+        (querySnapshot) {
+          return querySnapshot.docs.map((doc) {
+            return HaircutModel.fromSnapshot(
+                doc as DocumentSnapshot<Map<String, dynamic>>);
+          }).toList();
+        },
+      );
     } catch (e) {
       throw 'Something went wrong. Please try again';
     }

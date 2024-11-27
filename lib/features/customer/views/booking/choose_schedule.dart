@@ -11,8 +11,8 @@ class ChooseSchedule extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(GetHaircutsAndBarbershopsController());
-    final bookingController = Get.put(CustomerBookingController());
+    final GetHaircutsAndBarbershopsController controller = Get.find();
+    final CustomerBookingController bookingController = Get.find();
 
     return Scaffold(
       appBar: AppBar(
@@ -63,18 +63,18 @@ class ChooseSchedule extends StatelessWidget {
                                         enablePastDates: false,
                                         monthViewSettings:
                                             DateRangePickerMonthViewSettings(
-                                          weekendDays: controller
-                                              .disabledDaysOfWeek, // Saturday and Sunday
+                                          // weekendDays: controller
+                                          //     .disabledDaysOfWeek, // Saturday and Sunday
                                           blackoutDates: controller
                                               .availableDays
                                               .value
                                               ?.disabledDates,
                                         ),
-                                        selectableDayPredicate: (date) {
-                                          // Block the days in the disabledDaysOfWeek list
-                                          return !controller.disabledDaysOfWeek
-                                              .contains(date.weekday);
-                                        },
+                                        // selectableDayPredicate: (date) {
+                                        //   // Block the days in the disabledDaysOfWeek list
+                                        //   return !controller.disabledDaysOfWeek
+                                        //       .contains(date.weekday);
+                                        // },
                                         showActionButtons: true,
                                         initialSelectedDate:
                                             controller.getNextAvailableDate(),

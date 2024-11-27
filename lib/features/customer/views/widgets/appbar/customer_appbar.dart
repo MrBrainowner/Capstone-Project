@@ -18,7 +18,7 @@ class CustomerAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(CustomerNotificationController());
+    final CustomerNotificationController controller = Get.find();
 
     return AppBar(
       centerTitle: centertitle,
@@ -31,13 +31,13 @@ class CustomerAppBar extends StatelessWidget implements PreferredSizeWidget {
               onTap: () => Get.to(() =>
                   const CustomerNotifications()), // Navigate to notifications
               child: controller.hasUnreadNotifications
-                  ? const iconoir.Bell(
-                      height: 25, // Bell Icon height
-                    )
-                  : const Badge(
+                  ? const Badge(
                       child: iconoir.Bell(
                         height: 25, // Bell Icon height
                       ),
+                    )
+                  : const iconoir.Bell(
+                      height: 25, // Bell Icon height
                     )),
         ),
         const SizedBox(width: 10), // Padding for right spacing

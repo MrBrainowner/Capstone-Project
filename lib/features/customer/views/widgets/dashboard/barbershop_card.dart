@@ -1,6 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
-import 'package:barbermate/features/customer/controllers/review_controller/review_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
@@ -15,18 +14,19 @@ class CustomerBarbershopCard extends StatelessWidget {
   const CustomerBarbershopCard({
     super.key,
     required this.barberhop,
+    required this.averageRating,
   });
 
   final BarbershopModel barberhop;
+  final double averageRating;
 
   @override
   Widget build(BuildContext context) {
     final darkThemeOutlinedButton =
         BarbermateOutlinedButton.darkThemeOutlinedButton.style;
     final forOutlinedDarkText = BarbermateTextTheme.darkTextTheme.bodyMedium;
-    final controller = Get.put(GetHaircutsAndBarbershopsController());
-    final bookingController = Get.put(CustomerBookingController());
-    final controllerReview = Get.put(ReviewControllerCustomer());
+    final GetHaircutsAndBarbershopsController controller = Get.find();
+    final CustomerBookingController bookingController = Get.find();
 
     const ngolor = Color.fromRGBO(238, 238, 238, 1);
     return SizedBox(
@@ -71,7 +71,7 @@ class CustomerBarbershopCard extends StatelessWidget {
                             const SizedBox(width: 3),
                             Flexible(
                               child: Text(
-                                '${controllerReview.averageRating}',
+                                '$averageRating',
                                 overflow: TextOverflow.clip,
                                 maxLines: 1,
                                 style: const TextStyle(color: ngolor),
@@ -145,14 +145,10 @@ class CustomerBarbershopCard extends StatelessWidget {
                             children: [
                               OutlinedButton(
                                 onPressed: () async {
-                                  await controller
-                                      .fetchAllBarbershoHaircuts(barberhop.id);
-                                  controller
-                                      .fetchBarbershopTimeSlots(barberhop.id);
-                                  controller.fetchBarbershopAvailableDays(
-                                      barberhop.id);
                                   bookingController.chosenBarbershop.value =
                                       barberhop;
+                                  controller
+                                      .listenToHaircutsStream(barberhop.id);
                                   Get.to(() => BarbershopProfilePage(
                                       barbershop: barberhop));
                                 },
@@ -166,15 +162,10 @@ class CustomerBarbershopCard extends StatelessWidget {
                               Expanded(
                                 child: OutlinedButton(
                                   onPressed: () async {
-                                    controller.fetchAllBarbershoHaircuts(
-                                        barberhop.id);
-                                    controller
-                                        .fetchBarbershopTimeSlots(barberhop.id);
-                                    controller.fetchBarbershopAvailableDays(
-                                        barberhop.id);
                                     bookingController.chosenBarbershop.value =
                                         barberhop;
-
+                                    controller
+                                        .listenToHaircutsStream(barberhop.id);
                                     Get.to(() => const ChooseHaircut());
                                   },
                                   style: darkThemeOutlinedButton,

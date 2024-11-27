@@ -22,12 +22,11 @@ class BarbershopDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-    final controller = Get.put(BarbershopController());
+    final BarbershopController controller = Get.find();
+    final BarbershopBookingController bookingController = Get.find();
     final haircutController = Get.put(HaircutController());
-    final barberController = Get.put(BarberController());
     final timeSlotController = Get.put(TimeSlotController());
-    final bookingController = Get.put(BarbershopBookingController());
-    final reviewsController = Get.put(ReviewController());
+    final ReviewController reviewsController = Get.find();
 
     return Scaffold(
       key: scaffoldKey,
@@ -42,12 +41,7 @@ class BarbershopDashboard extends StatelessWidget {
       drawer: const BarbershopDrawer(),
       body: RefreshIndicator(
         onRefresh: () async {
-          await controller.fetchBarbershopData();
-          haircutController.fetchHaircuts();
-          barberController.fetchBarbers();
           timeSlotController.fetchTimeSlots();
-          bookingController.fetchBookings();
-          reviewsController.fetchReviewsForBarbershop();
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -138,26 +132,26 @@ class BarbershopDashboard extends StatelessWidget {
                                 ],
                               ),
                               const SizedBox(width: 5),
-                              Row(
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      Get.to(() => const ManageBarbersPage());
-                                    },
-                                    child: Row(
-                                      children: [
-                                        const iconoir.Group(
-                                            height: 25,
-                                            color: Color.fromRGBO(
-                                                238, 238, 238, 1)),
-                                        const SizedBox(width: 10),
-                                        Obx(() => Text(
-                                            '${barberController.barbers.length}')),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              )
+                              // Row(
+                              //   children: [
+                              //     ElevatedButton(
+                              //       onPressed: () {
+                              //         Get.to(() => const ManageBarbersPage());
+                              //       },
+                              //       child: Row(
+                              //         children: [
+                              //           const iconoir.Group(
+                              //               height: 25,
+                              //               color: Color.fromRGBO(
+                              //                   238, 238, 238, 1)),
+                              //           const SizedBox(width: 10),
+                              //           Obx(() => Text(
+                              //               '${barberController.barbers.length}')),
+                              //         ],
+                              //       ),
+                              //     )
+                              //   ],
+                              // )
                             ],
                           ),
                         ),

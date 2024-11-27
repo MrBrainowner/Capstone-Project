@@ -14,7 +14,7 @@ class CustomerDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(CustomerController());
+    final CustomerController controller = Get.find();
     return Drawer(
       child: Column(
         children: [

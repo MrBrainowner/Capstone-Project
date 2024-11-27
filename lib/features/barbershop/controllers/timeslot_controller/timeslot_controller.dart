@@ -10,7 +10,7 @@ class TimeSlotController extends GetxController {
   static TimeSlotController get instance => Get.find();
 
   final TimeslotRepository _repository = Get.put(TimeslotRepository());
-  final BarbershopController _barbershop = Get.put(BarbershopController());
+  final BarbershopController _barbershop = Get.find();
 
   //variables
   var isLoading = false.obs;
@@ -66,7 +66,6 @@ class TimeSlotController extends GetxController {
 
   Future<void> fetchOpenHours() async {
     try {
-      await _barbershop.fetchBarbershopData();
       openHours.value = _barbershop.barbershop.value.openHours.toString();
       _setInitialTimes();
     } catch (e) {

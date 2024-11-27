@@ -1,5 +1,4 @@
 import 'package:barbermate/features/auth/models/barbershop_model.dart';
-import 'package:barbermate/features/customer/controllers/review_controller/review_controller.dart';
 import 'package:barbermate/features/customer/views/booking/choose_haircut.dart';
 import 'package:barbermate/features/customer/views/reviews/reviews.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +17,7 @@ class BarbershopProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(GetHaircutsAndBarbershopsController());
-    final controllerReviews = Get.put(ReviewControllerCustomer());
+    final GetHaircutsAndBarbershopsController controller = Get.find();
 
     return Scaffold(
       appBar: AppBar(
@@ -51,19 +49,34 @@ class BarbershopProfilePage extends StatelessWidget {
               ),
               const SizedBox(height: 8.0),
               Text(
-                barbershop.address,
+                'Address: ${barbershop.streetAddress}',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 8.0),
               Text(
-                barbershop.phoneNo,
+                'Phone Number: ${barbershop.phoneNo}',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 8.0),
+              Text(
+                'Land Mark: ${barbershop.landMark}',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 8.0),
+              Text(
+                'Email: ${barbershop.email}',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 8.0),
+              Text(
+                barbershop.floorNumber.isEmpty
+                    ? 'Floor Number: None'
+                    : 'Floor Number: ${barbershop.floorNumber}',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 8.0),
               GestureDetector(
                 onTap: () async {
-                  controllerReviews.review.value.barberShopId = barbershop.id;
-                  await controllerReviews.fetchReviews();
                   Get.to(
                       () => CustomerReviewsPage(barbershopId: barbershop.id));
                 },

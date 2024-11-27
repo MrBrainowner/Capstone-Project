@@ -17,9 +17,9 @@ class CustomerDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-    final controller = Get.put(CustomerController());
-    final controllerReview = Get.put(ReviewControllerCustomer());
-    final haircutBarber = Get.put(GetHaircutsAndBarbershopsController());
+    final CustomerController controller = Get.find();
+    final ReviewControllerCustomer controllerReview = Get.find();
+    final GetHaircutsAndBarbershopsController haircutBarber = Get.find();
     final DateTime now = DateTime.now();
     final String formattedDate = DateFormat('MMMM d, y').format(now);
 
@@ -131,10 +131,12 @@ class CustomerDashboard extends StatelessWidget {
                           itemBuilder: (context, index) {
                             final shops = barbershop[index];
                             haircutBarber.checkIsOpenNow(shops.openHours);
-                            controllerReview.review.value.barberShopId =
-                                shops.id;
+                            controllerReview.listenToReviewsStream(shops.id);
+
                             return CustomerBarbershopCard(
                               barberhop: shops,
+                              averageRating:
+                                  controllerReview.averageRating.value,
                             );
                           },
                         );

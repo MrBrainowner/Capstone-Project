@@ -1,6 +1,5 @@
 import 'package:barbermate/features/customer/controllers/review_controller/review_controller.dart';
 import 'package:barbermate/features/customer/views/dashboard/dashboard.dart';
-import 'package:barbermate/features/customer/views/notifications/notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -11,7 +10,7 @@ class CustomerReviewsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(ReviewControllerCustomer());
+    final ReviewControllerCustomer controller = Get.find();
 
     return Scaffold(
       appBar: AppBar(
@@ -19,9 +18,7 @@ class CustomerReviewsPage extends StatelessWidget {
         title: const Text('Write a Review'),
       ),
       body: RefreshIndicator(
-        onRefresh: () async {
-          await controller.fetchReviews();
-        },
+        onRefresh: () async {},
         child: Obx(
           () => ListView.builder(
             itemCount: controller.reviewsList.length,
@@ -143,7 +140,7 @@ class CustomerReviewsPage extends StatelessWidget {
                 if (reviewText.isNotEmpty && rating > 0 && rating <= 5) {
                   controller.review.value.reviewText = reviewText;
                   controller.review.value.rating = rating;
-                  controller.addReview();
+                  controller.addReview(barbershopId);
                   Get.off(() => const CustomerDashboard());
                 } else {
                   Get.snackbar('Invalid Input',

@@ -40,66 +40,65 @@ class ReviewRepo extends GetxController {
   }
 
   // Fetch all reviews for a specific barbershop
-  Future<List<ReviewsModel>> fetchReviews(String barberShopId) async {
+  Stream<List<ReviewsModel>> fetchReviewsStream(String barberShopId) {
     try {
-      final snapshot = await _db
+      // Listen to changes in the 'Reviews' collection for the specific barbershop
+      return _db
           .collection('Barbershops')
           .doc(barberShopId)
           .collection('Reviews')
           .orderBy('created_at', descending: true)
-          .get();
-
-      return snapshot.docs
-          .map((doc) => ReviewsModel.fromSnapshot(doc))
-          .toList();
+          .snapshots() // Use snapshots() for real-time updates
+          .map((snapshot) => snapshot.docs
+              .map((doc) => ReviewsModel.fromSnapshot(doc))
+              .toList());
     } catch (e) {
       throw Exception('Error fetching reviews: $e');
     }
   }
 
-  // Fetch all reviews for a specific barbershop
-  Future<List<ReviewsModel>> fetchReviewsForBarbershop() async {
+  Stream<List<ReviewsModel>> fetchReviewsStreamBarbershop() {
     try {
-      final snapshot = await _db
+      // Listen to changes in the 'Reviews' collection for the specific barbershop
+      return _db
           .collection('Barbershops')
           .doc(user)
           .collection('Reviews')
           .orderBy('created_at', descending: true)
-          .get();
-
-      return snapshot.docs
-          .map((doc) => ReviewsModel.fromSnapshot(doc))
-          .toList();
+          .snapshots() // Use snapshots() for real-time updates
+          .map((snapshot) => snapshot.docs
+              .map((doc) => ReviewsModel.fromSnapshot(doc))
+              .toList());
     } catch (e) {
       throw Exception('Error fetching reviews: $e');
     }
   }
 
-  // Calculate average rating for a barbershop
-  Future<double> calculateAverageRating(String barberShopId) async {
-    try {
-      final reviews = await fetchReviews(barberShopId);
-      if (reviews.isEmpty) return 0.0;
+  // // Calculate average rating for a barbershop
+  // Future<double> calculateAverageRating(String barberShopId) async {
+  //   try {
+  //     final reviews = await fetchReviews(barberShopId);
+  //     if (reviews.isEmpty) return 0.0;
 
-      final totalRating =
-          reviews.fold(0.0, (suM, review) => suM + review.rating);
-      return totalRating / reviews.length;
-    } catch (e) {
-      throw Exception('Error calculating average rating: $e');
-    }
-  }
+  //     final totalRating =
+  //         reviews.fold(0.0, (suM, review) => suM + review.rating);
+  //     return totalRating / reviews.length;
+  //   } catch (e) {
+  //     throw Exception('Error calculating average rating: $e');
+  //   }
+  // }
 
-  // Calculate average rating for a barbershop
-  Future<double> calculateAverageForBarbershop() async {
-    try {
-      final reviews = await fetchReviewsForBarbershop();
-      if (reviews.isEmpty) return 0.0;
+  // // Calculate average rating for a barbershop
+  // Future<double> calculateAverageForBarbershop() async {
+  //   try {
+  //     final reviews = await fetchReviewsForBarbershop();
+  //     if (reviews.isEmpty) return 0.0;
 
-      final totalRating =
-          reviews.fold(0.0, (suM, review) => suM + review.rating);
-      return totalRating / reviews.length;
-    } catch (e) {
-      throw Exception('Error calculating average rating: $e');
-    }
-  }
+  //     final totalRating =
+  //         reviews.fold(0.0, (suM, review) => suM + review.rating);
+  //     return totalRating / reviews.length;
+  //   } catch (e) {
+  //     throw Exception('Error calculating average rating: $e');
+  //   }
+  // }
 }

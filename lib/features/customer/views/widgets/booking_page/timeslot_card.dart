@@ -13,7 +13,7 @@ class TimeSlotCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bookingController = Get.put(CustomerBookingController());
+    final CustomerBookingController bookingController = Get.find();
 
     return Obx(() {
       final isSelected = bookingController.toggleTimeSlot.value == timeSlot;

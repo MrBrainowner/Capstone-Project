@@ -1,6 +1,6 @@
 import 'package:barbermate/common/widgets/toast.dart';
 import 'package:barbermate/features/barbershop/controllers/barbershop_controller/barbershop_controller.dart';
-import 'package:barbermate/features/customer/views/account/edit_name.dart';
+import 'package:barbermate/features/barbershop/views/account/edit_name.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
@@ -45,26 +45,62 @@ class BarbershopAccount extends StatelessWidget {
                       fit: BoxFit.cover,
                     )),
               ),
-              const SizedBox(height: 16),
+
               TextButton(
                   onPressed: () => barbershopController.uploadProfileImage(),
                   child: const Text('Upload Photo')),
+              Text(
+                'Owner/Manager Account',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              const Divider(),
               // Full Name
               CanBeEdited(
                 text: '${barbershop.firstName} ${barbershop.lastName}',
                 leading: 'Name',
               ),
-              const SizedBox(height: 10),
+
               // Email
               CannotBeEdited(
                 text: barbershop.email,
                 leading: 'Email',
               ),
-              const SizedBox(height: 8),
+
               // Phone Number
               CannotBeEdited(
                 text: barbershop.phoneNo,
                 leading: 'Phone',
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Barbershop Information',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+
+              const Divider(),
+              const SizedBox(height: 10),
+              CannotBeEdited(
+                text: barbershop.address,
+                leading: 'Address',
+              ),
+
+              CannotBeEdited(
+                text: barbershop.barbershopName,
+                leading: 'Barbershop Name',
+              ),
+
+              CannotBeEdited(
+                text: barbershop.floorNumber.isEmpty
+                    ? 'None'
+                    : barbershop.floorNumber,
+                leading: 'Floor Number',
+              ),
+
+              CannotBeEdited(
+                text: barbershop.floorNumber.isEmpty
+                    ? 'None'
+                    : barbershop.floorNumber,
+                leading: 'Nearby Land Mark',
               ),
             ],
           ),
@@ -132,7 +168,7 @@ class CanBeEdited extends StatelessWidget {
         ),
         IconButton(
           onPressed: () {
-            Get.to(() => const EditName());
+            Get.to(() => const EditNameBarbershop());
           },
           icon: const iconoir.ArrowRight(),
         ),

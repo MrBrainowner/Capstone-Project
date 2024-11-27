@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:barbermate/common/widgets/toast.dart';
 import 'package:barbermate/data/models/booking_model/booking_model.dart';
 import 'package:barbermate/data/repository/booking_repo/booking_repo.dart';
@@ -11,7 +13,7 @@ class BarbershopBookingController extends GetxController {
   final CollectionReference appointmentsCollection =
       FirebaseFirestore.instance.collection('appointments');
   final _repo = Get.put(BookingRepo());
-  final notificationController = Get.put(BarbershopNotificationController());
+  final BarbershopNotificationController notificationController = Get.find();
 
   RxList<BookingModel> bookings = <BookingModel>[].obs;
 
@@ -20,32 +22,20 @@ class BarbershopBookingController extends GetxController {
   RxList<BookingModel> confirmedBookings = <BookingModel>[].obs;
   RxList<BookingModel> doneBookings = <BookingModel>[].obs;
 
-// Listen to changes in bookings and filter them for 'pending' status
-  void filterPendingBookings() {
-    pendingBookings.value =
-        bookings.where((booking) => booking.status == 'pending').toList();
-  }
+  var isLoading = false.obs;
 
-  void filterConfirmedBookings() {
-    confirmedBookings.value =
-        bookings.where((booking) => booking.status == 'confirmed').toList();
-  }
+  StreamSubscription? _reviewsStreamSubscription;
 
-  void filterDoneBookings() {
-    doneBookings.value = bookings
-        .where((booking) =>
-            booking.status == 'done' ||
-            booking.status == 'declined' ||
-            booking.status == 'canceled')
-        .toList();
+  @override
+  void onInit() {
+    super.onInit();
+    listenToBookingsStream(); // Start listening when the controller is initialized
   }
 
   // accept booking
   Future<void> acceptBooking(BookingModel booking) async {
     try {
       await _repo.acceptBooking(booking.id, booking.customerId);
-
-      await fetchBookings();
       await notificationController.sendNotifWhenBookingUpdated(
           booking,
           'appointment_status',
@@ -70,7 +60,6 @@ class BarbershopBookingController extends GetxController {
           'Booking Declined',
           'Your appointment with ${booking.barbershopName} is declined',
           'notRead');
-      await fetchBookings();
       ToastNotif(message: 'Booking declined successful', title: 'Success')
           .showSuccessNotif(Get.context!);
     } catch (e) {
@@ -89,7 +78,6 @@ class BarbershopBookingController extends GetxController {
           'Appointment Complete',
           'Your appointment with ${booking.barbershopName} is completed',
           'notRead');
-      await fetchBookings();
       ToastNotif(message: 'Appointment marked as complete', title: 'Success')
           .showSuccessNotif(Get.context!);
     } catch (e) {
@@ -109,7 +97,7 @@ class BarbershopBookingController extends GetxController {
           'Appointment Canceled',
           'Your appointment with ${booking.barbershopName} is canceled',
           'notRead');
-      await fetchBookings();
+
       ToastNotif(message: 'Booking canceled', title: 'Success')
           .showSuccessNotif(Get.context!);
     } catch (e) {
@@ -118,16 +106,52 @@ class BarbershopBookingController extends GetxController {
     }
   }
 
-  Future<void> fetchBookings() async {
-    try {
-      final data = await _repo.fetchBookings();
-      bookings.value = data;
-      filterPendingBookings();
-      filterConfirmedBookings();
-      filterDoneBookings();
-    } catch (e) {
-      ToastNotif(message: 'Error fetching bookings $e', title: 'Error')
-          .showErrorNotif(Get.context!);
-    }
+  // Listen to the stream for new bookings
+  void listenToBookingsStream() {
+    // Fetch bookings as a stream
+    _repo.fetchBookingsBarbershop().listen(
+      (newBookings) {
+        // If there is new data, update the bookings and show toast
+        bookings.assignAll(newBookings);
+        filterPendingBookings();
+        filterConfirmedBookings();
+        filterDoneBookings();
+      },
+      onError: (error) {
+        // Handle error if any occurs in the stream
+        ToastNotif(message: 'Error fetching bookings: $error', title: 'Error')
+            .showErrorNotif(Get.context!);
+      },
+      onDone: () {
+        isLoading.value = false; // Stop loading when stream is done
+      },
+    );
+  }
+
+  // Listen to changes in bookings and filter them for 'pending' status
+  void filterPendingBookings() {
+    pendingBookings.value =
+        bookings.where((booking) => booking.status == 'pending').toList();
+  }
+
+  void filterConfirmedBookings() {
+    confirmedBookings.value =
+        bookings.where((booking) => booking.status == 'confirmed').toList();
+  }
+
+  void filterDoneBookings() {
+    doneBookings.value = bookings
+        .where((booking) =>
+            booking.status == 'done' ||
+            booking.status == 'declined' ||
+            booking.status == 'canceled')
+        .toList();
+  }
+
+  @override
+  void onClose() {
+    // Cancel the stream subscription to prevent memory leaks
+    _reviewsStreamSubscription?.cancel();
+    super.onClose();
   }
 }

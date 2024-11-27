@@ -8,11 +8,9 @@ import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import '../../../features/auth/models/barbershop_model.dart';
-import '../barbershop_repo/barbershop_repo.dart';
 
 class GetDirectionsRepository extends GetxController {
   static GetDirectionsRepository get intance => Get.find();
-  final BarbershopRepository _barbershopRepository = BarbershopRepository();
   RxList<BarbershopModel> barbershopsInfo = <BarbershopModel>[].obs;
   late final FlutterMap map;
   final mapController = MapController(); // Initialize MapController
@@ -34,7 +32,6 @@ class GetDirectionsRepository extends GetxController {
   void onInit() async {
     super.onInit();
     await getCurrentLocation();
-    barbershopsInfo.value = await _barbershopRepository.fetchAllBarbershops();
     calculateAllDistances();
   }
 

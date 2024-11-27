@@ -43,9 +43,10 @@ class BarbershopList extends StatelessWidget {
 
               return ListView.builder(
                 controller: scrollController,
-                itemCount: controller.barbershopsInfo.length,
+                itemCount: controller.barbershopsController.barbershops.length,
                 itemBuilder: (context, index) {
-                  final barbershop = controller.barbershopsInfo[index];
+                  final barbershop =
+                      controller.barbershopsController.barbershops[index];
                   final distance = controller.barbershopDistances[index]
                           ?.toStringAsFixed(2) ??
                       'Calculating...';

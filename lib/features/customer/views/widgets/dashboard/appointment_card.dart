@@ -20,7 +20,7 @@ class AppointmentCardCustomers extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(CustomerBookingController());
+    final CustomerBookingController controller = Get.find();
     final formatterController = Get.put(BFormatter());
 
     return Card(
@@ -115,7 +115,7 @@ class AppointmentConfirmedCardCustomers extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(CustomerBookingController());
+    final CustomerBookingController controller = Get.find();
     final formatterController = Get.put(BFormatter());
 
     return Card(

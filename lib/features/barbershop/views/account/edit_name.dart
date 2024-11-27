@@ -4,13 +4,13 @@ import 'package:barbermate/utils/validators/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class EditName extends StatelessWidget {
-  const EditName({super.key});
+class EditNameBarbershop extends StatelessWidget {
+  const EditNameBarbershop({super.key});
 
   @override
   Widget build(BuildContext context) {
     final validator = Get.put(ValidatorController());
-    final controller = Get.put(BarbershopController());
+    final BarbershopController controller = Get.find();
 
     return Scaffold(
       appBar: AppBar(

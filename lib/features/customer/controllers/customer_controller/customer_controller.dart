@@ -1,6 +1,5 @@
+import 'dart:async';
 import 'dart:io';
-
-import 'package:barbermate/features/customer/controllers/notification_controller/notification_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +16,6 @@ class CustomerController extends GetxController {
   final profileLoading = false.obs;
   Rx<CustomerModel> customer = CustomerModel.empty().obs;
   final customerRepository = Get.put(CustomerRepository());
-  final notifs = Get.put(CustomerNotificationController());
 
   final firstName = TextEditingController();
   final lastName = TextEditingController();
@@ -25,12 +23,12 @@ class CustomerController extends GetxController {
   RxString profileImageUrl = ''.obs;
   final ImagePicker _picker = ImagePicker();
 
+  StreamSubscription? _reviewsStreamSubscription;
+
   @override
   void onInit() async {
     super.onInit();
-    await fetchCustomerData();
-
-    await notifs.fetchNotifications();
+    fetchCustomerData();
   }
 
   Future<void> uploadProfileImage() async {
@@ -63,16 +61,25 @@ class CustomerController extends GetxController {
   }
 
   // Fetch Customer Data
-  Future<void> fetchCustomerData() async {
-    try {
-      profileLoading.value = true;
-      final customer = await customerRepository.fetchCustomerDetails();
-      this.customer(customer);
-    } catch (e) {
-      customer(CustomerModel.empty());
-    } finally {
-      profileLoading.value = false;
-    }
+  void fetchCustomerData() {
+    profileLoading.value = true;
+    // Listen to the customer stream and update the customer value
+    customerRepository.fetchCustomerDetails().listen(
+      (customerData) {
+        customer(customerData); // Update the customer data when it changes
+        // Once the first data comes in, stop loading
+        if (profileLoading.value) {
+          profileLoading(false);
+        }
+      },
+      onError: (error) {
+        // Handle errors
+        customer(CustomerModel.empty()); // Set to empty if there's an error
+      },
+      onDone: () {
+        profileLoading.value = false; // Stop loading when the stream is done
+      },
+    );
   }
 
   // Save customer data from any registration provider
@@ -94,14 +101,14 @@ class CustomerController extends GetxController {
 
         // Create an updated model only with the fields you want to change
         final updatedCustomer = existingData.copyWith(
-          firstName: firstNamee ?? existingData.firstName,
-          lastName: lastNamee ?? existingData.lastName,
+          firstName: firstNamee ?? customer.value.firstName,
+          lastName: lastNamee ?? customer.value.lastName,
           profileImage: profileImage ?? existingData.profileImage,
         );
 
         // Update the customer data in Firestore
         await customerRepository.updateCustomerData(updatedCustomer);
-        await fetchCustomerData();
+
         ToastNotif(message: 'Update Successful', title: 'Success')
             .showSuccessNotif(Get.context!);
       }
@@ -112,5 +119,12 @@ class CustomerController extends GetxController {
               title: 'Data not saved')
           .showWarningNotif(Get.context!);
     }
+  }
+
+  @override
+  void onClose() {
+    // Cancel the stream subscription to prevent memory leaks
+    _reviewsStreamSubscription?.cancel();
+    super.onClose();
   }
 }

@@ -1,3 +1,14 @@
+import 'package:barbermate/bindings/barbershop_bindings.dart';
+import 'package:barbermate/bindings/customer_bindings.dart';
+import 'package:barbermate/features/barbershop/controllers/barbershop_controller/barbershop_controller.dart';
+import 'package:barbermate/features/barbershop/controllers/booking_controller/booking_controller.dart';
+import 'package:barbermate/features/barbershop/controllers/notification_controller/notification_controller.dart';
+import 'package:barbermate/features/barbershop/controllers/review_controller/review_controller.dart';
+import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
+import 'package:barbermate/features/customer/controllers/customer_controller/customer_controller.dart';
+import 'package:barbermate/features/customer/controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
+import 'package:barbermate/features/customer/controllers/notification_controller/notification_controller.dart';
+import 'package:barbermate/features/customer/controllers/review_controller/review_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
@@ -48,10 +59,12 @@ class AuthenticationRepository extends GetxController {
         String role = userDoc['role'];
 
         if (role == 'customer') {
+          CustomerBinding().dependencies();
           //Remove Loader
           // FullScreenLoader.stopLoading();
           Get.offAll(() => const CustomerDashboard());
         } else if (role == 'barbershop') {
+          BarbershopBinding().dependencies();
           //Remove Loader
           // FullScreenLoader.stopLoading();
           Get.offAll(() => const BarbershopDashboard());
@@ -185,8 +198,36 @@ class AuthenticationRepository extends GetxController {
   //======================================= Log Out
   Future<void> logOut() async {
     try {
-      await FirebaseAuth.instance.signOut();
-      Get.offAll(() => const SignInPage());
+      // Get the current user
+      final user = _auth.currentUser;
+      if (user != null) {
+        // Fetch the user role from Firestore
+        DocumentSnapshot userDoc =
+            await _firestore.collection('Users').doc(user.uid).get();
+        String role = userDoc['role'];
+
+        // Delete controllers based on role
+        if (role == 'customer') {
+          // Delete all customer-related controllers
+          Get.delete<CustomerController>(force: true);
+          Get.delete<CustomerBookingController>(force: true);
+          Get.delete<CustomerNotificationController>(force: true);
+          Get.delete<GetHaircutsAndBarbershopsController>(force: true);
+          Get.delete<ReviewControllerCustomer>(force: true);
+        } else if (role == 'barbershop') {
+          // Delete all barbershop-related controllers
+          Get.delete<BarbershopController>(force: true);
+          Get.delete<BarbershopBookingController>(force: true);
+          Get.delete<BarbershopNotificationController>(force: true);
+          Get.delete<ReviewController>(force: true);
+        }
+
+        // Sign out from Firebase
+        await FirebaseAuth.instance.signOut();
+
+        // Navigate to the sign-in page after logout
+        Get.offAll(() => const SignInPage());
+      }
     } on FirebaseAuthException catch (e) {
       logger
           .e('Firebase Auth Exception during logout: ${e.code} - ${e.message}');

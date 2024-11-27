@@ -88,21 +88,16 @@ class BarbersRepository extends GetxController {
 
   //====================================================================== fetching barbers
 
-  Future<List<BarberModel>> fetchBarbers() async {
+  Stream<List<BarberModel>> fetchBarbers() {
     try {
-      final querySnapshot = await barbersCollection.get();
-      return querySnapshot.docs.map((doc) {
-        return BarberModel.fromSnapshot(
-            doc as DocumentSnapshot<Map<String, dynamic>>);
-      }).toList();
-    } on FirebaseException catch (e) {
-      throw BFirebaseException(e.code).message;
-    } on FormatException catch (_) {
-      throw BFormatException('').message;
-    } on PlatformException catch (e) {
-      throw BPlatformException(e.code).message;
+      return barbersCollection.snapshots().map((querySnapshot) {
+        return querySnapshot.docs.map((doc) {
+          return BarberModel.fromSnapshot(
+              doc as DocumentSnapshot<Map<String, dynamic>>);
+        }).toList();
+      });
     } catch (e) {
-      throw 'Something went wrong. Please try again';
+      throw 'Error fetching barbers: $e';
     }
   }
 
