@@ -9,7 +9,7 @@ import 'package:get/get.dart';
 
 class ReviewControllerCustomer extends GetxController {
   static ReviewControllerCustomer get instance => Get.find();
-  final ReviewRepo _repo = Get.put(ReviewRepo());
+  final ReviewRepo _repo = Get.find();
 
   // Observable list for storing reviews in real-time
   final reviewsList = <ReviewsModel>[].obs;

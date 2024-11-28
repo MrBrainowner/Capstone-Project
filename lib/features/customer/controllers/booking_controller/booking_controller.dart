@@ -17,7 +17,7 @@ import '../../../../utils/popups/full_screen_loader.dart';
 class CustomerBookingController extends GetxController {
   static CustomerBookingController get instance => Get.find();
 
-  final _repo = Get.put(BookingRepo());
+  final BookingRepo _repo = Get.find();
   final authId = Get.put(AuthenticationRepository.instance.authUser?.uid);
 
   // final notifs = Get.put(CustomerNotificationController());
@@ -135,9 +135,6 @@ class CustomerBookingController extends GetxController {
         filterConfirmedBookings();
         filterDoneBookings();
 
-        // Show success toast for a new booking
-        ToastNotif(message: 'New booking received!', title: 'Success')
-            .showSuccessNotif(Get.context!);
         // Once the first data comes in, stop loading
         if (isLoading.value) {
           isLoading(false);

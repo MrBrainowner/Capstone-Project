@@ -7,13 +7,15 @@ import 'package:get/get.dart';
 class BarbershopBinding extends Bindings {
   @override
   void dependencies() {
-    Get.put<BarbershopController>(BarbershopController(), permanent: true);
+    Get.lazyPut<BarbershopController>(() => BarbershopController(),
+        fenix: true);
     Get.put<BarbershopNotificationController>(
         BarbershopNotificationController(),
         permanent: true);
-    Get.put<BarbershopBookingController>(BarbershopBookingController(),
-        permanent: true);
+    Get.lazyPut<BarbershopBookingController>(
+        () => BarbershopBookingController(),
+        fenix: true);
 
-    Get.put<ReviewController>(ReviewController(), permanent: true);
+    Get.lazyPut<ReviewController>(() => ReviewController(), fenix: true);
   }
 }

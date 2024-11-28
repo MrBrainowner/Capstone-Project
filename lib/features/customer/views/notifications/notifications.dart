@@ -17,7 +17,9 @@ class CustomerNotifications extends StatelessWidget {
       ),
       body: RefreshIndicator(
         triggerMode: RefreshIndicatorTriggerMode.anywhere,
-        onRefresh: () async {},
+        onRefresh: () async {
+          controller.listenToNotificationsStream();
+        },
         child: Obx(() {
           // Sort notifications by creation date in descending order
           final sortedNotifications = controller.notifications.toList()

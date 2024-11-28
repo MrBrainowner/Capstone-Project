@@ -176,7 +176,7 @@ class ChooseSchedule extends StatelessWidget {
                                             text: bookingController
                                                         .selectedHaircut
                                                         .value
-                                                        ?.id !=
+                                                        .id !=
                                                     null
                                                 ? TextSpan(children: [
                                                     TextSpan(
@@ -187,8 +187,10 @@ class ChooseSchedule extends StatelessWidget {
                                                           .bodyMedium,
                                                     ),
                                                     TextSpan(
-                                                      text:
-                                                          '${bookingController.selectedHaircut.value?.name}',
+                                                      text: bookingController
+                                                          .selectedHaircut
+                                                          .value
+                                                          .name,
                                                       style: Theme.of(context)
                                                           .textTheme
                                                           .bodyLarge,

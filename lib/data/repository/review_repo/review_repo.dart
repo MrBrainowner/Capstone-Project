@@ -2,7 +2,6 @@ import 'package:barbermate/data/models/review_model/review_model.dart';
 import 'package:barbermate/data/repository/auth_repo/auth_repo.dart';
 import 'package:barbermate/features/auth/models/customer_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ReviewRepo extends GetxController {

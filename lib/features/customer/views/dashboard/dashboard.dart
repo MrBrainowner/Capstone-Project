@@ -17,9 +17,10 @@ class CustomerDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-    final CustomerController controller = Get.find();
-    final ReviewControllerCustomer controllerReview = Get.find();
-    final GetHaircutsAndBarbershopsController haircutBarber = Get.find();
+    final CustomerController customerController = Get.find();
+    final ReviewControllerCustomer reviewController = Get.find();
+    final GetHaircutsAndBarbershopsController haircutBarberController =
+        Get.find();
     final DateTime now = DateTime.now();
     final String formattedDate = DateFormat('MMMM d, y').format(now);
 
@@ -34,7 +35,7 @@ class CustomerDashboard extends StatelessWidget {
       // Make sure you have a drawer defined here
       body: RefreshIndicator(
         triggerMode: RefreshIndicatorTriggerMode.anywhere,
-        onRefresh: () => haircutBarber.refreshData(),
+        onRefresh: () => haircutBarberController.refreshData(),
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Padding(
@@ -51,7 +52,7 @@ class CustomerDashboard extends StatelessWidget {
                           Flexible(
                             child: Obx(
                               () => Text(
-                                'Welcome to Barbermate, ${controller.customer.value.firstName} ${controller.customer.value.lastName}',
+                                'Welcome to Barbermate, ${customerController.customer.value.firstName} ${customerController.customer.value.lastName}',
                                 maxLines: 3,
                                 style: Theme.of(context).textTheme.displaySmall,
                               ),
@@ -117,26 +118,27 @@ class CustomerDashboard extends StatelessWidget {
                     width: double.infinity,
                     height: 274,
                     child: Obx(() {
-                      if (haircutBarber.isLoading.value) {
+                      if (haircutBarberController.isLoading.value) {
                         return const Center(child: CircularProgressIndicator());
-                      } else if (haircutBarber.barbershops.isEmpty) {
+                      } else if (haircutBarberController.barbershops.isEmpty) {
                         return const Center(
                             child: Text('No Barbershop available.'));
                       } else {
-                        final barbershop = haircutBarber.barbershops;
+                        final barbershop = haircutBarberController.barbershops;
 
                         return ListView.builder(
-                          itemCount: haircutBarber.barbershops.length,
+                          itemCount: haircutBarberController.barbershops.length,
                           scrollDirection: Axis.horizontal,
                           itemBuilder: (context, index) {
                             final shops = barbershop[index];
-                            haircutBarber.checkIsOpenNow(shops.openHours);
-                            controllerReview.listenToReviewsStream(shops.id);
+                            haircutBarberController
+                                .checkIsOpenNow(shops.openHours);
+                            reviewController.listenToReviewsStream(shops.id);
 
                             return CustomerBarbershopCard(
                               barberhop: shops,
                               averageRating:
-                                  controllerReview.averageRating.value,
+                                  reviewController.averageRating.value,
                             );
                           },
                         );

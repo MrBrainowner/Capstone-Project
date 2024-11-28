@@ -1,4 +1,3 @@
-import 'package:barbermate/features/barbershop/controllers/barbers_controller/barbers_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/barbershop_controller/barbershop_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/booking_controller/booking_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/haircuts_controller/haircuts_controller.dart';
@@ -12,7 +11,6 @@ import 'package:barbermate/features/barbershop/views/widgets/dashboard/overview_
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
-import '../management/barbers/management.dart';
 import '../drawer/drawer.dart';
 import '../management/timeslots/timeslots.dart';
 

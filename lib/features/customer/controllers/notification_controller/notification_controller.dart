@@ -11,7 +11,7 @@ class CustomerNotificationController extends GetxController {
 
   var isLoading = false.obs;
   RxList<NotificationModel> notifications = <NotificationModel>[].obs;
-  final _repo = Get.put(NotificationsRepo());
+  final NotificationsRepo _repo = Get.find();
   RxList<NotificationModel> notificationsss = <NotificationModel>[].obs;
 
   // Check for unread notifications
@@ -33,11 +33,26 @@ class CustomerNotificationController extends GetxController {
   void listenToNotificationsStream() {
     isLoading.value = true;
 
-    // You can fetch notifications using a stream from the repository
+    // Listen to the notifications stream from the repository
     _repo.fetchNotificationsCustomers().listen(
-      (data) {
-        notifications.assignAll(data); // Updates the notifications list
-        notificationsss.assignAll(notifications);
+      (List<NotificationModel> data) {
+        // Check for new notifications by comparing the current list with the previous one
+        if (notifications.isNotEmpty) {
+          for (var newNotification in data) {
+            // Show a toast for new notifications
+            if (!notifications.any((n) => n.id == newNotification.id)) {
+              // Assuming `newNotification.message` holds the notification message
+              ToastNotif(
+                message: newNotification.message,
+                title: 'New Notification',
+              ).showSuccessNotif(Get.context!);
+            }
+          }
+        }
+
+        // Update the lists after showing notifications
+        notifications.assignAll(data);
+        notificationsss.assignAll(data);
       },
       onError: (error) {
         ToastNotif(message: 'Error Fetching Notifications', title: 'Error')

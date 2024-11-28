@@ -9,7 +9,6 @@ class CustomerAppointments extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final CustomerBookingController controller = Get.find();
-    // Fetch appointments when the UI is built
 
     return DefaultTabController(
       initialIndex: 0,

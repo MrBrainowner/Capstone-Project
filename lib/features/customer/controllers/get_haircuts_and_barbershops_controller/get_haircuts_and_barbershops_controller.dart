@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:barbermate/data/repository/barbershop_repo/barbershop_repo.dart';
-import 'package:barbermate/features/customer/controllers/review_controller/review_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -16,17 +15,14 @@ import '../../../auth/models/barbershop_model.dart';
 class GetHaircutsAndBarbershopsController extends GetxController {
   static GetHaircutsAndBarbershopsController get instace => Get.find();
 
-  final BarbershopRepository _barbershopRepository =
-      Get.put(BarbershopRepository());
-  final TimeslotRepository _timeslotsRepository = Get.put(TimeslotRepository());
+  final BarbershopRepository _barbershopRepository = Get.find();
+  final TimeslotRepository _timeslotsRepository = Get.find();
 
   RxList<HaircutModel> haircuts = <HaircutModel>[].obs;
   RxList<TimeSlotModel> timeSlots = <TimeSlotModel>[].obs;
   RxList<HaircutModel> barbershopHaircuts = <HaircutModel>[].obs;
   RxList<BarbershopModel> barbershops = <BarbershopModel>[].obs;
   Rx<AvailableDaysModel?> availableDays = Rx<AvailableDaysModel?>(null);
-
-  final ReviewControllerCustomer controller = Get.find();
 
   StreamSubscription? _reviewsStreamSubscription;
   StreamSubscription? _reviewsStreamSubscription2;
@@ -43,7 +39,9 @@ class GetHaircutsAndBarbershopsController extends GetxController {
     listenToBarbershopsStream(); // Start listening when the controller is initialized
   }
 
-  Future<void> refreshData() async {}
+  Future<void> refreshData() async {
+    listenToBarbershopsStream();
+  }
 
 //======================================================================== open hours logic
 
@@ -125,7 +123,7 @@ class GetHaircutsAndBarbershopsController extends GetxController {
           isLoading(false);
         }
 
-        listenToBarbershopStreams(barbershopId);
+        listenToTimeslotAvailabledayStreams(barbershopId);
       },
       onError: (error) {
         // Handle error if any occurs in the stream
@@ -136,6 +134,11 @@ class GetHaircutsAndBarbershopsController extends GetxController {
         isLoading(false); // Stop loading when the stream is done
       },
     );
+  }
+
+  void listenToTimeslotAvailabledayStreams(String shopId) {
+    listenToBarbershopTimeSlotsStream(shopId);
+    listenToBarbershopAvailableDaysStream(shopId);
   }
 
   //======================================================================== timeslots
@@ -160,11 +163,6 @@ class GetHaircutsAndBarbershopsController extends GetxController {
         isLoading.value = false; // Stop loading when the stream is done
       },
     );
-  }
-
-  void listenToBarbershopStreams(String shopId) {
-    listenToBarbershopTimeSlotsStream(shopId);
-    listenToBarbershopAvailableDaysStream(shopId);
   }
 
   //======================================================================== available days

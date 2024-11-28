@@ -4,7 +4,6 @@ import 'package:barbermate/features/customer/views/widgets/booking_page/haircuts
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
-import '../dashboard/dashboard.dart';
 
 class ChooseHaircut extends StatelessWidget {
   const ChooseHaircut({
@@ -77,7 +76,7 @@ class ChooseHaircut extends StatelessWidget {
                       child: OutlinedButton(
                           onPressed: () async {
                             bookingController.clearBookingData();
-                            Get.offAll(() => const CustomerDashboard());
+                            Get.back();
                           },
                           child: const Text('Cancel'))),
                   const SizedBox(width: 10),

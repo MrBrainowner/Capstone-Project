@@ -15,7 +15,7 @@ class CustomerController extends GetxController {
   // Variables
   final profileLoading = false.obs;
   Rx<CustomerModel> customer = CustomerModel.empty().obs;
-  final customerRepository = Get.put(CustomerRepository());
+  final CustomerRepository customerRepository = Get.find();
 
   final firstName = TextEditingController();
   final lastName = TextEditingController();

@@ -44,6 +44,7 @@ class MyApp extends StatelessWidget {
         darkTheme: BarbermateTheme.darktTheme,
         initialBinding: GeneralBindings(),
         smartManagement: SmartManagement.full,
+        getPages: RoleBasedPage.getPages(),
         home: Scaffold(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: const Center(

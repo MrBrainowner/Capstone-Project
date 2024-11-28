@@ -1,14 +1,5 @@
-import 'package:barbermate/bindings/barbershop_bindings.dart';
-import 'package:barbermate/bindings/customer_bindings.dart';
-import 'package:barbermate/features/barbershop/controllers/barbershop_controller/barbershop_controller.dart';
-import 'package:barbermate/features/barbershop/controllers/booking_controller/booking_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/notification_controller/notification_controller.dart';
-import 'package:barbermate/features/barbershop/controllers/review_controller/review_controller.dart';
-import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
-import 'package:barbermate/features/customer/controllers/customer_controller/customer_controller.dart';
-import 'package:barbermate/features/customer/controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
 import 'package:barbermate/features/customer/controllers/notification_controller/notification_controller.dart';
-import 'package:barbermate/features/customer/controllers/review_controller/review_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
@@ -16,13 +7,9 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:logger/logger.dart';
-
-import '../../../features/admin/views/admin_view.dart';
 import '../../../features/auth/views/email_verification/email_verification.dart';
 import '../../../features/auth/views/onboarding/onboarding.dart';
 import '../../../features/auth/views/sign_in/sign_in_page.dart';
-import '../../../features/barbershop/views/dashboard/dashboard.dart';
-import '../../../features/customer/views/dashboard/dashboard.dart';
 import '../../../utils/exceptions/firebase_auth_exeptions.dart';
 import '../../../utils/exceptions/firebase_exceptions.dart';
 import '../../../utils/exceptions/format_exceptions.dart';
@@ -59,17 +46,11 @@ class AuthenticationRepository extends GetxController {
         String role = userDoc['role'];
 
         if (role == 'customer') {
-          CustomerBinding().dependencies();
-          //Remove Loader
-          // FullScreenLoader.stopLoading();
-          Get.offAll(() => const CustomerDashboard());
+          Get.offAllNamed('/customer');
         } else if (role == 'barbershop') {
-          BarbershopBinding().dependencies();
-          //Remove Loader
-          // FullScreenLoader.stopLoading();
-          Get.offAll(() => const BarbershopDashboard());
+          Get.offAllNamed('/barbershop');
         } else if (role == 'admin') {
-          Get.offAll(() => const AdminPanel());
+          Get.offAllNamed('/admin');
         }
       } else {
         Get.offAll(() => EmailVerification(email: user.email));
@@ -209,17 +190,10 @@ class AuthenticationRepository extends GetxController {
         // Delete controllers based on role
         if (role == 'customer') {
           // Delete all customer-related controllers
-          Get.delete<CustomerController>(force: true);
-          Get.delete<CustomerBookingController>(force: true);
           Get.delete<CustomerNotificationController>(force: true);
-          Get.delete<GetHaircutsAndBarbershopsController>(force: true);
-          Get.delete<ReviewControllerCustomer>(force: true);
         } else if (role == 'barbershop') {
           // Delete all barbershop-related controllers
-          Get.delete<BarbershopController>(force: true);
-          Get.delete<BarbershopBookingController>(force: true);
           Get.delete<BarbershopNotificationController>(force: true);
-          Get.delete<ReviewController>(force: true);
         }
 
         // Sign out from Firebase
