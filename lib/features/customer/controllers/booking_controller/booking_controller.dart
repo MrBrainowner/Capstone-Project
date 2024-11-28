@@ -37,8 +37,7 @@ class CustomerBookingController extends GetxController {
   RxBool isLoading = false.obs;
 
   // Create a reactive RxList for pending bookings
-  RxList<BookingModel> pendingBookings = <BookingModel>[].obs;
-  RxList<BookingModel> confirmedBookings = <BookingModel>[].obs;
+  RxList<BookingModel> pendingAndConfirmedBookings = <BookingModel>[].obs;
   RxList<BookingModel> doneBookings = <BookingModel>[].obs;
 
   StreamSubscription? _reviewsStreamSubscription;
@@ -131,8 +130,7 @@ class CustomerBookingController extends GetxController {
       (newBookings) {
         // If there is new data, update the bookings and show toast
         bookings.assignAll(newBookings);
-        filterPendingBookings();
-        filterConfirmedBookings();
+        filterPendingAndConfirmedBookings();
         filterDoneBookings();
 
         // Once the first data comes in, stop loading
@@ -152,14 +150,16 @@ class CustomerBookingController extends GetxController {
   }
 
   // Listen to changes in bookings and filter them for 'pending' status
-  void filterPendingBookings() {
-    pendingBookings.value =
-        bookings.where((booking) => booking.status == 'pending').toList();
-  }
+  // void filterPendingBookings() {
+  //   pendingBookings.value =
+  //       bookings.where((booking) => booking.status == 'pending').toList();
+  // }
 
-  void filterConfirmedBookings() {
-    confirmedBookings.value =
-        bookings.where((booking) => booking.status == 'confirmed').toList();
+  void filterPendingAndConfirmedBookings() {
+    pendingAndConfirmedBookings.value = bookings
+        .where((booking) =>
+            booking.status == 'confirmed' || booking.status == 'pending')
+        .toList();
   }
 
   void filterDoneBookings() {

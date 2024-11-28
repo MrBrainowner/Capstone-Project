@@ -1,3 +1,4 @@
+import 'package:barbermate/common/widgets/appointment_case.dart';
 import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
 import 'package:barbermate/features/customer/views/widgets/dashboard/appointment_card.dart';
 import 'package:flutter/material.dart';
@@ -32,19 +33,18 @@ class CustomerAppointments extends StatelessWidget {
             // Tab for "Pending" bookings
             RefreshIndicator(
               triggerMode: RefreshIndicatorTriggerMode.anywhere,
-              onRefresh: () async {},
+              onRefresh: () async {
+                controller.listenToBookingsStream();
+              },
               child: Obx(() {
                 return ListView.builder(
                   padding: const EdgeInsets.all(20),
-                  itemCount: controller.confirmedBookings.length,
+                  itemCount: controller.pendingAndConfirmedBookings.length,
                   itemBuilder: (context, index) {
-                    final booking = controller.confirmedBookings[index];
+                    final booking =
+                        controller.pendingAndConfirmedBookings[index];
 
-                    return AppointmentConfirmedCardCustomers(
-                        title: 'Appointment Confirmerd',
-                        message:
-                            'Your appointment with ${booking.barbershopName} is confirmed.',
-                        booking: booking);
+                    return buildAppointmentWidget(booking);
                   },
                 );
               }),
@@ -53,7 +53,9 @@ class CustomerAppointments extends StatelessWidget {
             // Tab for "Confirmed" bookings
             RefreshIndicator(
               triggerMode: RefreshIndicatorTriggerMode.anywhere,
-              onRefresh: () async {},
+              onRefresh: () async {
+                controller.listenToBookingsStream();
+              },
               child: Obx(() {
                 return ListView.builder(
                   padding: const EdgeInsets.all(20),

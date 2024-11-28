@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -36,6 +37,8 @@ class HaircutController extends GetxController {
   final logger = Logger(
     printer: PrettyPrinter(),
   );
+
+  StreamSubscription? _reviewsStreamSubscription;
 
   @override
   void onInit() async {
@@ -232,5 +235,12 @@ class HaircutController extends GetxController {
       ToastNotif(message: 'Error selecting images', title: 'Error')
           .showErrorNotif(Get.context!);
     }
+  }
+
+  @override
+  void onClose() {
+    // Cancel the stream subscription to prevent memory leaks
+    _reviewsStreamSubscription?.cancel();
+    super.onClose();
   }
 }

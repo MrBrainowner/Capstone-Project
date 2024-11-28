@@ -1,3 +1,4 @@
+import 'package:barbermate/features/customer/views/appointments/appointments.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/notification_controller/notification_controller.dart';
@@ -13,6 +14,8 @@ class CustomerNotifications extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
+        automaticallyImplyLeading: true,
+        actions: [],
         title: const Text('Notifications'),
       ),
       body: RefreshIndicator(
@@ -31,7 +34,8 @@ class CustomerNotifications extends StatelessWidget {
               final notification = sortedNotifications[index];
               return GestureDetector(
                   onTap: () async {
-                    await controller.updateNotifAsReadCustomer(notification);
+                    Get.off(() => const CustomerAppointments());
+                    controller.updateNotifAsReadCustomer(notification);
                   },
                   child: buildNotificationWidget(notification));
             },

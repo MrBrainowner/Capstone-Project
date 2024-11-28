@@ -12,11 +12,10 @@ class CustomerNotificationController extends GetxController {
   var isLoading = false.obs;
   RxList<NotificationModel> notifications = <NotificationModel>[].obs;
   final NotificationsRepo _repo = Get.find();
-  RxList<NotificationModel> notificationsss = <NotificationModel>[].obs;
 
   // Check for unread notifications
   bool get hasUnreadNotifications {
-    return notificationsss
+    return notifications
         .any((notification) => notification.status == 'notRead');
   }
 
@@ -52,7 +51,6 @@ class CustomerNotificationController extends GetxController {
 
         // Update the lists after showing notifications
         notifications.assignAll(data);
-        notificationsss.assignAll(data);
       },
       onError: (error) {
         ToastNotif(message: 'Error Fetching Notifications', title: 'Error')

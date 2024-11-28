@@ -5,10 +5,16 @@ import 'package:flutter/material.dart';
 Widget buildAppointmentWidget(BookingModel booking) {
   switch (booking.status) {
     case 'pending':
-      return AppointmentCardCustomers(title: '', message: '', booking: booking);
+      return AppointmentCardCustomers(
+          title: 'Appointment Pending',
+          message: 'You appointment with ${booking.barbershopName} is pending',
+          booking: booking);
     case 'confirmed':
       return AppointmentConfirmedCardCustomers(
-          title: '', message: '', booking: booking);
+          title: 'Appointment Confirmed',
+          message:
+              'You appointment with ${booking.barbershopName} is confirmed',
+          booking: booking);
     default:
       return AppointmentCardCustomers(
           title: 'Unknown', message: 'unknown appointment', booking: booking);
