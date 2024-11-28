@@ -12,7 +12,7 @@ class BarbershopBookingController extends GetxController {
 
   final CollectionReference appointmentsCollection =
       FirebaseFirestore.instance.collection('appointments');
-  final _repo = Get.put(BookingRepo());
+  final BookingRepo _repo = Get.find();
   final BarbershopNotificationController notificationController = Get.find();
 
   RxList<BookingModel> bookings = <BookingModel>[].obs;

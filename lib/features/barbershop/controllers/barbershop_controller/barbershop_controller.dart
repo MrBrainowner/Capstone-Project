@@ -17,7 +17,7 @@ class BarbershopController extends GetxController {
   // Variables
   final profileLoading = false.obs;
   Rx<BarbershopModel> barbershop = BarbershopModel.empty().obs;
-  final barbershopRepository = Get.put(BarbershopRepository());
+  final BarbershopRepository barbershopRepository = Get.find();
 
   final firstName = TextEditingController();
   final lastName = TextEditingController();

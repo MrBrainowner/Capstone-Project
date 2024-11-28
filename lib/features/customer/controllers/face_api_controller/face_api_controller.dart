@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:barbermate/data/services/ai/azure_face_api_service.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
@@ -9,6 +10,8 @@ import 'package:image/image.dart'
 
 class FaceApiController extends GetxController {
   static FaceApiController get instance => Get.find();
+
+  final AzureFaceApiService faceApiService = Get.find();
 
   var faceData = <String>[].obs;
   var isLoading = false.obs;

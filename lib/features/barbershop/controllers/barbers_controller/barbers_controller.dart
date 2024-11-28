@@ -12,7 +12,7 @@ import '../../../../utils/popups/full_screen_loader.dart';
 class BarberController extends GetxController {
   static BarberController get instance => Get.find();
 
-  final BarbersRepository _barberRepository = BarbersRepository();
+  final BarbersRepository _barberRepository = Get.find();
 
   final nameController = TextEditingController();
   final RxString imageUrl = ''.obs;

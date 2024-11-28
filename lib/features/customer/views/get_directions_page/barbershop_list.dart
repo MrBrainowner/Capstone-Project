@@ -5,17 +5,17 @@ import 'package:latlong2/latlong.dart';
 import '../../controllers/get_directions_controller/get_directions_controller.dart';
 
 class BarbershopList extends StatelessWidget {
-  final GetDirectionsController controller;
   final ScrollController scrollController;
 
   const BarbershopList({
     super.key,
-    required this.controller,
     required this.scrollController,
   });
 
   @override
   Widget build(BuildContext context) {
+    final GetDirectionsController controller = Get.find();
+
     return Container(
       padding: const EdgeInsets.all(10.0),
       decoration: BoxDecoration(

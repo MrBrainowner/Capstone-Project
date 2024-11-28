@@ -8,7 +8,7 @@ import '../../../../data/repository/barbershop_repo/documents_verification_repo.
 
 class VerificationController extends GetxController {
   static VerificationController get instance => Get.find();
-  final VerificationRepo verificationRepo = VerificationRepo.instance;
+  final VerificationRepo verificationRepo = Get.find();
   final Logger logger = Logger();
 
   // List of required document types

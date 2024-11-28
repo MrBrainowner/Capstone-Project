@@ -11,8 +11,8 @@ import '../../../../data/services/map/location_services.dart';
 
 class GetDirectionsController extends GetxController {
   static GetDirectionsController get instace => Get.find();
-  final LocationService _locationService = LocationService();
-  final DirectionsService _directionsService = DirectionsService();
+  final LocationService _locationService = Get.find();
+  final DirectionsService _directionsService = Get.find();
 
   Rx<LatLng?> currentLocation = Rx<LatLng?>(null);
   Rx<LatLng?> selectedBarbershopLocation = Rx<LatLng?>(null);

@@ -10,7 +10,7 @@ class GetDirectionsPage2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(GetDirectionsController());
+    final GetDirectionsController controller = Get.find();
 
     return Scaffold(
       body: Stack(
@@ -30,8 +30,7 @@ class GetDirectionsPage2 extends StatelessWidget {
               maxChildSize: 0.5,
               builder:
                   (BuildContext context, ScrollController scrollController) {
-                return BarbershopList(
-                    controller: controller, scrollController: scrollController);
+                return BarbershopList(scrollController: scrollController);
               },
             ),
           ),

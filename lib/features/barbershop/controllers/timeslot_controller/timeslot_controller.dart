@@ -9,7 +9,7 @@ import '../../../../data/repository/barbershop_repo/timeslot_repository.dart';
 class TimeSlotController extends GetxController {
   static TimeSlotController get instance => Get.find();
 
-  final TimeslotRepository _repository = Get.put(TimeslotRepository());
+  final TimeslotRepository _repository = Get.find();
   final BarbershopController _barbershop = Get.find();
 
   //variables

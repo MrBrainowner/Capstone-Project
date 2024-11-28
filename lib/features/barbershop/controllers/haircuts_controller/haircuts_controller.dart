@@ -15,7 +15,7 @@ class HaircutController extends GetxController {
 
   final BarbershopController barbershopController = Get.find();
 
-  final HaircutRepository _haircutRepository = HaircutRepository();
+  final HaircutRepository _haircutRepository = Get.find();
 
   final nameController = TextEditingController();
   final descriptionController = TextEditingController();

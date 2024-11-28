@@ -75,20 +75,4 @@ class CustomerAppointments extends StatelessWidget {
       ),
     );
   }
-
-  // Helper to map status to colors
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'pending':
-        return Colors.orange;
-      case 'confirmed':
-        return Colors.green;
-      case 'completed':
-        return Colors.blue;
-      case 'canceled':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
-  }
 }

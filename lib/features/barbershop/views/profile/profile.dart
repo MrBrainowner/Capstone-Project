@@ -3,7 +3,6 @@ import 'package:barbermate/features/barbershop/controllers/haircuts_controller/h
 import 'package:barbermate/features/barbershop/controllers/review_controller/review_controller.dart';
 import 'package:barbermate/features/barbershop/views/reviews/reviews.dart';
 import 'package:barbermate/features/barbershop/views/widgets/management/haircut_card.dart';
-import 'package:barbermate/utils/constants/format_date.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
@@ -16,7 +15,6 @@ class BarbershopProfile extends StatelessWidget {
     final controller = Get.put(BarbershopController());
     final haircut = Get.put(HaircutController());
     final reviewsController = Get.put(ReviewController());
-    final formatter = Get.put(BFormatter());
 
     return Scaffold(
       appBar: AppBar(

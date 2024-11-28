@@ -12,7 +12,7 @@ class BarbershopNotificationController extends GetxController {
 
   var isLoading = false.obs;
   var notifications = <NotificationModel>[].obs;
-  final _repo = Get.put(NotificationsRepo());
+  final NotificationsRepo _repo = Get.find();
 
   final Logger logger = Logger();
 
