@@ -7,7 +7,7 @@ class SuggestHaircutAiPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(DetectFaceShape());
+    final DetectFaceShape controller = Get.find();
 
     return Scaffold(
         appBar: AppBar(
