@@ -19,9 +19,7 @@ class ReviewControllerCustomer extends GetxController {
   Rx<ReviewsModel> review = ReviewsModel.empty().obs;
 
   // Observable for storing the average rating
-  final averageRating = 0.0.obs;
-
-  StreamSubscription? _reviewsStreamSubscription;
+  final averageRatingValue = 0.0.obs;
 
   // Add a review
   Future<void> addReview(String babershopId) async {
@@ -34,49 +32,26 @@ class ReviewControllerCustomer extends GetxController {
   }
 
   // Fetch reviews for a barbershop and update the observable list
-  void listenToReviewsStream(String barberShopId) {
-    // Listen to the reviews stream
-    _repo.fetchReviewsStream(barberShopId).listen(
-      (reviews) {
-        reviewsList.assignAll(reviews); // Update the reviews list reactively
-
-        // Calculate average rating whenever the reviews list is updated
-        calculateAverageRating(reviews);
-      },
-      onError: (error) {
-        // Handle errors here
-        ToastNotif(message: error.toString(), title: 'Error fetching reviews')
-            .showErrorNotif(Get.context!);
-      },
-    );
-  }
-
-// Calculate the average rating from the reviews list
-  void calculateAverageRating(List<ReviewsModel> reviews) {
+  Future<void> loadReviews(String barberShopId) async {
     try {
-      if (reviews.isEmpty) {
-        averageRating.value = 0.0; // If no reviews, set average to 0
-        return;
-      }
-
-      double totalRating = 0.0;
-      for (var review in reviews) {
-        totalRating += review.rating; // Sum up all ratings
-      }
-
-      // Calculate the average rating and format it to 1 decimal place
-      double calculatedRating = totalRating / reviews.length;
-      averageRating.value = double.parse(
-          calculatedRating.toStringAsFixed(1)); // Format to 1 decimal place
-    } catch (e) {
-      Get.snackbar('Error', 'Error calculating average rating: $e');
+      final reviews = await _repo.fetchReviews(barberShopId);
+      reviewsList.assignAll(reviews); // Update the reviews list reactively
+    } catch (error) {
+      // Handle errors here
+      ToastNotif(message: error.toString(), title: 'Error fetching reviews')
+          .showErrorNotif(Get.context!);
     }
   }
 
-  @override
-  void onClose() {
-    // Cancel the stream subscription to prevent memory leaks
-    _reviewsStreamSubscription?.cancel();
-    super.onClose();
+  Future<void> loadAverageRating(String barberShopId) async {
+    try {
+      final averageRating = await _repo.fetchAverageRating(barberShopId);
+      averageRatingValue.value = averageRating;
+    } catch (error) {
+      ToastNotif(
+        message: error.toString(),
+        title: 'Error fetching rating',
+      ).showErrorNotif(Get.context!);
+    }
   }
 }

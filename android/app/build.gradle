@@ -61,8 +61,6 @@ flutter {
 }
 
 dependencies {
-    
-    implementation 'com.google.firebase:firebase-ml-model-interpreter:22.0.4' // Firebase ML Model Interpreter
-
+   
     // Other dependencies
 }

@@ -1,5 +1,4 @@
 import 'package:barbermate/features/customer/controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
-import 'package:barbermate/features/customer/controllers/review_controller/review_controller.dart';
 import 'package:barbermate/features/customer/views/face_shape_detector/face_shape_detection_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -18,7 +17,6 @@ class CustomerDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
     final CustomerController customerController = Get.find();
-    final ReviewControllerCustomer reviewController = Get.find();
     final GetHaircutsAndBarbershopsController haircutBarberController =
         Get.find();
     final DateTime now = DateTime.now();
@@ -52,7 +50,7 @@ class CustomerDashboard extends StatelessWidget {
                           Flexible(
                             child: Obx(
                               () => Text(
-                                'Welcome to Barbermate, ${customerController.customer.value.firstName} ${customerController.customer.value.lastName}',
+                                'Welcome to Barbermate, ${customerController.customer.value.firstName}',
                                 maxLines: 3,
                                 style: Theme.of(context).textTheme.displaySmall,
                               ),
@@ -76,7 +74,7 @@ class CustomerDashboard extends StatelessWidget {
                                 width: 150,
                                 child: OutlinedButton(
                                     onPressed: () => Get.to(
-                                        () => const FaceShapeDetectionAi()),
+                                        () => const SuggestHaircutAiPage()),
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
@@ -116,7 +114,7 @@ class CustomerDashboard extends StatelessWidget {
                   const SizedBox(height: 4),
                   SizedBox(
                     width: double.infinity,
-                    height: 274,
+                    height: 300,
                     child: Obx(() {
                       if (haircutBarberController.isLoading.value) {
                         return const Center(child: CircularProgressIndicator());
@@ -133,12 +131,9 @@ class CustomerDashboard extends StatelessWidget {
                             final shops = barbershop[index];
                             haircutBarberController
                                 .checkIsOpenNow(shops.openHours);
-                            reviewController.listenToReviewsStream(shops.id);
 
                             return CustomerBarbershopCard(
                               barberhop: shops,
-                              averageRating:
-                                  reviewController.averageRating.value,
                             );
                           },
                         );

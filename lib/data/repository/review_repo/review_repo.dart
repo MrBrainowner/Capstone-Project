@@ -10,6 +10,7 @@ class ReviewRepo extends GetxController {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final user = Get.put(AuthenticationRepository.instance.authUser?.uid);
 
+//=========================================================== if the current user is the customer
   // Create a review and save it in the barbershop's reviews collection
   Future<void> createReview(ReviewsModel review, CustomerModel customer) async {
     try {
@@ -39,23 +40,45 @@ class ReviewRepo extends GetxController {
   }
 
   // Fetch all reviews for a specific barbershop
-  Stream<List<ReviewsModel>> fetchReviewsStream(String barberShopId) {
+  Future<List<ReviewsModel>> fetchReviews(String barberShopId) async {
     try {
-      // Listen to changes in the 'Reviews' collection for the specific barbershop
-      return _db
+      final snapshot = await _db
           .collection('Barbershops')
           .doc(barberShopId)
           .collection('Reviews')
           .orderBy('created_at', descending: true)
-          .snapshots() // Use snapshots() for real-time updates
-          .map((snapshot) => snapshot.docs
-              .map((doc) => ReviewsModel.fromSnapshot(doc))
-              .toList());
+          .get(); // Fetch data once
+
+      return snapshot.docs
+          .map((doc) => ReviewsModel.fromSnapshot(doc))
+          .toList();
     } catch (e) {
       throw Exception('Error fetching reviews: $e');
     }
   }
 
+  Future<double> fetchAverageRating(String barberShopId) async {
+    try {
+      final snapshot = await _db
+          .collection('Barbershops')
+          .doc(barberShopId)
+          .collection('Reviews')
+          .get();
+
+      if (snapshot.docs.isEmpty) return 0.0;
+
+      // Calculate average rating
+      final totalRating = snapshot.docs.fold<double>(
+        0.0,
+        (sumM, doc) => sumM + (doc['rating'] ?? 0.0),
+      );
+      return totalRating / snapshot.docs.length;
+    } catch (e) {
+      throw Exception('Error fetching average rating: $e');
+    }
+  }
+
+//=========================================================== if the current user is the barbershop
   Stream<List<ReviewsModel>> fetchReviewsStreamBarbershop() {
     try {
       // Listen to changes in the 'Reviews' collection for the specific barbershop
@@ -72,32 +95,4 @@ class ReviewRepo extends GetxController {
       throw Exception('Error fetching reviews: $e');
     }
   }
-
-  // // Calculate average rating for a barbershop
-  // Future<double> calculateAverageRating(String barberShopId) async {
-  //   try {
-  //     final reviews = await fetchReviews(barberShopId);
-  //     if (reviews.isEmpty) return 0.0;
-
-  //     final totalRating =
-  //         reviews.fold(0.0, (suM, review) => suM + review.rating);
-  //     return totalRating / reviews.length;
-  //   } catch (e) {
-  //     throw Exception('Error calculating average rating: $e');
-  //   }
-  // }
-
-  // // Calculate average rating for a barbershop
-  // Future<double> calculateAverageForBarbershop() async {
-  //   try {
-  //     final reviews = await fetchReviewsForBarbershop();
-  //     if (reviews.isEmpty) return 0.0;
-
-  //     final totalRating =
-  //         reviews.fold(0.0, (suM, review) => suM + review.rating);
-  //     return totalRating / reviews.length;
-  //   } catch (e) {
-  //     throw Exception('Error calculating average rating: $e');
-  //   }
-  // }
 }

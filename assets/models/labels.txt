@@ -1,0 +1,4 @@
+0 oval
+1 rectangle
+2 round
+3 square

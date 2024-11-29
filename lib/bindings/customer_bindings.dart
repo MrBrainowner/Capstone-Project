@@ -9,7 +9,6 @@ import 'package:barbermate/data/services/map/direction_services.dart';
 import 'package:barbermate/data/services/map/location_services.dart';
 import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
 import 'package:barbermate/features/customer/controllers/customer_controller/customer_controller.dart';
-import 'package:barbermate/features/customer/controllers/face_api_controller/face_api_controller.dart';
 import 'package:barbermate/features/customer/controllers/get_directions_controller/get_directions_controller.dart';
 import 'package:barbermate/features/customer/controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
 import 'package:barbermate/features/customer/controllers/notification_controller/notification_controller.dart';
@@ -37,7 +36,7 @@ class CustomerBinding extends Bindings {
     Get.lazyPut<LocationService>(() => LocationService(), fenix: true);
     Get.lazyPut<DirectionsService>(() => DirectionsService(), fenix: true);
     //ai
-    Get.lazyPut<AzureFaceApiService>(() => AzureFaceApiService(), fenix: true);
+    // Get.lazyPut<AzureFaceApiService>(() => AzureFaceApiService(), fenix: true);
 
     //=============================================================== controllers
     //customer
@@ -59,6 +58,6 @@ class CustomerBinding extends Bindings {
     Get.lazyPut<GetDirectionsController>(() => GetDirectionsController(),
         fenix: true);
     //ai
-    Get.lazyPut<FaceApiController>(() => FaceApiController(), fenix: true);
+    // Get.lazyPut<FaceApiController>(() => FaceApiController(), fenix: true);
   }
 }

@@ -15,7 +15,7 @@ class CustomerNotifications extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         automaticallyImplyLeading: true,
-        actions: [],
+        actions: const [],
         title: const Text('Notifications'),
       ),
       body: RefreshIndicator(

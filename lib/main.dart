@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:toastification/toastification.dart';
 import 'bindings/general_bindings.dart';
-import 'data/repository/auth_repo/auth_repo.dart';
+import 'data/repository/auth_repo/auth_repo.dart';  
 import 'firebase_options.dart';
 import 'utils/themes/barbermate_theme.dart';
 

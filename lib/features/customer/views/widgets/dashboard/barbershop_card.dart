@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
+import 'package:barbermate/features/customer/controllers/review_controller/review_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
@@ -14,11 +15,9 @@ class CustomerBarbershopCard extends StatelessWidget {
   const CustomerBarbershopCard({
     super.key,
     required this.barberhop,
-    required this.averageRating,
   });
 
   final BarbershopModel barberhop;
-  final double averageRating;
 
   @override
   Widget build(BuildContext context) {
@@ -27,10 +26,11 @@ class CustomerBarbershopCard extends StatelessWidget {
     final forOutlinedDarkText = BarbermateTextTheme.darkTextTheme.bodyMedium;
     final GetHaircutsAndBarbershopsController controller = Get.find();
     final CustomerBookingController bookingController = Get.find();
+    final ReviewControllerCustomer reviewController = Get.find();
 
     const ngolor = Color.fromRGBO(238, 238, 238, 1);
     return SizedBox(
-      width: 280,
+      width: 300,
       height: 300,
       child: Card(
         color: Theme.of(context).primaryColor,
@@ -38,6 +38,7 @@ class CustomerBarbershopCard extends StatelessWidget {
           padding: const EdgeInsets.all(10.0),
           child: SizedBox.expand(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Stack(
                   children: [
@@ -64,53 +65,52 @@ class CustomerBarbershopCard extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const iconoir.StarSolid(
+                            const SizedBox(width: 3),
+                            iconoir.StarSolid(
                               height: 15,
-                              color: Colors.white,
+                              color: Colors.yellow.shade600,
                             ),
                             const SizedBox(width: 3),
                             Flexible(
                               child: Text(
-                                '$averageRating',
+                                '${reviewController.loadAverageRating(barberhop.id)}',
                                 overflow: TextOverflow.clip,
                                 maxLines: 1,
                                 style: const TextStyle(color: ngolor),
                               ),
-                            )
+                            ),
+                            const SizedBox(width: 3),
                           ],
                         ),
                       ),
                     )
                   ],
                 ),
-                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Text(
+                      barberhop.openHours == null ||
+                              barberhop.openHours!.isEmpty
+                          ? 'UNVERIFIED'
+                          : controller.isOpenNow.value
+                              ? 'OPEN NOW'
+                              : 'CLOSED',
+                      maxLines: 1,
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            color: barberhop.openHours == null ||
+                                    barberhop.openHours!.isEmpty
+                                ? Colors.orange
+                                : controller.isOpenNow.value
+                                    ? Colors.green
+                                    : Colors.red,
+                          ),
+                    )
+                  ],
+                ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Text(
-                          barberhop.openHours == null ||
-                                  barberhop.openHours!.isEmpty
-                              ? 'UNVERIFIED'
-                              : controller.isOpenNow.value
-                                  ? 'OPEN NOW'
-                                  : 'CLOSED',
-                          maxLines: 1,
-                          style:
-                              Theme.of(context).textTheme.labelLarge?.copyWith(
-                                    color: barberhop.openHours == null ||
-                                            barberhop.openHours!.isEmpty
-                                        ? Colors.orange
-                                        : controller.isOpenNow.value
-                                            ? Colors.green
-                                            : Colors.red,
-                                  ),
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: 5),
                     Row(
                       children: [
                         Expanded(

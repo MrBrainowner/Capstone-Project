@@ -37,7 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   smooth_page_indicator: ^1.2.0+3
   toastification: ^2.2.0
-  flutter_native_splash: ^2.4.1
+  flutter_native_splash: ^2.2.16
   firebase_core: ^3.6.0
   firebase_analytics: ^11.3.1
   cloud_firestore: ^5.4.3
@@ -61,8 +61,8 @@ dependencies:
   googleapis: ^13.2.0
   googleapis_auth: ^1.6.0
   geocoding: ^3.0.0
-  image_picker: ^1.1.2
-  tflite_flutter: ^0.11.0
+  image_picker: ^0.8.5+3
+  flutter_tflite: ^1.0.1
   firebase_ml_model_downloader: ^0.3.1+1
   file_picker: ^8.1.2
   mailer: ^6.1.2
@@ -77,9 +77,11 @@ dependencies:
   showcaseview: ^3.0.0
   shimmer: ^3.0.0
   dio: ^5.7.0
-  image: ^4.3.0
+  image: ^3.2.0
   syncfusion_flutter_datepicker: ^27.2.3
   syncfusion_flutter_calendar: ^27.2.3
+
+  
 
 
 dev_dependencies:
@@ -110,7 +112,7 @@ flutter:
     - assets/images/splash/barbermate_logo/
     - assets/tagum.geojson
     - assets/images/
-    - assets/models/face_shape_classifier.tflite
+    - assets/models/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

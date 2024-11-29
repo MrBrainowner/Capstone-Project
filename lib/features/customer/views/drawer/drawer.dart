@@ -26,15 +26,16 @@ class CustomerDrawer extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Flexible(
-                        child: Text(
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
                           controller.customer.value.firstName +
                               controller.customer.value.lastName,
-                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 4,
                           style: Theme.of(context)
                               .textTheme
                               .headlineMedium
@@ -42,15 +43,19 @@ class CustomerDrawer extends StatelessWidget {
                                   color:
                                       const Color.fromRGBO(238, 238, 238, 1)),
                         ),
-                      ),
-                      const SizedBox(height: 4.0),
-                      Text(
-                        controller.customer.value
-                            .email, // Replace with dynamic user email
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: const Color.fromRGBO(238, 238, 238, 1)),
-                      ),
-                    ],
+                        const SizedBox(height: 4.0),
+                        Text(
+                          controller.customer.value
+                              .email, // Replace with dynamic user email
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
+                                  color:
+                                      const Color.fromRGBO(238, 238, 238, 1)),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

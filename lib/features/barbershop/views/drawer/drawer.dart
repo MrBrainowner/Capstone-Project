@@ -29,14 +29,15 @@ class BarbershopDrawer extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Flexible(
-                        child: Text(
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
                           controller.barbershop.value.barbershopName,
-                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 4,
                           style: Theme.of(context)
                               .textTheme
                               .headlineMedium
@@ -44,15 +45,19 @@ class BarbershopDrawer extends StatelessWidget {
                                   color:
                                       const Color.fromRGBO(238, 238, 238, 1)),
                         ),
-                      ),
-                      const SizedBox(height: 4.0),
-                      Text(
-                        controller.barbershop.value
-                            .email, // Replace with dynamic user email
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: const Color.fromRGBO(238, 238, 238, 1)),
-                      ),
-                    ],
+                        const SizedBox(height: 4.0),
+                        Text(
+                          controller.barbershop.value
+                              .email, // Replace with dynamic user email
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
+                                  color:
+                                      const Color.fromRGBO(238, 238, 238, 1)),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
