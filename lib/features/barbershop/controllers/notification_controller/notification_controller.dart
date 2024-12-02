@@ -14,6 +14,12 @@ class BarbershopNotificationController extends GetxController {
   var notifications = <NotificationModel>[].obs;
   final NotificationsRepo _repo = Get.find();
 
+  // Check for unread notifications
+  bool get hasUnreadNotifications {
+    return notifications
+        .any((notification) => notification.status == 'notRead');
+  }
+
   final Logger logger = Logger();
 
   StreamSubscription? _reviewsStreamSubscription;
@@ -26,15 +32,36 @@ class BarbershopNotificationController extends GetxController {
 
   // fetch notification
   void bindNotificationsStream() {
-    try {
-      isLoading.value = true;
-      notifications.bindStream(_repo.fetchNotificationsBarbershop());
-    } catch (e) {
-      ToastNotif(message: 'Error Fetching Notifications', title: 'Error')
-          .showErrorNotif(Get.context!);
-    } finally {
-      isLoading.value = false;
-    }
+    isLoading.value = true;
+
+    // Listen to the notifications stream from the repository
+    _repo.fetchNotificationsCustomers().listen(
+      (List<NotificationModel> data) {
+        // Check for new notifications by comparing the current list with the previous one
+        if (notifications.isNotEmpty) {
+          for (var newNotification in data) {
+            // Show a toast for new notifications
+            if (!notifications.any((n) => n.id == newNotification.id)) {
+              // Assuming `newNotification.message` holds the notification message
+              ToastNotif(
+                message: newNotification.message,
+                title: 'New Notification',
+              ).showSuccessNotif(Get.context!);
+            }
+          }
+        }
+
+        // Update the lists after showing notifications
+        notifications.assignAll(data);
+      },
+      onError: (error) {
+        ToastNotif(message: 'Error Fetching Notifications', title: 'Error')
+            .showErrorNotif(Get.context!);
+      },
+      onDone: () {
+        isLoading.value = false;
+      },
+    );
   }
 
   Future<void> sendNotifWhenBookingUpdated(

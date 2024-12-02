@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../../../common/widgets/toast.dart';
 import '../../../../data/repository/auth_repo/auth_repo.dart';
 import '../../../../data/repository/customer_repo/customer_repo.dart';
@@ -61,6 +60,7 @@ class SignUpController extends GetxController {
         phoneNo: phone.text.trim(),
         role: 'customer',
         createdAt: DateTime.now(),
+        existing: false,
       );
 
       final userRepository = Get.put(CustomerRepository());

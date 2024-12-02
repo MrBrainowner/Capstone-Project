@@ -4,8 +4,8 @@ import 'package:barbermate/utils/validators/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class CustomerEditName extends StatelessWidget {
-  const CustomerEditName({super.key});
+class CustomerEditEmail extends StatelessWidget {
+  const CustomerEditEmail({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,33 +22,33 @@ class CustomerEditName extends StatelessWidget {
           padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
-              const Text('Edit your first name and last name'),
+              const Text('Update Email'),
               const SizedBox(height: 20),
               MyTextField(
-                controller: controller.firstName,
+                controller: controller.email,
                 keyboardtype: TextInputType.name,
                 validator: (value) => validator.validateEmpty(value),
-                labelText: 'First Name',
+                labelText: 'Email',
                 obscureText: false,
-                icon: const Icon(Icons.person),
+                icon: const Icon(Icons.email_outlined),
               ),
               const SizedBox(height: 10),
               MyTextField(
-                controller: controller.lastName,
+                controller: controller.password,
                 keyboardtype: TextInputType.name,
                 validator: (value) => validator.validateEmpty(value),
-                labelText: 'Last Name',
+                labelText: 'Enter current password',
                 obscureText: false,
-                icon: const Icon(Icons.person),
+                icon: const Icon(Icons.email_outlined),
               ),
               const SizedBox(height: 15),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                     onPressed: () async {
-                      await controller.saveCustomerData(
-                          firstNamee: controller.firstName.text.trim(),
-                          lastNamee: controller.lastName.text.trim());
+                      controller.changeEmailProcess(
+                          controller.password.text.trim(),
+                          controller.email.text.trim());
                       Get.back();
                     },
                     child: const Text('Update')),

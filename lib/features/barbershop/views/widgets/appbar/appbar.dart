@@ -1,7 +1,9 @@
+import 'package:barbermate/common/widgets/notification_template.dart';
+import 'package:barbermate/features/barbershop/controllers/notification_controller/notification_controller.dart';
+import 'package:barbermate/features/barbershop/views/notifications/notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
-import '../../notifications/notifications.dart';
 
 class BarbershopAppBar extends StatelessWidget implements PreferredSizeWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -16,17 +18,26 @@ class BarbershopAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final BarbershopNotificationController controller = Get.find();
+
     return AppBar(
       centerTitle: centertitle,
       title: title,
       leading: BarbershopAppBarIcon(scaffoldKey: scaffoldKey), // Drawer Icon
       actions: [
-        GestureDetector(
-          onTap: () => Get.to(() =>
-              const BarbershopNotifications()), // Navigate to notifications
-          child: const iconoir.Bell(
-            height: 25, // Bell Icon height
-          ),
+        Obx(
+          () => GestureDetector(
+              onTap: () => Get.to(() =>
+                  const BarbershopNotifications()), // Navigate to notifications
+              child: controller.hasUnreadNotifications
+                  ? const Badge(
+                      child: iconoir.Bell(
+                        height: 25, // Bell Icon height
+                      ),
+                    )
+                  : const iconoir.Bell(
+                      height: 25, // Bell Icon height
+                    )),
         ),
         const SizedBox(width: 15), // Padding for right spacing
       ],

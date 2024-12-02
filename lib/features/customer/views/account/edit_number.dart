@@ -4,8 +4,8 @@ import 'package:barbermate/utils/validators/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class CustomerEditName extends StatelessWidget {
-  const CustomerEditName({super.key});
+class CustomerEditNumber extends StatelessWidget {
+  const CustomerEditNumber({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,33 +22,23 @@ class CustomerEditName extends StatelessWidget {
           padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
-              const Text('Edit your first name and last name'),
+              const Text('Update Phone Number'),
               const SizedBox(height: 20),
               MyTextField(
-                controller: controller.firstName,
+                controller: controller.number,
                 keyboardtype: TextInputType.name,
                 validator: (value) => validator.validateEmpty(value),
-                labelText: 'First Name',
+                labelText: 'Phone',
                 obscureText: false,
-                icon: const Icon(Icons.person),
+                icon: const Icon(Icons.phone),
               ),
               const SizedBox(height: 10),
-              MyTextField(
-                controller: controller.lastName,
-                keyboardtype: TextInputType.name,
-                validator: (value) => validator.validateEmpty(value),
-                labelText: 'Last Name',
-                obscureText: false,
-                icon: const Icon(Icons.person),
-              ),
-              const SizedBox(height: 15),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                     onPressed: () async {
-                      await controller.saveCustomerData(
-                          firstNamee: controller.firstName.text.trim(),
-                          lastNamee: controller.lastName.text.trim());
+                      controller
+                          .updateSingleField(controller.number.text.trim());
                       Get.back();
                     },
                     child: const Text('Update')),

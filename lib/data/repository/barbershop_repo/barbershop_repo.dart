@@ -2,10 +2,13 @@ import 'dart:io';
 
 import 'package:barbermate/data/models/haircut_model/haircut_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crypto/crypto.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../features/auth/models/barbershop_model.dart';
 import '../../../utils/exceptions/firebase_exceptions.dart';
@@ -19,6 +22,12 @@ class BarbershopRepository extends GetxController {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final _storage = FirebaseStorage.instance;
   final Logger logger = Logger();
+
+  String generateImageHash(File file) {
+    final bytes = file.readAsBytesSync();
+    final digest = sha256.convert(bytes);
+    return digest.toString();
+  }
 
   //======================================= Save the barbershop data to firestore
   Future<void> saveBarbershopData(BarbershopModel barbershop) async {
@@ -185,12 +194,18 @@ class BarbershopRepository extends GetxController {
     }
   }
 
-  Future<String?> uploadImageToStorage(String barbershopId, File file) async {
+  Future<String?> uploadImageToStorage(XFile file, String type) async {
     try {
-      final fileName = 'profile_images/$barbershopId.jpg';
-      final ref = _storage.ref().child(fileName);
+      // Generate a unique file name using UUID
+      const uuid = Uuid();
+      final uniqueFileName =
+          '${uuid.v4()}_${file.name}'; // Unique name + original file name
 
-      await ref.putFile(file);
+      final ref = _storage.ref().child(
+          'Barbershops/${AuthenticationRepository.instance.authUser?.uid}/Information_images/$type/$uniqueFileName');
+
+      // Upload the file to Firebase Storage
+      await ref.putFile(File(file.path));
 
       // Get the download URL
       final downloadUrl = await ref.getDownloadURL();
@@ -201,13 +216,46 @@ class BarbershopRepository extends GetxController {
   }
 
   Future<void> updateProfileImageInFirestore(
-      String barbershopId, String imageUrl) async {
+      String barbershopId, String imageUrl, String type) async {
     try {
-      await _db.collection('Barbershops').doc(barbershopId).update({
-        'profile_image': imageUrl,
-      });
+      switch (type) {
+        case 'Profile':
+          await _db.collection('Barbershops').doc(barbershopId).update({
+            'profile_image': imageUrl,
+          });
+          break;
+        case 'Banner':
+          await _db.collection('Barbershops').doc(barbershopId).update({
+            'barbershop_banner_image': imageUrl,
+          });
+          break;
+        case 'Logo':
+          await _db.collection('Barbershops').doc(barbershopId).update({
+            'barbershop_profile_image': imageUrl,
+          });
+      }
     } catch (e) {
       throw Exception('Failed to update profile image in Firestore');
+    }
+  }
+
+  Future<void> makeBarbershopExist() async {
+    try {
+      final futures = [
+        _db
+            .collection('Users')
+            .doc(AuthenticationRepository.instance.authUser?.uid)
+            .update({'existing': true}),
+        _db
+            .collection('Barbershops')
+            .doc(AuthenticationRepository.instance.authUser?.uid)
+            .update({'existing': true}),
+      ];
+
+      // Execute all Futures concurrently
+      await Future.wait(futures);
+    } catch (e) {
+      throw Exception('Failed to update barbershop Firestore: $e');
     }
   }
 }

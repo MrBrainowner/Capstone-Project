@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class BarbershopAppointments extends StatelessWidget {
-  const BarbershopAppointments({super.key});
+  const BarbershopAppointments({super.key, this.initialIndex = 0});
+  final int initialIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +13,7 @@ class BarbershopAppointments extends StatelessWidget {
     // Fetch appointments when the UI is built
 
     return DefaultTabController(
-      initialIndex: 1,
+      initialIndex: initialIndex,
       length: 3,
       child: Scaffold(
         appBar: AppBar(
@@ -24,11 +25,11 @@ class BarbershopAppointments extends StatelessWidget {
                 child:
                     Text('New', style: Theme.of(context).textTheme.bodyLarge)),
             Tab(
-                child: Text('Cofirmed',
+                child: Text('Upcoming',
                     style: Theme.of(context).textTheme.bodyLarge)),
             Tab(
-                child:
-                    Text('Done', style: Theme.of(context).textTheme.bodyLarge)),
+                child: Text('History',
+                    style: Theme.of(context).textTheme.bodyLarge)),
           ]),
         ),
         body: TabBarView(

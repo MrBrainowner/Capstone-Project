@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CustomerModel {
-  // keep those values final which you don't want to update
   final String id;
   String firstName;
   String lastName;
@@ -9,7 +8,8 @@ class CustomerModel {
   String profileImage;
   String phoneNo;
   final String role;
-  final DateTime? createdAt;
+  bool existing; // Allowing this to be modified from the constructor
+  final DateTime createdAt;
 
   CustomerModel({
     required this.id,
@@ -20,9 +20,9 @@ class CustomerModel {
     required this.phoneNo,
     required this.role,
     required this.createdAt,
+    this.existing = false,
   });
 
-  // Static function to create an empty Customer model
   static CustomerModel empty() {
     return CustomerModel(
       id: '',
@@ -33,10 +33,10 @@ class CustomerModel {
       phoneNo: '',
       role: '',
       createdAt: DateTime.now(),
+      existing: false, // Ensure it defaults to false for an empty object
     );
   }
 
-  // Convert model to JSON structure for storing data in Firebase
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -47,10 +47,10 @@ class CustomerModel {
       'phone_no': phoneNo,
       'role': role,
       'created_at': createdAt?.toIso8601String(),
+      'existing': existing, // Include 'existing' in JSON conversion
     };
   }
 
-  // Factory method to create a CustomerModel from a Firebase document snapshot
   factory CustomerModel.fromSnapshot(
       DocumentSnapshot<Map<String, dynamic>> document) {
     final data = document.data()!;
@@ -64,11 +64,11 @@ class CustomerModel {
       role: data['role'] ?? '',
       createdAt: data['created_at'] != null
           ? DateTime.parse(data['created_at'])
-          : null,
+          : DateTime.now(),
+      existing: data['existing'] ?? false, // Handle 'existing' from Firebase
     );
   }
 
-  // CopyWith method for creating a modified copy of the current instance
   CustomerModel copyWith({
     String? id,
     String? firstName,
@@ -78,6 +78,7 @@ class CustomerModel {
     String? phoneNo,
     String? role,
     DateTime? createdAt,
+    bool? existing, // Add this to the copyWith
   }) {
     return CustomerModel(
       id: id ?? this.id,
@@ -88,12 +89,7 @@ class CustomerModel {
       phoneNo: phoneNo ?? this.phoneNo,
       role: role ?? this.role,
       createdAt: createdAt ?? this.createdAt,
+      existing: existing ?? this.existing, // Set 'existing' in copyWith
     );
   }
-
-  // Convert model to entity (if using with any state management or other libraries)
-  // This method can be customized based on your application's requirements
-  // For example, if you need to convert it to a domain entity or DTO (Data Transfer Object)
-  // The implementation will vary based on your architecture.
-  // For simplicity, it's left out in this example.
 }

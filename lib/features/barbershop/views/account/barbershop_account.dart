@@ -1,6 +1,13 @@
 import 'package:barbermate/common/widgets/toast.dart';
 import 'package:barbermate/features/barbershop/controllers/barbershop_controller/barbershop_controller.dart';
+import 'package:barbermate/features/barbershop/views/account/edit_address.dart';
+import 'package:barbermate/features/barbershop/views/account/edit_barbershop_name.dart';
+import 'package:barbermate/features/barbershop/views/account/edit_email.dart';
+import 'package:barbermate/features/barbershop/views/account/edit_floors.dart';
+import 'package:barbermate/features/barbershop/views/account/edit_landmark.dart';
 import 'package:barbermate/features/barbershop/views/account/edit_name.dart';
+import 'package:barbermate/features/barbershop/views/account/edit_number.dart';
+import 'package:barbermate/utils/constants/format_date.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
@@ -11,101 +18,125 @@ class BarbershopAccount extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final barbershopController = Get.put(BarbershopController());
+    final BFormatter format = Get.put(BFormatter());
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Account'),
         centerTitle: true,
       ),
-      body: Obx(() {
-        // Show loading indicator when data is being fetched
-        if (barbershopController.profileLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+      body: SingleChildScrollView(
+        child: Obx(() {
+          // Show loading indicator when data is being fetched
+          if (barbershopController.profileLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        // Access customer data
-        final barbershop = barbershopController.barbershop.value;
+          // Access customer data
+          final barbershop = barbershopController.barbershop.value;
 
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Profile Image with if statement
-              Container(
-                height: 100,
-                width: 100,
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Profile Image with if statement
+                Container(
+                  height: 100,
+                  width: 100,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                  child: ClipRRect(
+                      borderRadius: const BorderRadius.all(Radius.circular(10)),
+                      child: Image.network(
+                        barbershopController.barbershop.value.profileImage,
+                        fit: BoxFit.cover,
+                      )),
                 ),
-                child: ClipRRect(
-                    borderRadius: const BorderRadius.all(Radius.circular(10)),
-                    child: Image.network(
-                      barbershopController.barbershop.value.profileImage,
-                      fit: BoxFit.cover,
-                    )),
-              ),
 
-              TextButton(
-                  onPressed: () => barbershopController.uploadProfileImage(),
-                  child: const Text('Upload Photo')),
-              Text(
-                'Owner/Manager Account',
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-              const Divider(),
-              // Full Name
-              CanBeEdited(
-                text: '${barbershop.firstName} ${barbershop.lastName}',
-                leading: 'Name',
-              ),
+                TextButton(
+                    onPressed: () =>
+                        barbershopController.uploadImage('Profile'),
+                    child: const Text('Upload Photo')),
+                Text(
+                  'Owner/Manager Account',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                const Divider(),
+                // Full Name
+                CanBeEdited(
+                  text: '${barbershop.firstName} ${barbershop.lastName}',
+                  leading: 'Name',
+                  onPressed: () {
+                    Get.to(() => const EditNameBarbershop());
+                  },
+                ),
 
-              // Email
-              CannotBeEdited(
-                text: barbershop.email,
-                leading: 'Email',
-              ),
+                // Email
+                CanBeEdited(
+                  text: barbershop.email,
+                  leading: 'Email',
+                  onPressed: () => Get.to(() => const BarbershopEditEmail()),
+                ),
 
-              // Phone Number
-              CannotBeEdited(
-                text: barbershop.phoneNo,
-                leading: 'Phone',
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Barbershop Information',
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
+                // Phone Number
+                CanBeEdited(
+                  text: barbershop.phoneNo,
+                  leading: 'Phone',
+                  onPressed: () => Get.to(() => const BarbershopEditNumber()),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Barbershop Information',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
 
-              const Divider(),
-              const SizedBox(height: 10),
-              CannotBeEdited(
-                text: barbershop.address,
-                leading: 'Address',
-              ),
+                const Divider(),
+                const SizedBox(height: 10),
+                CanBeEdited(
+                  text: barbershop.address,
+                  leading: 'Address',
+                  onPressed: () => Get.to(() => const BarbershopEditAddress()),
+                ),
 
-              CannotBeEdited(
-                text: barbershop.barbershopName,
-                leading: 'Barbershop Name',
-              ),
+                CanBeEdited(
+                  text: barbershop.barbershopName,
+                  leading: 'Barbershop Name',
+                  onPressed: () =>
+                      Get.to(() => const BarbershopEditBarbershopName()),
+                ),
 
-              CannotBeEdited(
-                text: barbershop.floorNumber.isEmpty
-                    ? 'None'
-                    : barbershop.floorNumber,
-                leading: 'Floor Number',
-              ),
+                CanBeEdited(
+                  text: barbershop.floorNumber.isEmpty
+                      ? 'None'
+                      : barbershop.floorNumber,
+                  leading: 'Floor Number',
+                  onPressed: () => Get.to(() => const BarbershopEditFloors()),
+                ),
 
-              CannotBeEdited(
-                text: barbershop.floorNumber.isEmpty
-                    ? 'None'
-                    : barbershop.floorNumber,
-                leading: 'Nearby Land Mark',
-              ),
-            ],
-          ),
-        );
-      }),
+                CanBeEdited(
+                  text: barbershop.floorNumber.isEmpty
+                      ? 'None'
+                      : barbershop.landMark,
+                  leading: 'Nearby Land Mark',
+                  onPressed: () => Get.to(() => const BarbershopEditLandMark()),
+                ),
+                CanBeEdited(
+                  text: 'Change Password',
+                  leading: 'Password',
+                  onPressed: () {},
+                ),
+                const Divider(),
+                CannotBeEdited(
+                  text: format.formatDate(barbershop.createdAt),
+                  leading: 'Created At',
+                ),
+              ],
+            ),
+          );
+        }),
+      ),
     );
   }
 }
@@ -150,10 +181,12 @@ class CanBeEdited extends StatelessWidget {
     super.key,
     required this.text,
     required this.leading,
+    required this.onPressed,
   });
 
   final String text;
   final String leading;
+  final Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -167,9 +200,7 @@ class CanBeEdited extends StatelessWidget {
           ),
         ),
         IconButton(
-          onPressed: () {
-            Get.to(() => const EditNameBarbershop());
-          },
+          onPressed: onPressed,
           icon: const iconoir.ArrowRight(),
         ),
       ],

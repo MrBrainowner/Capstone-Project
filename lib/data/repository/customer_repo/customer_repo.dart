@@ -158,9 +158,10 @@ class CustomerRepository extends GetxController {
     return null;
   }
 
-  Future<String?> uploadImageToStorage(String customerId, File file) async {
+  Future<String?> uploadImageToStorage(String type, File file) async {
     try {
-      final fileName = 'profile_images/$customerId.jpg';
+      final fileName =
+          'Customers/${AuthenticationRepository.instance.authUser?.uid}/Information_images/$type/$file';
       final ref = _storage.ref().child(fileName);
 
       await ref.putFile(file);
@@ -181,6 +182,26 @@ class CustomerRepository extends GetxController {
       });
     } catch (e) {
       throw Exception('Failed to update profile image in Firestore');
+    }
+  }
+
+  Future<void> makeCustomerExist() async {
+    try {
+      final futures = [
+        _db
+            .collection('Customers')
+            .doc(AuthenticationRepository.instance.authUser?.uid)
+            .update({'existing': true}),
+        _db
+            .collection('Users')
+            .doc(AuthenticationRepository.instance.authUser?.uid)
+            .update({'existing': true}),
+      ];
+
+      // Execute all Futures concurrently
+      await Future.wait(futures);
+    } catch (e) {
+      throw Exception('Failed to update barbershop Firestore: $e');
     }
   }
 }

@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import '../../../../common/widgets/toast.dart';
 import '../../../../data/repository/auth_repo/auth_repo.dart';
 import '../../../../data/repository/barbershop_repo/barbershop_repo.dart';
@@ -283,6 +282,7 @@ class BarbershopSignUpController extends GetxController {
         streetAddress: streetAddress.text.trim(),
         floorNumber: floorUnit.text.trim(),
         profileImage: '',
+        existing: false,
       );
 
       final userRepository = Get.put(BarbershopRepository());

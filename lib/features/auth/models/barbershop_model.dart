@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BarbershopModel {
@@ -21,7 +20,8 @@ class BarbershopModel {
   final int postal;
   final String streetAddress;
   final String floorNumber;
-  String? openHours; // Now a single string for open hours
+  bool existing;
+  String? openHours;
 
   BarbershopModel({
     required this.id,
@@ -43,6 +43,7 @@ class BarbershopModel {
     required this.postal,
     required this.streetAddress,
     required this.floorNumber,
+    this.existing = false,
     this.openHours,
   });
 
@@ -56,6 +57,7 @@ class BarbershopModel {
       barbershopName: '',
       barbershopProfileImage: '',
       barbershopBannerImage: '',
+      profileImage: '',
       role: '',
       status: '',
       createdAt: DateTime.now(),
@@ -66,7 +68,8 @@ class BarbershopModel {
       postal: 0,
       streetAddress: '',
       floorNumber: '',
-      openHours: null, profileImage: '', // Default to null
+      existing: false, // Default value
+      openHours: null,
     );
   }
 
@@ -91,7 +94,8 @@ class BarbershopModel {
       'postal': postal,
       'street_address': streetAddress,
       'floorNumber': floorNumber,
-      'open_hours': openHours, // Add to JSON
+      'existing': existing, // Include in JSON
+      'open_hours': openHours,
     };
   }
 
@@ -120,7 +124,8 @@ class BarbershopModel {
       postal: data['postal']?.toInt() ?? 0,
       streetAddress: data['street_address'] ?? '',
       floorNumber: data['floorNumber'] ?? '',
-      openHours: data['open_hours'], // Handle null or missing field
+      existing: data['existing'] ?? false, // Handle null or missing field
+      openHours: data['open_hours'],
     );
   }
 
@@ -144,7 +149,8 @@ class BarbershopModel {
     int? postal,
     String? streetAddress,
     String? floorNumber,
-    String? openHours, // Update this field
+    bool? existing, // Add existing field
+    String? openHours,
   }) {
     return BarbershopModel(
       id: id ?? this.id,
@@ -152,7 +158,7 @@ class BarbershopModel {
       lastName: lastName ?? this.lastName,
       email: email ?? this.email,
       phoneNo: phoneNo ?? this.phoneNo,
-      profileImage: phoneNo ?? this.profileImage,
+      profileImage: profileImage ?? this.profileImage,
       barbershopName: barbershopName ?? this.barbershopName,
       barbershopProfileImage:
           barbershopProfileImage ?? this.barbershopProfileImage,
@@ -168,7 +174,8 @@ class BarbershopModel {
       postal: postal ?? this.postal,
       streetAddress: streetAddress ?? this.streetAddress,
       floorNumber: floorNumber ?? this.floorNumber,
-      openHours: openHours ?? this.openHours, // Add to copyWith
+      existing: existing ?? this.existing,
+      openHours: openHours ?? this.openHours,
     );
   }
 }

@@ -176,12 +176,13 @@ class BarbershopDashboard extends StatelessWidget {
                             flex2: 0,
                             color: Colors.blue.shade100,
                             color2: Colors.white,
-                            title: 'Total Appointments',
-                            sometext: '${bookingController.bookings.length}',
+                            title: 'New Appointments',
+                            sometext:
+                                '${bookingController.pendingBookings.length}',
                             titl2: '   ',
                             sometext2: '   ',
-                            onTapCard1: () =>
-                                Get.to(() => const BarbershopAppointments()),
+                            onTapCard1: () => Get.to(() =>
+                                const BarbershopAppointments(initialIndex: 0)),
                             onTapCard2: () {},
                           ),
                           OverviewCard(
@@ -195,8 +196,8 @@ class BarbershopDashboard extends StatelessWidget {
                             sometext2:
                                 '${bookingController.confirmedBookings.length}',
                             onTapCard1: null,
-                            onTapCard2: () =>
-                                Get.to(() => const BarbershopAppointments()),
+                            onTapCard2: () => Get.to(() =>
+                                const BarbershopAppointments(initialIndex: 1)),
                           ),
                           OverviewCard(
                             flex1: 1,

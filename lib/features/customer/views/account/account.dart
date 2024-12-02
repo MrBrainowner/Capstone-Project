@@ -1,9 +1,13 @@
-import 'package:barbermate/common/widgets/toast.dart';
-import 'package:barbermate/features/customer/controllers/customer_controller/customer_controller.dart';
-import 'package:barbermate/features/customer/views/account/edit_name.dart';
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:barbermate/features/customer/views/account/edit_email.dart';
+import 'package:barbermate/features/customer/views/account/edit_number.dart';
+import 'package:barbermate/utils/constants/format_date.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
+import 'package:barbermate/common/widgets/toast.dart';
+import 'package:barbermate/features/customer/controllers/customer_controller/customer_controller.dart';
+import 'package:barbermate/features/customer/views/account/edit_name.dart';
 
 class CustomerAccount extends StatelessWidget {
   const CustomerAccount({super.key});
@@ -11,6 +15,7 @@ class CustomerAccount extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final CustomerController customerController = Get.find();
+    final BFormatter format = Get.put(BFormatter());
 
     return Scaffold(
       appBar: AppBar(
@@ -45,27 +50,49 @@ class CustomerAccount extends StatelessWidget {
                       fit: BoxFit.cover,
                     )),
               ),
-              const SizedBox(height: 16),
               TextButton(
-                  onPressed: () => customerController.uploadProfileImage(),
+                  onPressed: () => customerController.uploadImage('Profile'),
                   child: const Text('Upload Photo')),
               // Full Name
+              const SizedBox(height: 5),
               CanBeEdited(
                 text: '${customer.firstName} ${customer.lastName}',
                 leading: 'Name',
+                onPressed: () {
+                  Get.to(() => const CustomerEditName());
+                },
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 5),
               // Email
-              CannotBeEdited(
+              CanBeEdited(
                 text: customer.email,
                 leading: 'Email',
+                onPressed: () {
+                  Get.to(() => const CustomerEditEmail());
+                },
               ),
-              const SizedBox(height: 8),
-              // Phone Number
-              CannotBeEdited(
+              const SizedBox(height: 5),
+              CanBeEdited(
                 text: customer.phoneNo,
                 leading: 'Phone',
+                onPressed: () {
+                  Get.to(() => const CustomerEditNumber());
+                },
               ),
+              CanBeEdited(
+                text: 'Change Password',
+                leading: 'Password',
+                onPressed: () {
+                  Get.to(() => const CustomerEditNumber());
+                },
+              ),
+              const SizedBox(height: 5),
+              CannotBeEdited(
+                text: format.formatDate(customer.createdAt),
+                leading: 'Created At',
+              ),
+
+              // Phone Number
             ],
           ),
         );
@@ -114,10 +141,12 @@ class CanBeEdited extends StatelessWidget {
     super.key,
     required this.text,
     required this.leading,
+    required this.onPressed,
   });
 
   final String text;
   final String leading;
+  final Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -131,9 +160,7 @@ class CanBeEdited extends StatelessWidget {
           ),
         ),
         IconButton(
-          onPressed: () {
-            Get.to(() => const EditName());
-          },
+          onPressed: onPressed,
           icon: const iconoir.ArrowRight(),
         ),
       ],

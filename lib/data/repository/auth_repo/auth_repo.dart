@@ -1,3 +1,5 @@
+import 'package:barbermate/common/widgets/toast.dart';
+import 'package:barbermate/features/auth/views/phone_number_verification/phone_number_otp.dart';
 import 'package:barbermate/features/barbershop/controllers/notification_controller/notification_controller.dart';
 import 'package:barbermate/features/customer/controllers/notification_controller/notification_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,6 +26,9 @@ class AuthenticationRepository extends GetxController {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance; // Firestore instance
 
+  var verificationId = ''.obs;
+  RxInt resendToken = RxInt(0);
+
   User? get authUser => _auth.currentUser;
 
   //======================================= On App Launch
@@ -44,11 +49,20 @@ class AuthenticationRepository extends GetxController {
         DocumentSnapshot userDoc =
             await _firestore.collection('Users').doc(user.uid).get();
         String role = userDoc['role'];
+        bool existing = userDoc['existing'];
 
         if (role == 'customer') {
-          Get.offAllNamed('/customer');
+          if (existing) {
+            Get.offAllNamed('/customer/dashboard');
+          } else {
+            Get.offAllNamed('/customer/setup_profile');
+          }
         } else if (role == 'barbershop') {
-          Get.offAllNamed('/barbershop');
+          if (existing) {
+            Get.offAllNamed('/barbershop/dashboard');
+          } else {
+            Get.offAllNamed('/barbershop/setup_profile');
+          }
         } else if (role == 'admin') {
           Get.offAllNamed('/admin');
         }
@@ -167,6 +181,201 @@ class AuthenticationRepository extends GetxController {
   }
 
   //======================================= Re Authenticate User
+  Future<bool> reAuthenticateUser(String currentPassword) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      final credential = EmailAuthProvider.credential(
+        email: user!.email!,
+        password: currentPassword,
+      );
+      await user.reauthenticateWithCredential(credential);
+      return true;
+    } on FirebaseAuthException catch (e) {
+      logger.e(
+          'Firebase Auth Exception reauthentication: ${e.code} - ${e.message}');
+      throw BFirebaseAuthException(e.code).message;
+    } on FirebaseException catch (e) {
+      logger.e(
+          'Firebase Exception during reauthentication: ${e.code} - ${e.message}');
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      logger.e('Format Exception: Invalid format during reauthentication');
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      logger.e(
+          'Platform Exception during reauthentication: ${e.code} - ${e.message}');
+      throw BPlatformException(e.code).message;
+    } catch (e) {
+      logger.e('Unexpected Error during reauthentication: $e');
+      return false;
+    }
+  }
+
+  Future<void> changeUserEmail(String newEmail) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      await user!.verifyBeforeUpdateEmail(newEmail);
+      await user.sendEmailVerification();
+      logger.e('Email change and verification sent');
+    } on FirebaseAuthException catch (e) {
+      logger.e(
+          'Firebase Auth Exception during change email: ${e.code} - ${e.message}');
+      throw BFirebaseAuthException(e.code).message;
+    } on FirebaseException catch (e) {
+      logger.e(
+          'Firebase Exception during change email: ${e.code} - ${e.message}');
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      logger.e('Format Exception: Invalid format during change email');
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      logger.e(
+          'Platform Exception during change email: ${e.code} - ${e.message}');
+      throw BPlatformException(e.code).message;
+    } catch (e) {
+      logger.e('Unexpected Error change email: $e');
+      throw 'Something went wrong. Please try again';
+    }
+  }
+
+  //============================================================================== Phone
+  // Future<void> phoneAuthenticate(String phoneNumber) async {
+  //   try {
+  //     await FirebaseAuth.instance.verifyPhoneNumber(
+  //       phoneNumber: phoneNumber,
+  //       verificationCompleted: (PhoneAuthCredential credential) async {
+  //         await _linkPhoneCredential(credential);
+  //       },
+  //       verificationFailed: (FirebaseAuthException e) {
+  //         String errorMessage = e.code == 'invalid-phone-number'
+  //             ? 'Invalid phone number. Please enter a valid one.'
+  //             : 'Something went wrong. Try again.';
+  //         ToastNotif(message: errorMessage, title: 'Oh Snap!')
+  //             .showErrorNotif(Get.context!);
+  //       },
+  //       codeSent: (String verificationId, int? token) async {
+  //         this.verificationId.value = verificationId;
+  //         resendToken.value = token ?? 0; // Assign token or 0 if null
+  //         ToastNotif(message: 'Verification code sent.', title: 'Success')
+  //             .showSuccessNotif(Get.context!);
+  //         Get.to(() => const PhoneNumberOTP());
+  //       },
+  //       codeAutoRetrievalTimeout: (String verificationId) {
+  //         this.verificationId.value = verificationId;
+  //       },
+  //     );
+  //   } catch (e) {
+  //     logger.e('Unexpected Error during phone verification: $e');
+  //     ToastNotif(
+  //             message: 'Something went wrong. Please try again.',
+  //             title: 'Error')
+  //         .showErrorNotif(Get.context!);
+  //   }
+  // }
+
+  // Future<bool> verifyOTP(String otp) async {
+  //   try {
+  //     PhoneAuthCredential credential = PhoneAuthProvider.credential(
+  //       verificationId: verificationId.value,
+  //       smsCode: otp,
+  //     );
+
+  //     // Instead of signing in, link the credential
+  //     await _linkPhoneCredential(credential);
+  //     ToastNotif(
+  //       message: 'Phone number verified and linked successfully.',
+  //       title: 'Success',
+  //     ).showSuccessNotif(Get.context!);
+  //     return true;
+  //   } catch (e) {
+  //     logger.e('Error verifying OTP: $e');
+  //     ToastNotif(message: 'Invalid OTP. Please try again.', title: 'Error')
+  //         .showErrorNotif(Get.context!);
+  //     return false;
+  //   }
+  // }
+
+  // Future<void> _linkPhoneCredential(PhoneAuthCredential credential) async {
+  //   try {
+  //     User? user = FirebaseAuth.instance.currentUser;
+  //     if (user != null) {
+  //       await user.linkWithCredential(credential);
+  //       logger.i('Phone number linked successfully.');
+  //     } else {
+  //       throw Exception('No authenticated user found.');
+  //     }
+  //   } catch (e) {
+  //     if (e is FirebaseAuthException && e.code == 'credential-already-in-use') {
+  //       ToastNotif(
+  //         message: 'This phone number is already linked to another account.',
+  //         title: 'Error',
+  //       ).showErrorNotif(Get.context!);
+  //     } else {
+  //       logger.e('Failed to link phone number: $e');
+  //       throw 'Failed to link phone number. Please try again.';
+  //     }
+  //   }
+  // }
+
+  // Future<void> resendCode(String phoneNumber) async {
+  //   try {
+  //     // Check if resendToken is greater than 0 (which means it's valid)
+  //     if (resendToken.value > 0) {
+  //       await FirebaseAuth.instance.verifyPhoneNumber(
+  //         phoneNumber: phoneNumber,
+  //         forceResendingToken: resendToken.value, // Use resend token
+  //         verificationCompleted: (PhoneAuthCredential credential) async {
+  //           await _linkPhoneCredential(credential);
+  //         },
+  //         verificationFailed: (FirebaseAuthException e) {
+  //           ToastNotif(
+  //                   message: 'Failed to resend code. Try again.',
+  //                   title: 'Error')
+  //               .showErrorNotif(Get.context!);
+  //         },
+  //         codeSent: (String verificationId, int? token) {
+  //           this.verificationId.value = verificationId;
+  //           resendToken.value = token ?? 0; // Update resend token
+  //           ToastNotif(message: 'Verification code resent.', title: 'Success')
+  //               .showSuccessNotif(Get.context!);
+  //         },
+  //         codeAutoRetrievalTimeout: (String verificationId) {
+  //           this.verificationId.value = verificationId;
+  //         },
+  //       );
+  //     } else {
+  //       ToastNotif(
+  //               message: 'No previous request found. Please start again.',
+  //               title: 'Error')
+  //           .showErrorNotif(Get.context!);
+  //     }
+  //   } catch (e) {
+  //     logger.e('Error resending verification code: $e');
+  //     ToastNotif(
+  //             message: 'Something went wrong. Please try again.',
+  //             title: 'Error')
+  //         .showErrorNotif(Get.context!);
+  //   }
+  // }
+
+  // Future<void> unlinkOldPhoneNumber() async {
+  //   try {
+  //     User? user = FirebaseAuth.instance.currentUser;
+  //     if (user != null) {
+  //       await user.unlink('phone');
+  //       ToastNotif(
+  //         message: 'Old phone number unlinked successfully.',
+  //         title: 'Success',
+  //       ).showSuccessNotif(Get.context!);
+  //     }
+  //   } catch (e) {
+  //     logger.e('Error unlinking old phone number: $e');
+  //     ToastNotif(
+  //       message: 'Failed to unlink old phone number.',
+  //       title: 'Error',
+  //     ).showErrorNotif(Get.context!);
+  //   }
+  // }
 
   //============================================================================== Social Sign In
 

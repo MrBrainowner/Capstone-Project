@@ -1,5 +1,6 @@
 import 'package:barbermate/common/pages/about_us_page.dart';
 import 'package:barbermate/common/pages/privacy_policy_page.dart';
+import 'package:barbermate/features/auth/views/phone_number_verification/phone_number_verification.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
@@ -103,6 +104,7 @@ class CustomerDrawer extends StatelessWidget {
               Get.to(() => const AboutUsPage());
             },
           ),
+
           ListTile(
             leading: const iconoir.LogOut(
               height: 25,

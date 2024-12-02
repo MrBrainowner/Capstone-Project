@@ -80,6 +80,7 @@ dependencies:
   image: ^3.2.0
   syncfusion_flutter_datepicker: ^27.2.3
   syncfusion_flutter_calendar: ^27.2.3
+  pinput: ^5.0.0
 
   
 

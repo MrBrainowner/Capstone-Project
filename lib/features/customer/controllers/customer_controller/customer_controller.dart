@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:barbermate/data/repository/auth_repo/auth_repo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -16,9 +16,13 @@ class CustomerController extends GetxController {
   final profileLoading = false.obs;
   Rx<CustomerModel> customer = CustomerModel.empty().obs;
   final CustomerRepository customerRepository = Get.find();
+  final AuthenticationRepository authrepo = Get.find();
 
   final firstName = TextEditingController();
   final lastName = TextEditingController();
+  final email = TextEditingController();
+  final password = TextEditingController();
+  final number = TextEditingController();
 
   RxString profileImageUrl = ''.obs;
   final ImagePicker _picker = ImagePicker();
@@ -31,11 +35,21 @@ class CustomerController extends GetxController {
     fetchCustomerData();
   }
 
-  Future<void> uploadProfileImage() async {
+  void makeCustomerExist() async {
+    await customerRepository.makeCustomerExist();
+  }
+
+  // Upload Image
+  Future<void> uploadImage(String type) async {
     try {
       // Pick an image from the gallery
       final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-      if (pickedFile == null) return;
+      if (pickedFile == null) {
+        return;
+      } else {
+        ToastNotif(message: 'Your image is uploading', title: 'Uploading')
+            .showSuccessNotif(Get.context!);
+      }
 
       final file = File(pickedFile.path);
 
@@ -83,27 +97,18 @@ class CustomerController extends GetxController {
   }
 
   // Save customer data from any registration provider
-  Future<void> saveCustomerData({
-    String? firstNamee,
-    String? lastNamee,
-    String? profileImage,
-  }) async {
+  Future<void> saveCustomerData(
+      {String? firstNamee, String? lastNamee, String? emaill}) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
 
       if (user != null) {
-        // Retrieve the current customer data from Firestore
-        final doc = await FirebaseFirestore.instance
-            .collection('Customers')
-            .doc(user.uid)
-            .get();
-        final existingData = CustomerModel.fromSnapshot(doc);
-
+        final existingData = customer.value;
         // Create an updated model only with the fields you want to change
         final updatedCustomer = existingData.copyWith(
           firstName: firstNamee ?? customer.value.firstName,
           lastName: lastNamee ?? customer.value.lastName,
-          profileImage: profileImage ?? existingData.profileImage,
+          email: emaill ?? customer.value.email,
         );
 
         // Update the customer data in Firestore
@@ -118,6 +123,85 @@ class CustomerController extends GetxController {
                   'Someting went wrong while saving your information. You can re-save your data in your profile.',
               title: 'Data not saved')
           .showWarningNotif(Get.context!);
+    }
+  }
+
+  // Change Email user
+  void changeEmailProcess(String currentPassword, String newEmail) async {
+    bool reauthenticated = await authrepo.reAuthenticateUser(currentPassword);
+
+    if (reauthenticated) {
+      try {
+        // Step 1: Change email in Firebase Authentication
+        await authrepo.changeUserEmail(newEmail);
+
+        // Step 2: Send verification email
+        await authrepo.sendEmailVerification();
+
+        ToastNotif(
+          message:
+              'Email updated successfully. Please verify your new email to complete the process.',
+          title: 'Verification Required',
+        ).showNormalNotif(Get.context!);
+
+        // Step 3: Wait for user to verify their new email
+        bool isVerified = await _waitForNewEmailVerification(newEmail);
+
+        if (isVerified) {
+          // Step 4: Update email in Firestore
+          await customerRepository
+              .updateCustomerSingleField({'email': newEmail});
+          ToastNotif(
+            message: 'Email verified and updated successfully.',
+            title: 'Success',
+          ).showSuccessNotif(Get.context!);
+        } else {
+          ToastNotif(
+            message: 'Email verification not completed. Please try again.',
+            title: 'Error',
+          ).showErrorNotif(Get.context!);
+        }
+      } catch (e) {
+        ToastNotif(
+          message: e.toString(),
+          title: 'Error',
+        ).showErrorNotif(Get.context!);
+      }
+    } else {
+      ToastNotif(
+        message: 'Re-authentication failed. Please try again.',
+        title: 'Error',
+      ).showErrorNotif(Get.context!);
+    }
+  }
+
+  // Helper function to wait for the new email verification
+  Future<bool> _waitForNewEmailVerification(String newEmail) async {
+    for (int i = 0; i < 10; i++) {
+      // 10 attempts for 30 seconds total
+      await Future.delayed(const Duration(seconds: 3));
+      await authrepo.authUser?.reload();
+
+      // Check if the current email matches the new email and is verified
+      if (authrepo.authUser?.email == newEmail) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  Future<void> updateSingleField(String number) async {
+    try {
+      await customerRepository.updateCustomerSingleField({'phone_no': number});
+      ToastNotif(
+        message: 'Field updated successfully.',
+        title: 'Success',
+      ).showSuccessNotif(Get.context!);
+    } catch (e) {
+      ToastNotif(
+        message: e.toString(),
+        title: 'Error',
+      ).showErrorNotif(Get.context!);
     }
   }
 
