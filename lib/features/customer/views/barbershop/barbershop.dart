@@ -1,3 +1,4 @@
+import 'package:barbermate/data/models/fetch_with_subcollection/all_barbershops_information.dart';
 import 'package:barbermate/features/auth/models/barbershop_model.dart';
 import 'package:barbermate/features/customer/views/booking/choose_haircut.dart';
 import 'package:barbermate/features/customer/views/reviews/reviews.dart';
@@ -8,7 +9,7 @@ import '../../controllers/get_haircuts_and_barbershops_controller/get_haircuts_a
 import '../widgets/booking_page/haircuts_card.dart';
 
 class BarbershopProfilePage extends StatelessWidget {
-  final BarbershopModel barbershop;
+  final BarbershopWithHaircuts barbershop;
 
   const BarbershopProfilePage({
     super.key,
@@ -23,7 +24,7 @@ class BarbershopProfilePage extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          barbershop.barbershopName,
+          barbershop.barbershop.barbershopName,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
       ),
@@ -44,41 +45,41 @@ class BarbershopProfilePage extends StatelessWidget {
               ),
               const SizedBox(height: 8.0),
               Text(
-                barbershop.barbershopName,
+                barbershop.barbershop.barbershopName,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 8.0),
               Text(
-                'Address: ${barbershop.streetAddress}',
+                'Address: ${barbershop.barbershop.streetAddress}',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 8.0),
               Text(
-                'Phone Number: ${barbershop.phoneNo}',
+                'Phone Number: ${barbershop.barbershop.phoneNo}',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 8.0),
               Text(
-                'Land Mark: ${barbershop.landMark}',
+                'Land Mark: ${barbershop.barbershop.landMark}',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 8.0),
               Text(
-                'Email: ${barbershop.email}',
+                'Email: ${barbershop.barbershop.email}',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 8.0),
               Text(
-                barbershop.floorNumber.isEmpty
+                barbershop.barbershop.floorNumber.isEmpty
                     ? 'Floor Number: None'
-                    : 'Floor Number: ${barbershop.floorNumber}',
+                    : 'Floor Number: ${barbershop.barbershop.floorNumber}',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 8.0),
               GestureDetector(
                 onTap: () async {
-                  Get.to(
-                      () => CustomerReviewsPage(barbershopId: barbershop.id));
+                  Get.to(() => CustomerReviewsPage(
+                      barbershopId: barbershop.barbershop.id));
                 },
                 child: Row(
                   children: [
@@ -112,10 +113,10 @@ class BarbershopProfilePage extends StatelessWidget {
                 child: Obx(() {
                   if (controller.isLoading.value) {
                     return const Center(child: CircularProgressIndicator());
-                  } else if (controller.barbershopHaircuts.isEmpty) {
-                    return const Center(child: Text('No barber available.'));
+                  } else if (barbershop.haircuts.isEmpty) {
+                    return const Center(child: Text('No haircuts available.'));
                   } else {
-                    final haircuts = controller.barbershopHaircuts;
+                    final haircut = barbershop.haircuts;
                     return GridView.builder(
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
@@ -125,9 +126,9 @@ class BarbershopProfilePage extends StatelessWidget {
                         childAspectRatio: 0.7,
                         mainAxisExtent: 215, // Aspect ratio for vertical cards
                       ),
-                      itemCount: haircuts.length,
+                      itemCount: barbershop.haircuts.length,
                       itemBuilder: (BuildContext context, int index) {
-                        final barbershopHaircut = haircuts[index];
+                        final barbershopHaircut = haircut[index];
                         return HaircutsCard(haircut: barbershopHaircut);
                       },
                     );
@@ -143,7 +144,7 @@ class BarbershopProfilePage extends StatelessWidget {
           child: SizedBox(
             child: ElevatedButton(
                 onPressed: () {
-                  Get.to(() => const ChooseHaircut());
+                  Get.to(() => ChooseHaircut(barbershop: barbershop));
                 },
                 child: const Text('Book Now')),
           )),

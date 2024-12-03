@@ -1,5 +1,6 @@
 import 'dart:async';
-
+import 'package:rxdart/rxdart.dart' as rx;
+import 'package:barbermate/data/models/fetch_with_subcollection/all_barbershops_information.dart';
 import 'package:barbermate/data/repository/barbershop_repo/barbershop_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -18,11 +19,10 @@ class GetHaircutsAndBarbershopsController extends GetxController {
   final BarbershopRepository _barbershopRepository = Get.find();
   final TimeslotRepository _timeslotsRepository = Get.find();
 
-  RxList<HaircutModel> haircuts = <HaircutModel>[].obs;
   RxList<TimeSlotModel> timeSlots = <TimeSlotModel>[].obs;
-  RxList<HaircutModel> barbershopHaircuts = <HaircutModel>[].obs;
-  RxList<BarbershopModel> barbershops = <BarbershopModel>[].obs;
   Rx<AvailableDaysModel?> availableDays = Rx<AvailableDaysModel?>(null);
+  RxList<BarbershopWithHaircuts> barbershopWithHaircutsList =
+      <BarbershopWithHaircuts>[].obs;
 
   StreamSubscription? _reviewsStreamSubscription;
   StreamSubscription? _reviewsStreamSubscription2;
@@ -36,11 +36,11 @@ class GetHaircutsAndBarbershopsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    listenToBarbershopsStream(); // Start listening when the controller is initialized
+    fetchAllBarbershopsWithHaircuts(); // Start listening when the controller is initialized
   }
 
   Future<void> refreshData() async {
-    listenToBarbershopsStream();
+    fetchAllBarbershopsWithHaircuts();
   }
 
 //======================================================================== open hours logic
@@ -84,62 +84,95 @@ class GetHaircutsAndBarbershopsController extends GetxController {
 
 //======================================================================== fetch haircuts
 
+  void fetchAllBarbershopsWithHaircuts() {
+    isLoading(true); // Show loading spinner
+
+    _barbershopRepository.fetchAllBarbershops().listen((barbershopList) {
+      // Create a list of streams for each barbershop’s haircuts
+      List<Stream<BarbershopWithHaircuts>> barbershopWithHaircutStreams =
+          barbershopList.map((barbershop) {
+        return _barbershopRepository
+            .fetchBarbershopHaircuts(barbershop.id)
+            .map((haircuts) {
+          return BarbershopWithHaircuts(
+            barbershop: barbershop,
+            haircuts: haircuts,
+          );
+        });
+      }).toList();
+
+      // Combine all haircut streams with barbershop streams using Rx.combineLatestStream
+      rx.CombineLatestStream(barbershopWithHaircutStreams,
+              (List<BarbershopWithHaircuts> combinedList) => combinedList)
+          .listen((result) {
+        barbershopWithHaircutsList.assignAll(result);
+        isLoading(false); // Hide loading spinner
+      }, onError: (error) {
+        print("Error fetching barbershops with haircuts: $error");
+        isLoading(false);
+      });
+    }, onError: (error) {
+      print("Error fetching barbershops: $error");
+      isLoading(false);
+    });
+  }
+
 //======================================================================== fetch barbershop
 
   // Listen to the stream for new barbershops
-  void listenToBarbershopsStream() {
-    isLoading(true); // Set loading to true while the first fetch occurs
-    _barbershopRepository.fetchAllBarbershops().listen(
-      (newBarbershops) {
-        // Update the list of barbershops
-        barbershops.assignAll(newBarbershops);
+  // void listenToBarbershopsStream() {
+  //   isLoading(true); // Set loading to true while the first fetch occurs
+  //   _barbershopRepository.fetchAllBarbershops().listen(
+  //     (newBarbershops) {
+  //       // Update the list of barbershops
+  //       barbershops.assignAll(newBarbershops);
 
-        // Once the first data comes in, stop loading
-        if (isLoading.value) {
-          isLoading(false);
-        }
-      },
-      onError: (error) {
-        // Handle error if any occurs in the stream
-        ToastNotif(
-                message: 'Error fetching barbershops: $error', title: 'Error')
-            .showErrorNotif(Get.context!);
+  //       // Once the first data comes in, stop loading
+  //       if (isLoading.value) {
+  //         isLoading(false);
+  //       }
+  //     },
+  //     onError: (error) {
+  //       // Handle error if any occurs in the stream
+  //       ToastNotif(
+  //               message: 'Error fetching barbershops: $error', title: 'Error')
+  //           .showErrorNotif(Get.context!);
 
-        // Stop loading in case of error
-        isLoading(false);
-      },
-    );
-  }
+  //       // Stop loading in case of error
+  //       isLoading(false);
+  //     },
+  //   );
+  // }
 
   /// Listen to the stream for haircuts in a specific barbershop
-  void listenToHaircutsStream(String barbershopId) {
-    isLoading(true); // Set loading to true while fetching
-    _barbershopRepository.fetchBarbershopHaircuts(barbershopId).listen(
-      (newHaircuts) {
-        // Update the list of haircuts
-        barbershopHaircuts.assignAll(newHaircuts);
-        // Once the first data comes in, stop loading
-        if (isLoading.value) {
-          isLoading(false);
-        }
+  // void listenToHaircutsStream(String barbershopId) {
+  //   isLoading(true); // Set loading to true while fetching
+  //   _barbershopRepository.fetchBarbershopHaircuts(barbershopId).listen(
+  //     (newHaircuts) {
+  //       // Update the list of haircuts
+  //       barbershopHaircuts.assignAll(newHaircuts);
+  //       // Once the first data comes in, stop loading
+  //       if (isLoading.value) {
+  //         isLoading(false);
+  //       }
 
-        listenToTimeslotAvailabledayStreams(barbershopId);
-      },
-      onError: (error) {
-        // Handle error if any occurs in the stream
-        ToastNotif(message: 'Error fetching haircuts: $error', title: 'Error')
-            .showErrorNotif(Get.context!);
-      },
-      onDone: () {
-        isLoading(false); // Stop loading when the stream is done
-      },
-    );
-  }
+  //       listenToTimeslotAvailabledayStreams(barbershopId);
+  //     },
+  //     onError: (error) {
+  //       // Handle error if any occurs in the stream
+  //       ToastNotif(message: 'Error fetching haircuts: $error', title: 'Error')
+  //           .showErrorNotif(Get.context!);
+  //     },
+  //     onDone: () {
+  //       isLoading(false); // Stop loading when the stream is done
+  //     },
+  //   );
+  // }
 
-  void listenToTimeslotAvailabledayStreams(String shopId) {
-    listenToBarbershopTimeSlotsStream(shopId);
-    listenToBarbershopAvailableDaysStream(shopId);
-  }
+  // void listenToTimeslotAvailabledayStreams(String shopId) {
+  //   listenToBarbershopTimeSlotsStream(shopId);
+  //   listenToBarbershopAvailableDaysStream(shopId);
+  // }
 
   //======================================================================== timeslots
 

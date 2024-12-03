@@ -1,3 +1,4 @@
+import 'package:barbermate/data/models/fetch_with_subcollection/all_barbershops_information.dart';
 import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
 import 'package:barbermate/features/customer/views/booking/choose_schedule.dart';
 import 'package:barbermate/features/customer/views/widgets/booking_page/haircuts_card.dart';
@@ -8,7 +9,10 @@ import '../../controllers/get_haircuts_and_barbershops_controller/get_haircuts_a
 class ChooseHaircut extends StatelessWidget {
   const ChooseHaircut({
     super.key,
+    required this.barbershop,
   });
+
+  final BarbershopWithHaircuts barbershop;
 
   @override
   Widget build(BuildContext context) {
@@ -44,10 +48,10 @@ class ChooseHaircut extends StatelessWidget {
           child: Obx(() {
             if (controller.isLoading.value) {
               return const Center(child: CircularProgressIndicator());
-            } else if (controller.barbershopHaircuts.isEmpty) {
+            } else if (barbershop.haircuts.isEmpty) {
               return const Center(child: Text('No Haircut available.'));
             } else {
-              final haircuts = controller.barbershopHaircuts;
+              final haircuts = barbershop.haircuts;
               return GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2, // 2 columns

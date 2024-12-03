@@ -238,7 +238,59 @@ class AuthenticationRepository extends GetxController {
     }
   }
 
-  //============================================================================== Phone
+  //======================================= Change Password
+  Future<void> changePassword(
+      String email, String currentPassword, String newPassword) async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        throw FirebaseAuthException(
+            code: 'no-user', message: 'No user is currently signed in.');
+      }
+
+      // Step 1: Re-authenticate the user
+      AuthCredential credential =
+          EmailAuthProvider.credential(email: email, password: currentPassword);
+      await user.reauthenticateWithCredential(credential);
+
+      logger.e(email);
+      logger.e(currentPassword);
+      logger.e(newPassword);
+
+      // Step 2: Update the password
+      await user.updatePassword(newPassword);
+
+      ToastNotif(
+        message: 'Password updated successfully.',
+        title: 'Success',
+      ).showSuccessNotif(Get.context!);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        ToastNotif(
+          message: 'Please re-authenticate to update your password.',
+          title: 'Authentication Required',
+        ).showErrorNotif(Get.context!);
+      } else if (e.code == 'wrong-password') {
+        ToastNotif(
+          message: 'Incorrect current password. Please try again.',
+          title: 'Error',
+        ).showErrorNotif(Get.context!);
+      } else {
+        ToastNotif(
+          message: 'Failed to update password: ${e.message}',
+          title: 'Error',
+        ).showErrorNotif(Get.context!);
+      }
+    } catch (e) {
+      ToastNotif(
+        message: 'Unexpected error: $e',
+        title: 'Error',
+      ).showErrorNotif(Get.context!);
+    }
+  }
+
+  //======================================= Phone
   // Future<void> phoneAuthenticate(String phoneNumber) async {
   //   try {
   //     await FirebaseAuth.instance.verifyPhoneNumber(

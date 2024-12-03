@@ -1,8 +1,8 @@
+import 'package:barbermate/features/customer/controllers/customer_controller/customer_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
 import '../../controllers/get_directions_controller/get_directions_controller.dart';
 
 class MapWidget extends StatelessWidget {
@@ -10,7 +10,7 @@ class MapWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(GetDirectionsController());
+    final GetDirectionsController controller = Get.find();
     return Obx(
       () => Positioned(
         top: 0,
@@ -62,47 +62,73 @@ class MapWidget extends StatelessWidget {
   }
 
   List<Marker> _buildMarkers() {
-    final controller = Get.put(GetDirectionsController());
+    final GetDirectionsController controller = Get.find();
+    final CustomerController customerController = Get.find();
+
+    final barbershops =
+        controller.barbershopsController.barbershopWithHaircutsList;
+
     return [
       if (controller.currentLocation.value != null)
         Marker(
           point: controller.currentLocation.value!,
-          width: 30.0,
-          height: 30.0,
-          child: const iconoir.Position(
-            height: 30,
+          width: 100.0,
+          height: 80.0,
+          child: Column(
+            children: [
+              Flexible(
+                  child: Text(
+                customerController.customer.value.firstName,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              )),
+              CircleAvatar(
+                radius: 20.0,
+                backgroundImage: NetworkImage(
+                    customerController.customer.value.profileImage),
+              ),
+            ],
           ),
         ),
-      ...controller.barbershopsController.barbershops
-          .asMap()
-          .entries
-          .map((entry) {
+      ...barbershops.asMap().entries.map((entry) {
         final index = entry.key;
-        final barbershop = controller.barbershopsController.barbershops[index];
-        final location = LatLng(barbershop.latitude, barbershop.longitude);
-        final logoUrl = barbershop.barbershopProfileImage;
+        final barbershop = barbershops[index];
+        final location = LatLng(
+            barbershop.barbershop.latitude, barbershop.barbershop.longitude);
+        final logoUrl = barbershop.barbershop.barbershopProfileImage;
 
         return Marker(
           point: location,
-          width: 50.0,
-          height: 50.0,
-          child: GestureDetector(
-            onTap: () async {
-              final distance =
-                  controller.barbershopDistances[index]?.toStringAsFixed(2) ??
-                      'Calculating...';
-              // controller.zoomToLocation(location);
-              controller.fetchDirections(location);
-              controller.showBarbershopDetails(
-                  location,
-                  barbershop.barbershopName,
-                  distance,
-                  barbershop.barbershopBannerImage);
-            },
-            child: CircleAvatar(
-              radius: 20.0,
-              backgroundImage: NetworkImage(logoUrl),
-            ),
+          width: 100.0,
+          height: 80.0,
+          child: Column(
+            children: [
+              Flexible(
+                  child: Text(
+                barbershop.barbershop.barbershopName,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              )),
+              GestureDetector(
+                onTap: () async {
+                  final distance = controller.barbershopDistances[index]
+                          ?.toStringAsFixed(2) ??
+                      'Turn on location...';
+                  // controller.zoomToLocation(location);
+                  controller.fetchDirections(location);
+                  controller.showBarbershopDetails(
+                      location,
+                      barbershop.barbershop.barbershopName,
+                      distance,
+                      barbershop.barbershop.barbershopBannerImage,
+                      barbershop);
+                },
+                child: CircleAvatar(
+                  radius: 20.0,
+                  backgroundImage: NetworkImage(logoUrl),
+                ),
+              ),
+            ],
           ),
         );
       }),

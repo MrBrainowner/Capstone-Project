@@ -9,6 +9,7 @@ import 'package:barbermate/data/repository/review_repo/review_repo.dart';
 import 'package:barbermate/features/barbershop/controllers/barbers_controller/barbers_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/barbershop_controller/barbershop_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/booking_controller/booking_controller.dart';
+import 'package:barbermate/features/barbershop/controllers/change_email_controller_barbershop/barbershop_change_email_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/haircuts_controller/haircuts_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/notification_controller/notification_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/review_controller/review_controller.dart';
@@ -61,6 +62,9 @@ class BarbershopBinding extends Bindings {
     Get.lazyPut<TimeSlotController>(() => TimeSlotController(), fenix: true);
     //verification
     Get.lazyPut<VerificationController>(() => VerificationController(),
+        fenix: true);
+    Get.lazyPut<ChangeEmailControllerBarbershop>(
+        () => ChangeEmailControllerBarbershop(),
         fenix: true);
   }
 }

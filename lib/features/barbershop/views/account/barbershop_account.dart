@@ -7,6 +7,7 @@ import 'package:barbermate/features/barbershop/views/account/edit_floors.dart';
 import 'package:barbermate/features/barbershop/views/account/edit_landmark.dart';
 import 'package:barbermate/features/barbershop/views/account/edit_name.dart';
 import 'package:barbermate/features/barbershop/views/account/edit_number.dart';
+import 'package:barbermate/features/barbershop/views/account/edit_password.dart';
 import 'package:barbermate/utils/constants/format_date.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -93,6 +94,56 @@ class BarbershopAccount extends StatelessWidget {
                 ),
 
                 const Divider(),
+                Container(
+                  height: 200,
+                  width: 300,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  ),
+                  child: Obx(
+                    () => ClipRRect(
+                      borderRadius: const BorderRadius.all(Radius.circular(10)),
+                      child: barbershopController
+                              .barbershop.value.barbershopBannerImage.isEmpty
+                          ? const Center(child: Text('Upload Profile'))
+                          : Image.network(
+                              barbershopController
+                                  .barbershop.value.barbershopBannerImage,
+                              fit: BoxFit.cover,
+                            ),
+                    ),
+                  ),
+                ),
+                TextButton(
+                    onPressed: () => barbershopController.uploadImage('Banner'),
+                    child: const Text('Upload Your Barbershop Banner')),
+                const Divider(),
+                Container(
+                  height: 100,
+                  width: 100,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  ),
+                  child: Obx(
+                    () => ClipRRect(
+                      borderRadius: const BorderRadius.all(Radius.circular(10)),
+                      child: barbershopController
+                              .barbershop.value.barbershopProfileImage.isEmpty
+                          ? const Center(child: Text('Upload Logo'))
+                          : Image.network(
+                              barbershopController
+                                  .barbershop.value.barbershopProfileImage,
+                              fit: BoxFit.cover,
+                            ),
+                    ),
+                  ),
+                ),
+                TextButton(
+                    onPressed: () => barbershopController.uploadImage('Logo'),
+                    child: const Text('Upload Your Barbershop Logo')),
+                const Divider(),
                 const SizedBox(height: 10),
                 CanBeEdited(
                   text: barbershop.address,
@@ -116,7 +167,7 @@ class BarbershopAccount extends StatelessWidget {
                 ),
 
                 CanBeEdited(
-                  text: barbershop.floorNumber.isEmpty
+                  text: barbershop.landMark.isEmpty
                       ? 'None'
                       : barbershop.landMark,
                   leading: 'Nearby Land Mark',
@@ -125,7 +176,9 @@ class BarbershopAccount extends StatelessWidget {
                 CanBeEdited(
                   text: 'Change Password',
                   leading: 'Password',
-                  onPressed: () {},
+                  onPressed: () {
+                    Get.to(() => const BarbershopEditPassword());
+                  },
                 ),
                 const Divider(),
                 CannotBeEdited(

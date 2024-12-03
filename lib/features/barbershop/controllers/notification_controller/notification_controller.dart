@@ -35,7 +35,7 @@ class BarbershopNotificationController extends GetxController {
     isLoading.value = true;
 
     // Listen to the notifications stream from the repository
-    _repo.fetchNotificationsCustomers().listen(
+    _repo.fetchNotificationsBarbershop().listen(
       (List<NotificationModel> data) {
         // Check for new notifications by comparing the current list with the previous one
         if (notifications.isNotEmpty) {

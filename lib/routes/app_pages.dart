@@ -39,10 +39,10 @@ class RoleBasedPage {
           page: () => const CustomerDashboard(),
           binding: CustomerBinding(),
           children: [
-            GetPage(
-              name: '/customer/chooseHaircut',
-              page: () => const ChooseHaircut(),
-            ),
+            // GetPage(
+            //   name: '/customer/chooseHaircut',
+            //   page: () => const ChooseHaircut(),
+            // ),
             GetPage(
               name: '/customer/customerNotifications',
               page: () => const CustomerNotifications(),

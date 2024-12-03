@@ -38,10 +38,10 @@ dependencies:
   smooth_page_indicator: ^1.2.0+3
   toastification: ^2.2.0
   flutter_native_splash: ^2.2.16
-  firebase_core: ^3.6.0
+  firebase_core: ^3.8.0
   firebase_analytics: ^11.3.1
   cloud_firestore: ^5.4.3
-  firebase_auth: ^5.3.1
+  firebase_auth: ^5.3.3
   flutter_svg: ^2.0.10+1
   iconoir_flutter: ^7.9.0
   get: ^4.6.6
@@ -81,6 +81,8 @@ dependencies:
   syncfusion_flutter_datepicker: ^27.2.3
   syncfusion_flutter_calendar: ^27.2.3
   pinput: ^5.0.0
+  google_mlkit_face_mesh_detection: ^0.3.0
+  rxdart: ^0.28.0
 
   
 

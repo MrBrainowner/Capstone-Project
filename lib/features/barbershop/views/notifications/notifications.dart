@@ -9,7 +9,7 @@ class BarbershopNotifications extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(BarbershopNotificationController());
+    final BarbershopNotificationController controller = Get.find();
 
     return Scaffold(
       appBar: AppBar(

@@ -1,3 +1,4 @@
+import 'package:barbermate/features/customer/controllers/get_directions_controller/get_directions_controller.dart';
 import 'package:barbermate/features/customer/controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
 import 'package:barbermate/features/customer/views/face_shape_detector/face_shape_detection_ai.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ class CustomerDashboard extends StatelessWidget {
         Get.find();
     final DateTime now = DateTime.now();
     final String formattedDate = DateFormat('MMMM d, y').format(now);
+    final GetDirectionsController getDirectionsController = Get.find();
 
     return Scaffold(
       key: scaffoldKey,
@@ -98,6 +100,7 @@ class CustomerDashboard extends StatelessWidget {
                           const SizedBox(width: 5),
                           ElevatedButton(
                             onPressed: () {
+                              getDirectionsController.getCurrentLocation();
                               Get.to(() => const GetDirectionsPage2());
                             },
                             child: const iconoir.Map(
@@ -118,19 +121,21 @@ class CustomerDashboard extends StatelessWidget {
                     child: Obx(() {
                       if (haircutBarberController.isLoading.value) {
                         return const Center(child: CircularProgressIndicator());
-                      } else if (haircutBarberController.barbershops.isEmpty) {
+                      } else if (haircutBarberController
+                          .barbershopWithHaircutsList.isEmpty) {
                         return const Center(
                             child: Text('No Barbershop available.'));
                       } else {
-                        final barbershop = haircutBarberController.barbershops;
+                        final barbershops =
+                            haircutBarberController.barbershopWithHaircutsList;
 
                         return ListView.builder(
-                          itemCount: haircutBarberController.barbershops.length,
+                          itemCount: barbershops.length,
                           scrollDirection: Axis.horizontal,
                           itemBuilder: (context, index) {
-                            final shops = barbershop[index];
+                            final shops = barbershops[index];
                             haircutBarberController
-                                .checkIsOpenNow(shops.openHours);
+                                .checkIsOpenNow(shops.barbershop.openHours);
 
                             return CustomerBarbershopCard(
                               barberhop: shops,

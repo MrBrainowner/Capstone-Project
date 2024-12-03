@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-
 import '../../../../common/widgets/toast.dart';
 import '../../../../data/repository/barbershop_repo/barbershop_repo.dart';
 
@@ -16,17 +15,21 @@ class BarbershopController extends GetxController {
   final profileLoading = false.obs;
   Rx<BarbershopModel> barbershop = BarbershopModel.empty().obs;
   final BarbershopRepository barbershopRepository = Get.find();
+  final _authRepository = Get.put(AuthenticationRepository());
 
   final firstName = TextEditingController();
   final lastName = TextEditingController();
-  final email = TextEditingController();
+  TextEditingController email = TextEditingController();
   final password = TextEditingController();
   final number = TextEditingController();
   final address = TextEditingController();
   final floors = TextEditingController();
   final landmark = TextEditingController();
   final barbershopName = TextEditingController();
-
+  final currentPasswordController = TextEditingController();
+  final newPasswordController = TextEditingController();
+  GlobalKey<FormState> signUpFormKey = GlobalKey<FormState>();
+  final hidePassword = true.obs;
   final ImagePicker _picker = ImagePicker();
 
   StreamSubscription? _reviewsStreamSubscription;
@@ -116,73 +119,7 @@ class BarbershopController extends GetxController {
     }
   }
 
-  // Change Email user
-  void changeEmailProcessBarbershop(
-      String currentPassword, String newEmail) async {
-    bool reauthenticated = await AuthenticationRepository.instance
-        .reAuthenticateUser(currentPassword);
-
-    if (reauthenticated) {
-      try {
-        // Step 1: Change email in Firebase Authentication
-        await AuthenticationRepository.instance.changeUserEmail(newEmail);
-
-        // Step 2: Send verification email
-        await AuthenticationRepository.instance.sendEmailVerification();
-
-        ToastNotif(
-          message:
-              'Email updated successfully. Please verify your new email to complete the process.',
-          title: 'Verification Required',
-        ).showNormalNotif(Get.context!);
-
-        // Step 3: Wait for user to verify their new email
-        bool isVerified =
-            await _waitForNewEmailVerificationBarbershop(newEmail);
-
-        if (isVerified) {
-          // Step 4: Update email in Firestore
-          await barbershopRepository
-              .updateBarbershopSingleField({'email': newEmail});
-          ToastNotif(
-            message: 'Email verified and updated successfully.',
-            title: 'Success',
-          ).showSuccessNotif(Get.context!);
-        } else {
-          ToastNotif(
-            message: 'Email verification not completed. Please try again.',
-            title: 'Error',
-          ).showErrorNotif(Get.context!);
-        }
-      } catch (e) {
-        ToastNotif(
-          message: e.toString(),
-          title: 'Error',
-        ).showErrorNotif(Get.context!);
-      }
-    } else {
-      ToastNotif(
-        message: 'Re-authentication failed. Please try again.',
-        title: 'Error',
-      ).showErrorNotif(Get.context!);
-    }
-  }
-
-  // Helper function to wait for the new email verification
-  Future<bool> _waitForNewEmailVerificationBarbershop(String newEmail) async {
-    for (int i = 0; i < 10; i++) {
-      // 10 attempts for 30 seconds total
-      await Future.delayed(const Duration(seconds: 3));
-      await AuthenticationRepository.instance.authUser?.reload();
-
-      // Check if the current email matches the new email and is verified
-      if (AuthenticationRepository.instance.authUser?.email == newEmail) {
-        return true;
-      }
-    }
-    return false;
-  }
-
+  // Update a single fied
   Future<void> updateSingleFieldBarbershop(Map<String, dynamic> json) async {
     try {
       await barbershopRepository.updateBarbershopSingleField(json);
@@ -195,6 +132,28 @@ class BarbershopController extends GetxController {
         message: e.toString(),
         title: 'Error',
       ).showErrorNotif(Get.context!);
+    }
+  }
+
+  // change password
+  Future<void> changePassword() async {
+    try {
+      profileLoading.value = true;
+
+      if (!signUpFormKey.currentState!.validate()) {
+        return;
+      }
+
+      // Call the repository method to change the password
+      await _authRepository.changePassword(
+          email.text.trim(),
+          currentPasswordController.text.trim(),
+          newPasswordController.text.trim());
+    } catch (e) {
+      // Show an error message if something went wrong
+      Get.snackbar('Error', 'Failed to change password: ${e.toString()}');
+    } finally {
+      profileLoading.value = false;
     }
   }
 

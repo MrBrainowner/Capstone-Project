@@ -7,6 +7,7 @@ import 'package:barbermate/data/repository/review_repo/review_repo.dart';
 import 'package:barbermate/data/services/map/direction_services.dart';
 import 'package:barbermate/data/services/map/location_services.dart';
 import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
+import 'package:barbermate/features/customer/controllers/change_email_controller/change_email_controller.dart';
 import 'package:barbermate/features/customer/controllers/customer_controller/customer_controller.dart';
 import 'package:barbermate/features/customer/controllers/detect_face_shape/detect_face_shape_controller.dart';
 import 'package:barbermate/features/customer/controllers/get_directions_controller/get_directions_controller.dart';
@@ -53,9 +54,11 @@ class CustomerBinding extends Bindings {
     Get.lazyPut<CustomerBookingController>(() => CustomerBookingController(),
         fenix: true);
     //directions
-    Get.lazyPut<GetDirectionsController>(() => GetDirectionsController(),
-        fenix: true);
+    Get.put<GetDirectionsController>(GetDirectionsController(),
+        permanent: true);
     //ai
     Get.lazyPut<DetectFaceShape>(() => DetectFaceShape(), fenix: true);
+    Get.lazyPut<ChangeEmailController>(() => ChangeEmailController(),
+        fenix: true);
   }
 }

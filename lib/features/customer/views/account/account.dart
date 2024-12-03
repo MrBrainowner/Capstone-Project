@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:barbermate/features/customer/views/account/edit_email.dart';
 import 'package:barbermate/features/customer/views/account/edit_number.dart';
+import 'package:barbermate/features/customer/views/account/edit_password.dart';
 import 'package:barbermate/utils/constants/format_date.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -83,7 +84,7 @@ class CustomerAccount extends StatelessWidget {
                 text: 'Change Password',
                 leading: 'Password',
                 onPressed: () {
-                  Get.to(() => const CustomerEditNumber());
+                  Get.to(() => const CustomerEditPassword());
                 },
               ),
               const SizedBox(height: 5),

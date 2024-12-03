@@ -1,5 +1,5 @@
 import 'package:barbermate/features/auth/views/sign_in/sign_in_widgets/textformfield.dart';
-import 'package:barbermate/features/customer/controllers/customer_controller/customer_controller.dart';
+import 'package:barbermate/features/customer/controllers/change_email_controller/change_email_controller.dart';
 import 'package:barbermate/utils/validators/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,7 +10,7 @@ class CustomerEditEmail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final validator = Get.put(ValidatorController());
-    final CustomerController controller = Get.find();
+    final ChangeEmailController controller = Get.find();
 
     return Scaffold(
       appBar: AppBar(
@@ -28,7 +28,7 @@ class CustomerEditEmail extends StatelessWidget {
                 controller: controller.email,
                 keyboardtype: TextInputType.name,
                 validator: (value) => validator.validateEmpty(value),
-                labelText: 'Email',
+                labelText: 'New Email',
                 obscureText: false,
                 icon: const Icon(Icons.email_outlined),
               ),
@@ -49,7 +49,6 @@ class CustomerEditEmail extends StatelessWidget {
                       controller.changeEmailProcess(
                           controller.password.text.trim(),
                           controller.email.text.trim());
-                      Get.back();
                     },
                     child: const Text('Update')),
               )

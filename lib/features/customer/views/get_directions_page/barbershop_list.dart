@@ -41,30 +41,33 @@ class BarbershopList extends StatelessWidget {
                 return const Center(child: CircularProgressIndicator());
               }
 
+              final barbershops =
+                  controller.barbershopsController.barbershopWithHaircutsList;
+
               return ListView.builder(
                 controller: scrollController,
-                itemCount: controller.barbershopsController.barbershops.length,
+                itemCount: barbershops.length,
                 itemBuilder: (context, index) {
-                  final barbershop =
-                      controller.barbershopsController.barbershops[index];
+                  final barbershop = barbershops[index];
                   final distance = controller.barbershopDistances[index]
                           ?.toStringAsFixed(2) ??
-                      'Calculating...';
+                      'Turn on location';
 
                   return BarbershopCard(
-                    profile: barbershop.barbershopProfileImage,
-                    name: barbershop.barbershopName,
-                    distance: distance,
+                    profile: barbershop.barbershop.barbershopProfileImage,
+                    name: barbershop.barbershop.barbershopName,
+                    distance: '$distance km',
                     onTap: () async {
-                      var locations =
-                          LatLng(barbershop.latitude, barbershop.longitude);
+                      var locations = LatLng(barbershop.barbershop.latitude,
+                          barbershop.barbershop.longitude);
                       await controller.fetchDirections(locations);
                       controller.zoomToLocation(locations);
                       controller.showBarbershopDetails(
                           locations,
-                          barbershop.barbershopName,
+                          barbershop.barbershop.barbershopName,
                           distance,
-                          barbershop.barbershopBannerImage);
+                          barbershop.barbershop.barbershopBannerImage,
+                          barbershop);
                     },
                   );
                 },

@@ -1,4 +1,3 @@
-import 'package:barbermate/common/widgets/notification_template.dart';
 import 'package:barbermate/features/barbershop/controllers/notification_controller/notification_controller.dart';
 import 'package:barbermate/features/barbershop/views/notifications/notifications.dart';
 import 'package:flutter/material.dart';
