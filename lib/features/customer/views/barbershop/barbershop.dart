@@ -1,5 +1,4 @@
-import 'package:barbermate/data/models/fetch_with_subcollection/all_barbershops_information.dart';
-import 'package:barbermate/features/auth/models/barbershop_model.dart';
+import 'package:barbermate/data/models/combined_model/barbershop_combined_model.dart';
 import 'package:barbermate/features/customer/views/booking/choose_haircut.dart';
 import 'package:barbermate/features/customer/views/reviews/reviews.dart';
 import 'package:flutter/material.dart';
@@ -9,12 +8,12 @@ import '../../controllers/get_haircuts_and_barbershops_controller/get_haircuts_a
 import '../widgets/booking_page/haircuts_card.dart';
 
 class BarbershopProfilePage extends StatelessWidget {
-  final BarbershopWithHaircuts barbershop;
-
   const BarbershopProfilePage({
     super.key,
     required this.barbershop,
   });
+
+  final BarbershopCombinedModel barbershop;
 
   @override
   Widget build(BuildContext context) {
@@ -78,8 +77,7 @@ class BarbershopProfilePage extends StatelessWidget {
               const SizedBox(height: 8.0),
               GestureDetector(
                 onTap: () async {
-                  Get.to(() => CustomerReviewsPage(
-                      barbershopId: barbershop.barbershop.id));
+                  Get.to(() => CustomerReviewsPage(barbershop: barbershop));
                 },
                 child: Row(
                   children: [
@@ -144,7 +142,8 @@ class BarbershopProfilePage extends StatelessWidget {
           child: SizedBox(
             child: ElevatedButton(
                 onPressed: () {
-                  Get.to(() => ChooseHaircut(barbershop: barbershop));
+                  Get.to(
+                      () => ChooseHaircut(barbershopCombinedData: barbershop));
                 },
                 child: const Text('Book Now')),
           )),

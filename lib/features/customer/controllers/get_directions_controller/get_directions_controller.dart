@@ -1,4 +1,4 @@
-import 'package:barbermate/data/models/fetch_with_subcollection/all_barbershops_information.dart';
+import 'package:barbermate/data/models/combined_model/barbershop_combined_model.dart';
 import 'package:barbermate/features/customer/controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
 import 'package:barbermate/features/customer/views/booking/choose_haircut.dart';
 import 'package:flutter/material.dart';
@@ -60,7 +60,7 @@ class GetDirectionsController extends GetxController {
   Future<void> calculateAllDistances() async {
     if (currentLocation.value == null) return;
 
-    final barbershops = barbershopsController.barbershopWithHaircutsList
+    final barbershops = barbershopsController.barbershopCombinedModel
         .map((barbershopWithHaircuts) => barbershopWithHaircuts.barbershop)
         .toList();
 
@@ -121,7 +121,7 @@ class GetDirectionsController extends GetxController {
   }
 
   void showBarbershopDetails(LatLng location, String name, String distance,
-      String front, BarbershopWithHaircuts barbershop) {
+      String front, BarbershopCombinedModel barbershop) {
     Get.bottomSheet(
       barrierColor: Colors.transparent,
       isDismissible: false,
@@ -188,7 +188,8 @@ class GetDirectionsController extends GetxController {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        Get.to(() => ChooseHaircut(barbershop: barbershop));
+                        Get.to(() =>
+                            ChooseHaircut(barbershopCombinedData: barbershop));
                       },
                       child: const Text('Book Now'),
                     ),

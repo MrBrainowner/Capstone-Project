@@ -1,4 +1,4 @@
-import 'package:barbermate/data/models/fetch_with_subcollection/all_barbershops_information.dart';
+import 'package:barbermate/data/models/combined_model/barbershop_combined_model.dart';
 import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
 import 'package:barbermate/features/customer/views/booking/choose_schedule.dart';
 import 'package:barbermate/features/customer/views/widgets/booking_page/haircuts_card.dart';
@@ -9,10 +9,10 @@ import '../../controllers/get_haircuts_and_barbershops_controller/get_haircuts_a
 class ChooseHaircut extends StatelessWidget {
   const ChooseHaircut({
     super.key,
-    required this.barbershop,
+    required this.barbershopCombinedData,
   });
 
-  final BarbershopWithHaircuts barbershop;
+  final BarbershopCombinedModel barbershopCombinedData;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,9 @@ class ChooseHaircut extends StatelessWidget {
                 onPressed: () async {
                   bookingController.selectedHaircut.value.id = null;
 
-                  Get.to(() => const ChooseSchedule());
+                  Get.to(() => ChooseSchedule(
+                        timeslots: barbershopCombinedData,
+                      ));
                 },
                 child:
                     Text('Skip', style: Theme.of(context).textTheme.bodyLarge))
@@ -48,10 +50,10 @@ class ChooseHaircut extends StatelessWidget {
           child: Obx(() {
             if (controller.isLoading.value) {
               return const Center(child: CircularProgressIndicator());
-            } else if (barbershop.haircuts.isEmpty) {
+            } else if (barbershopCombinedData.haircuts.isEmpty) {
               return const Center(child: Text('No Haircut available.'));
             } else {
-              final haircuts = barbershop.haircuts;
+              final haircuts = barbershopCombinedData.haircuts;
               return GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2, // 2 columns
@@ -96,7 +98,8 @@ class ChooseHaircut extends StatelessWidget {
                                 child: const Text('Next'))
                             : ElevatedButton(
                                 onPressed: () {
-                                  Get.to(() => const ChooseSchedule());
+                                  Get.to(() => ChooseSchedule(
+                                      timeslots: barbershopCombinedData));
                                 },
                                 child: const Text('Next'))),
                   )

@@ -22,8 +22,6 @@ class BarbershopNotificationController extends GetxController {
 
   final Logger logger = Logger();
 
-  StreamSubscription? _reviewsStreamSubscription;
-
   @override
   void onInit() {
     super.onInit();
@@ -92,11 +90,4 @@ class BarbershopNotificationController extends GetxController {
   // send notification to admin
 
   // send notification to customer
-
-  @override
-  void onClose() {
-    // Cancel the stream subscription to prevent memory leaks
-    _reviewsStreamSubscription?.cancel();
-    super.onClose();
-  }
 }

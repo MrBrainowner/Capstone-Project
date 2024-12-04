@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:barbermate/data/models/fetch_with_subcollection/all_barbershops_information.dart';
 import 'package:barbermate/data/models/haircut_model/haircut_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
@@ -55,7 +53,7 @@ class BarbershopRepository extends GetxController {
     }
   }
 
-  //======================================= Fetch barbershop details based on user ID
+  //======================================= Fetch barbershop details based on user ID (when the current user is barbershop)
   Stream<BarbershopModel> barbershopDetailsStream() {
     try {
       return _db
@@ -158,7 +156,7 @@ class BarbershopRepository extends GetxController {
     }
   }
 
-  //======================================= Fetch all barbershops
+  //================================== stream of barbershops
   Stream<List<BarbershopModel>> fetchAllBarbershops() {
     try {
       return _db
@@ -176,7 +174,7 @@ class BarbershopRepository extends GetxController {
     }
   }
 
-  // Fetch a barbershop haircuts
+  //================================== stream of barbershop haircuts
   Stream<List<HaircutModel>> fetchBarbershopHaircuts(String barbershopId) {
     try {
       return _db
@@ -195,38 +193,7 @@ class BarbershopRepository extends GetxController {
     }
   }
 
-  // Fetch all barbershops with their haircuts (stream-based)
-  Stream<List<BarbershopWithHaircuts>> fetchAllBarbershopsWithHaircuts() {
-    return fetchAllBarbershops().asyncMap((barbershopList) async {
-      // Create a list to hold the combined barbershop and haircuts data
-      List<BarbershopWithHaircuts> barbershopWithHaircutsList = [];
-
-      for (var barbershop in barbershopList) {
-        print('Fetching haircuts for barbershop: ${barbershop.firstName}');
-
-        // Fetch the stream of haircuts for each barbershop
-        var haircutsStream = fetchBarbershopHaircuts(barbershop.id);
-
-        await for (var haircuts in haircutsStream) {
-          print(
-              'Fetched ${haircuts.length} haircuts for ${barbershop.address}');
-
-          // Combine the barbershop and its current haircuts into one object
-          barbershopWithHaircutsList.add(BarbershopWithHaircuts(
-            barbershop: barbershop,
-            haircuts: haircuts,
-          ));
-        }
-      }
-
-      if (barbershopWithHaircutsList.isEmpty) {
-        print('No barbershop data or haircuts found');
-      }
-
-      return barbershopWithHaircutsList;
-    });
-  }
-
+  //================================== upload image to storage
   Future<String?> uploadImageToStorage(XFile file, String type) async {
     try {
       // Generate a unique file name using UUID
@@ -248,6 +215,7 @@ class BarbershopRepository extends GetxController {
     }
   }
 
+  //================================== udate image in firestore
   Future<void> updateProfileImageInFirestore(
       String barbershopId, String imageUrl, String type) async {
     try {
@@ -272,6 +240,7 @@ class BarbershopRepository extends GetxController {
     }
   }
 
+  //================================== make barbershop exist for profile setup to happen once
   Future<void> makeBarbershopExist() async {
     try {
       final futures = [

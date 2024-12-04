@@ -68,7 +68,7 @@ class AppointmentReviewNotification extends StatelessWidget {
           Expanded(
             child: ElevatedButton(
               onPressed: () async {
-                Get.to(() => CustomerReviewsPage(barbershopId: barbershopId));
+                // Get.to(() => CustomerReviewsPage(barbershop: ));
               },
               child: const Text('Write Review'),
             ),

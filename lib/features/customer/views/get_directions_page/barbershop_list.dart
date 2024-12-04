@@ -42,7 +42,7 @@ class BarbershopList extends StatelessWidget {
               }
 
               final barbershops =
-                  controller.barbershopsController.barbershopWithHaircutsList;
+                  controller.barbershopsController.barbershopCombinedModel;
 
               return ListView.builder(
                 controller: scrollController,

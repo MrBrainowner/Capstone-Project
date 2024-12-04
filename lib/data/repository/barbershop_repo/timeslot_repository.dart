@@ -146,7 +146,7 @@ class TimeslotRepository extends GetxController {
 
   //============================================================================ Available days
 
-  // Fetch available days and disabled dates for the barbershop
+  // Fetch available days and disabled dates for the barbershop (method for barbershop)
   Future<AvailableDaysModel?> getAvailableDays() async {
     try {
       DocumentSnapshot snapshot = await _db
@@ -170,6 +170,7 @@ class TimeslotRepository extends GetxController {
     }
   }
 
+  // (method for customers)
   Stream<AvailableDaysModel?> getAvailableDaysWhenCustomerIsCurrentUserStream(
       String shopId) {
     try {
@@ -190,7 +191,7 @@ class TimeslotRepository extends GetxController {
     }
   }
 
-  // Save available days and disabled dates to Firestore
+  // Save available days and disabled dates to Firestore (method for barbershop)
   Future<void> saveAvailableDays(AvailableDaysModel model) async {
     try {
       await _db
@@ -210,7 +211,7 @@ class TimeslotRepository extends GetxController {
     }
   }
 
-  // Update specific date status in Firestore
+  // Update specific date status in Firestore (method for barbershop)
   Future<void> updateDisabledDate(List<DateTime> disabledDates) async {
     try {
       await _db

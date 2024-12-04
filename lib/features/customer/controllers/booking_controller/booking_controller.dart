@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:barbermate/common/widgets/toast.dart';
 import 'package:barbermate/data/models/timeslot_model/timeslot_model.dart';
 import 'package:barbermate/data/repository/auth_repo/auth_repo.dart';
@@ -12,7 +11,6 @@ import 'package:get/get.dart';
 import '../../../../data/models/booking_model/booking_model.dart';
 import '../../../../data/models/haircut_model/haircut_model.dart';
 import '../../../../utils/popups/full_screen_loader.dart';
-// Import your BookingModel
 
 class CustomerBookingController extends GetxController {
   static CustomerBookingController get instance => Get.find();
@@ -39,8 +37,6 @@ class CustomerBookingController extends GetxController {
   // Create a reactive RxList for pending bookings
   RxList<BookingModel> pendingAndConfirmedBookings = <BookingModel>[].obs;
   RxList<BookingModel> doneBookings = <BookingModel>[].obs;
-
-  StreamSubscription? _reviewsStreamSubscription;
 
   @override
   void onInit() {
@@ -85,7 +81,10 @@ class CustomerBookingController extends GetxController {
               '${customer.customer.value.firstName} ${customer.customer.value.lastName}',
           barbershopName: chosenBarbershop.value.barbershopName,
           customerPhoneNo: customer.customer.value.phoneNo,
-          timeSlot: selectedTimeSlot.value.schedule);
+          timeSlot: selectedTimeSlot.value.schedule,
+          barbershopProfileImageUrl:
+              chosenBarbershop.value.barbershopProfileImage,
+          customerProfileImageUrl: customer.customer.value.profileImage);
 
       await _repo.addBooking(
           booking, chosenBarbershop.value, customer.customer.value);
@@ -167,12 +166,5 @@ class CustomerBookingController extends GetxController {
         .where((booking) =>
             booking.status == 'done' || booking.status == 'canceled')
         .toList();
-  }
-
-  @override
-  void onClose() {
-    // Cancel the stream subscription to prevent memory leaks
-    _reviewsStreamSubscription?.cancel();
-    super.onClose();
   }
 }

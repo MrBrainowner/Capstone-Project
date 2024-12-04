@@ -19,8 +19,6 @@ class CustomerNotificationController extends GetxController {
         .any((notification) => notification.status == 'notRead');
   }
 
-  StreamSubscription? _reviewsStreamSubscription;
-
   @override
   void onInit() {
     super.onInit();
@@ -90,11 +88,4 @@ class CustomerNotificationController extends GetxController {
   // receive notification
 
   // send notification
-
-  @override
-  void onClose() {
-    // Cancel the stream subscription to prevent memory leaks
-    _reviewsStreamSubscription?.cancel();
-    super.onClose();
-  }
 }

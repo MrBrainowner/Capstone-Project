@@ -1,8 +1,9 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BookingModel {
   String id;
+  String barbershopProfileImageUrl;
+  String customerProfileImageUrl;
   String customerName;
   String haircutName;
   double haircutPrice;
@@ -20,6 +21,8 @@ class BookingModel {
 
   BookingModel({
     required this.id,
+    required this.barbershopProfileImageUrl,
+    required this.customerProfileImageUrl,
     required this.customerName,
     required this.haircutName,
     required this.haircutPrice,
@@ -39,12 +42,14 @@ class BookingModel {
   static BookingModel empty() {
     return BookingModel(
       id: '',
+      barbershopProfileImageUrl: '',
+      customerProfileImageUrl: '',
       barberShopId: '',
       barberId: '',
       customerId: '',
       haircutId: '',
-      haircutName: '', // empty name for haircut
-      haircutPrice: 0.0, // default price of 0
+      haircutName: '',
+      haircutPrice: 0.0,
       date: '',
       timeSlotId: '',
       status: 'pending',
@@ -59,6 +64,8 @@ class BookingModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'barbershopProfileImageUrl': barbershopProfileImageUrl,
+      'customerProfileImageUrl': customerProfileImageUrl,
       'barbershop_id': barberShopId,
       'customerName': customerName,
       'barbershopName': barbershopName,
@@ -67,8 +74,8 @@ class BookingModel {
       'barber_id': barberId,
       'customer_id': customerId,
       'haircut_id': haircutId,
-      'haircutName': haircutName, // Add haircut name
-      'haircutPrice': haircutPrice, // Add haircut price
+      'haircutName': haircutName,
+      'haircutPrice': haircutPrice,
       'date': date,
       'time_slot_id': timeSlotId,
       'status': status,
@@ -81,12 +88,14 @@ class BookingModel {
     final data = document.data()!;
     return BookingModel(
       id: document.id,
+      barbershopProfileImageUrl: data['barbershopProfileImageUrl'] ?? '',
+      customerProfileImageUrl: data['customerProfileImageUrl'] ?? '',
       barberShopId: data['barbershop_id'] ?? '',
       barberId: data['barber_id'] ?? '',
       customerId: data['customer_id'] ?? '',
       haircutId: data['haircut_id'] ?? '',
-      haircutName: data['haircutName'] ?? '', // Retrieve haircut name
-      haircutPrice: data['haircutPrice'] ?? 0.0, // Retrieve haircut price
+      haircutName: data['haircutName'] ?? '',
+      haircutPrice: (data['haircutPrice'] ?? 0).toDouble(),
       date: data['date'] ?? '',
       timeSlotId: data['time_slot_id'] ?? '',
       status: data['status'] ?? 'pending',
@@ -100,6 +109,8 @@ class BookingModel {
 
   BookingModel copyWith({
     String? id,
+    String? barbershopProfileImageUrl,
+    String? customerProfileImageUrl,
     String? barberShopId,
     String? customerName,
     String? barbershopName,
@@ -117,6 +128,10 @@ class BookingModel {
   }) {
     return BookingModel(
       id: id ?? this.id,
+      barbershopProfileImageUrl:
+          barbershopProfileImageUrl ?? this.barbershopProfileImageUrl,
+      customerProfileImageUrl:
+          customerProfileImageUrl ?? this.customerProfileImageUrl,
       barberShopId: barberShopId ?? this.barberShopId,
       barberId: barberId ?? this.barberId,
       customerName: customerName ?? this.customerName,
@@ -125,8 +140,8 @@ class BookingModel {
       customerPhoneNo: customerPhoneNo ?? this.customerPhoneNo,
       customerId: customerId ?? this.customerId,
       haircutId: haircutId ?? this.haircutId,
-      haircutName: haircutName ?? this.haircutName, // Update haircut name
-      haircutPrice: haircutPrice ?? this.haircutPrice, // Update haircut price
+      haircutName: haircutName ?? this.haircutName,
+      haircutPrice: haircutPrice ?? this.haircutPrice,
       date: date ?? this.date,
       timeSlotId: timeSlotId ?? this.timeSlotId,
       status: status ?? this.status,

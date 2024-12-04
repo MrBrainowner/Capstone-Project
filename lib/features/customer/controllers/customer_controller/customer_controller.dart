@@ -30,8 +30,6 @@ class CustomerController extends GetxController {
   RxString profileImageUrl = ''.obs;
   final ImagePicker _picker = ImagePicker();
 
-  StreamSubscription? _reviewsStreamSubscription;
-
   @override
   void onInit() async {
     super.onInit();
@@ -164,12 +162,5 @@ class CustomerController extends GetxController {
     } finally {
       profileLoading.value = false;
     }
-  }
-
-  @override
-  void onClose() {
-    // Cancel the stream subscription to prevent memory leaks
-    _reviewsStreamSubscription?.cancel();
-    super.onClose();
   }
 }

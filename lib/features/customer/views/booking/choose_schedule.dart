@@ -1,3 +1,4 @@
+import 'package:barbermate/data/models/combined_model/barbershop_combined_model.dart';
 import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
 import 'package:barbermate/features/customer/views/dashboard/dashboard.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,9 @@ import '../../controllers/get_haircuts_and_barbershops_controller/get_haircuts_a
 import '../widgets/booking_page/timeslot_card.dart';
 
 class ChooseSchedule extends StatelessWidget {
-  const ChooseSchedule({super.key});
+  const ChooseSchedule({super.key, required this.timeslots});
+
+  final BarbershopCombinedModel timeslots;
 
   @override
   Widget build(BuildContext context) {
@@ -65,10 +68,8 @@ class ChooseSchedule extends StatelessWidget {
                                             DateRangePickerMonthViewSettings(
                                           // weekendDays: controller
                                           //     .disabledDaysOfWeek, // Saturday and Sunday
-                                          blackoutDates: controller
-                                              .availableDays
-                                              .value
-                                              ?.disabledDates,
+                                          blackoutDates: timeslots
+                                              .availableDays?.disabledDates,
                                         ),
                                         // selectableDayPredicate: (date) {
                                         //   // Block the days in the disabledDaysOfWeek list
@@ -111,7 +112,7 @@ class ChooseSchedule extends StatelessWidget {
                 child: Obx(() {
                   if (controller.isLoading.value) {
                     return const Center(child: CircularProgressIndicator());
-                  } else if (controller.timeSlots.isEmpty) {
+                  } else if (timeslots.timeslot.isEmpty) {
                     return const Center(child: Text('No Timeslots available.'));
                   } else {
                     return Padding(
@@ -124,9 +125,9 @@ class ChooseSchedule extends StatelessWidget {
                           crossAxisSpacing: 8.0,
                           childAspectRatio: 3,
                         ),
-                        itemCount: controller.timeSlots.length,
+                        itemCount: timeslots.timeslot.length,
                         itemBuilder: (context, index) {
-                          final timeSlot = controller.timeSlots[index];
+                          final timeSlot = timeslots.timeslot[index];
                           return TimeSlotCard(timeSlot: timeSlot);
                         },
                       ),
@@ -279,9 +280,13 @@ class ChooseSchedule extends StatelessWidget {
                                             Expanded(
                                               child: ElevatedButton(
                                                 onPressed: () async {
+                                                  bookingController
+                                                          .chosenBarbershop
+                                                          .value =
+                                                      timeslots.barbershop;
                                                   await bookingController
                                                       .addBooking();
-                                                  Get.offAll(() =>
+                                                  Get.off(() =>
                                                       const CustomerDashboard());
                                                 },
                                                 child: const Text('Confirm'),

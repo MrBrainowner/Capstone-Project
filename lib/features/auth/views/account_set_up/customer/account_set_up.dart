@@ -1,5 +1,4 @@
 import 'package:barbermate/features/customer/controllers/customer_controller/customer_controller.dart';
-import 'package:barbermate/features/customer/views/dashboard/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

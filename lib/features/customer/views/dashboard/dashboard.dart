@@ -122,12 +122,12 @@ class CustomerDashboard extends StatelessWidget {
                       if (haircutBarberController.isLoading.value) {
                         return const Center(child: CircularProgressIndicator());
                       } else if (haircutBarberController
-                          .barbershopWithHaircutsList.isEmpty) {
+                          .barbershopCombinedModel.isEmpty) {
                         return const Center(
                             child: Text('No Barbershop available.'));
                       } else {
                         final barbershops =
-                            haircutBarberController.barbershopWithHaircutsList;
+                            haircutBarberController.barbershopCombinedModel;
 
                         return ListView.builder(
                           itemCount: barbershops.length,
@@ -138,7 +138,7 @@ class CustomerDashboard extends StatelessWidget {
                                 .checkIsOpenNow(shops.barbershop.openHours);
 
                             return CustomerBarbershopCard(
-                              barberhop: shops,
+                              barbershop: shops,
                             );
                           },
                         );

@@ -66,7 +66,7 @@ class MapWidget extends StatelessWidget {
     final CustomerController customerController = Get.find();
 
     final barbershops =
-        controller.barbershopsController.barbershopWithHaircutsList;
+        controller.barbershopsController.barbershopCombinedModel;
 
     return [
       if (controller.currentLocation.value != null)
