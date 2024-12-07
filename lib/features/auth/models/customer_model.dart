@@ -46,7 +46,7 @@ class CustomerModel {
       'profile_image': profileImage,
       'phone_no': phoneNo,
       'role': role,
-      'created_at': createdAt?.toIso8601String(),
+      'created_at': createdAt.toIso8601String(),
       'existing': existing, // Include 'existing' in JSON conversion
     };
   }

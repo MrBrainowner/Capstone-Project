@@ -7,7 +7,6 @@ import 'package:barbermate/features/auth/views/account_set_up/barbershop/profile
 import 'package:barbermate/features/auth/views/account_set_up/customer/account_set_up.dart';
 import 'package:barbermate/features/barbershop/views/dashboard/dashboard.dart';
 import 'package:barbermate/features/customer/views/appointments/appointments.dart';
-import 'package:barbermate/features/customer/views/barbershop/barbershop.dart';
 import 'package:barbermate/features/customer/views/dashboard/dashboard.dart';
 import 'package:barbermate/features/customer/views/notifications/notifications.dart';
 import 'package:get/get.dart';

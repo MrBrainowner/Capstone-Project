@@ -1,6 +1,5 @@
 import 'dart:math'; // Add this import for sqrt() method
 import 'dart:io';
-import 'dart:ui';
 import 'package:get/get.dart';
 import 'package:google_mlkit_face_mesh_detection/google_mlkit_face_mesh_detection.dart';
 import 'package:image_picker/image_picker.dart';

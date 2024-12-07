@@ -1,5 +1,4 @@
 import 'package:barbermate/features/auth/views/sign_in/sign_in_widgets/textformfield.dart';
-import 'package:barbermate/features/barbershop/controllers/barbershop_controller/barbershop_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/change_email_controller_barbershop/barbershop_change_email_controller.dart';
 import 'package:barbermate/utils/validators/validators.dart';
 import 'package:flutter/material.dart';

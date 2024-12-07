@@ -47,6 +47,8 @@ class GetDirectionsController extends GetxController {
     _locationService.liveLocation.listen((newLocation) {
       currentLocation.value = newLocation;
       calculateAllDistances(); // Recalculate distances on update
+
+      fetchDirections(newLocation!);
     });
   }
 

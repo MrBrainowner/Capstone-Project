@@ -1,6 +1,5 @@
 import 'package:barbermate/data/models/booking_model/booking_model.dart';
 import 'package:barbermate/features/barbershop/controllers/booking_controller/booking_controller.dart';
-import 'package:barbermate/features/customer/views/reviews/reviews.dart';
 import 'package:barbermate/utils/constants/format_date.dart';
 import 'package:barbermate/utils/popups/confirm_cancel_pop_up.dart';
 import 'package:flutter/material.dart';

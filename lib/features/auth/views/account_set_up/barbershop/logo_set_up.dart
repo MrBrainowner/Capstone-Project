@@ -1,5 +1,4 @@
 import 'package:barbermate/features/barbershop/controllers/barbershop_controller/barbershop_controller.dart';
-import 'package:barbermate/features/barbershop/views/dashboard/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
