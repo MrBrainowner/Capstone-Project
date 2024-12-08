@@ -3,15 +3,80 @@ import 'package:flutter_tflite/flutter_tflite.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
+import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
 class DetectFaceShape extends GetxController {
   static DetectFaceShape get instance => Get.find();
   Rx<File?> selectedImage = Rx<File?>(null);
   RxString faceShapeResult = ''.obs;
+  RxString faceShapeDescription = ''.obs;
   final ImagePicker picker = ImagePicker();
   var confidence = 0.0;
   var label = '';
   Logger logger = Logger();
+  var predictions = <String, double>{}.obs;
+  var recommendedHairstyles = <String>[].obs; // Recommended hairstyles
+
+  final Map<String, Map<String, dynamic>> faceShapeRecommendations = {
+    'Oval': {
+      'description':
+          "With an oval face shape, you have the versatility to rock almost any hairstyle. Styles like the Pompadour, Quiff, Undercut, Side Part, and Tapered Cuts highlight your balanced proportions. If you prefer shorter cuts, go for a Crew Cut or a Buzz Cut. Medium to long styles, like the Man Bun or Swept-Back looks, also suit you perfectly.",
+      'hairstyles': [
+        'Pompadour',
+        'Quiff',
+        'Undercut',
+        'Side Part',
+        'Tapered Cuts',
+        'Buzz Cut',
+        'Crew Cut',
+        'Man Bun',
+        'Swept-Back',
+      ],
+    },
+    'Rectangle': {
+      'description':
+          "For a rectangular face shape, balance the length of your face with styles that add volume on the sides or texture on top. Try a Textured Crop, Fringe, or a Side Part for a softer look. Medium-length styles like the Pompadour and Quiff are also flattering. Avoid overly short sides to keep your features proportionate.",
+      'hairstyles': [
+        'Textured Crop',
+        'Fringe',
+        'Side Part',
+        'Pompadour',
+        'Quiff',
+      ],
+    },
+    'Round': {
+      'description':
+          "For a round face shape, choose hairstyles that add height and angles to elongate your appearance. The Pompadour, Quiff, Faux Hawk, and Mohawk are excellent choices. Side Part and Undercut styles can also create structure. Avoid cuts that add width to the sides, such as very short crops.",
+      'hairstyles': [
+        'Pompadour',
+        'Quiff',
+        'Faux Hawk',
+        'Mohawk',
+        'Side Part',
+        'Undercut',
+      ],
+    },
+    'Square': {
+      'description':
+          "Square face shapes are characterized by a strong jawline and angular features. Highlight your structure with sharp and clean styles like the Fade, Ivy League, or Regulation Cut. Medium styles like the Side Part, Pompadour, or Fringe add balance, while buzz cuts enhance the strong shape.",
+      'hairstyles': [
+        'Fade',
+        'Ivy League',
+        'Regulation Cut',
+        'Side Part',
+        'Pompadour',
+        'Fringe',
+        'Buzz Cut',
+      ],
+    },
+  };
+
+  final faceDetector = FaceDetector(
+    options: FaceDetectorOptions(
+      enableContours: true, // Enable if you want additional face data
+      enableClassification: false,
+    ),
+  );
 
   @override
   void onInit() {
@@ -23,7 +88,16 @@ class DetectFaceShape extends GetxController {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       selectedImage.value = File(image.path);
-      runModel(image.path); // Run model after selecting the image
+      bool faceDetected = await _detectFace(image.path); // Check for face
+      if (faceDetected) {
+        runModel(image.path); // Run the model only if a face is detected
+      } else {
+        faceShapeResult.value = "No face detected.";
+        logger.e("No face detected in the selected image.");
+        predictions.clear();
+        recommendedHairstyles.clear();
+        faceShapeDescription.value = '';
+      }
     }
   }
 
@@ -31,7 +105,34 @@ class DetectFaceShape extends GetxController {
     final XFile? image = await picker.pickImage(source: ImageSource.camera);
     if (image != null) {
       selectedImage.value = File(image.path);
-      runModel(image.path); // Run model after capturing the image
+      bool faceDetected = await _detectFace(image.path); // Check for face
+      if (faceDetected) {
+        runModel(image.path); // Run the model only if a face is detected
+      } else {
+        faceShapeResult.value = "No face detected.";
+        logger.e("No face detected in the captured image.");
+        predictions.clear();
+        recommendedHairstyles.clear();
+        faceShapeDescription.value = '';
+      }
+    }
+  }
+
+  Future<bool> _detectFace(String imagePath) async {
+    try {
+      final inputImage = InputImage.fromFilePath(imagePath);
+      final faces = await faceDetector.processImage(inputImage);
+
+      if (faces.isNotEmpty) {
+        logger.i("Face(s) detected in the image.");
+        return true; // Return true if a face is detected
+      } else {
+        logger.e("No face detected.");
+        return false;
+      }
+    } catch (e) {
+      logger.e("Face detection failed: $e");
+      return false;
     }
   }
 
@@ -48,31 +149,59 @@ class DetectFaceShape extends GetxController {
 
   Future<void> runModel(String imagePath) async {
     var recognitions = await Tflite.runModelOnImage(
-      path: imagePath, // Path of the selected image
+      path: imagePath,
       imageMean: 0.0,
       imageStd: 255.0,
-      numResults: 4, // Adjust based on your model
+      numResults: 4,
       threshold: 0.2,
       asynch: true,
     );
 
     if (recognitions != null && recognitions.isNotEmpty) {
-      confidence = (recognitions[0]['confidence'] * 100);
-      label = recognitions[0]['lable'].toString();
-      faceShapeResult.value = recognitions[0]['label'];
-      logger.e("Detected Face Shape: ${faceShapeResult.value}");
-      logger.e("Confidence: $confidence");
-      logger.e("Label: $label");
+      // Clear previous data
+      predictions.clear();
+      recommendedHairstyles.clear();
+
+      for (var result in recognitions) {
+        double confidencePercentage = (result['confidence'] * 100);
+        String label = result['label'];
+        predictions[label] = confidencePercentage;
+      }
+
+      // Determine the top prediction
+      var topResult = recognitions[0];
+      double confidence = (topResult['confidence'] * 100);
+      String label = topResult['label'];
+
+      faceShapeResult.value = "$label: ${confidence.toStringAsFixed(2)}%";
+
+      // Get recommendations based on the detected face shape
+      if (faceShapeRecommendations.containsKey(label)) {
+        var recommendation = faceShapeRecommendations[label];
+        recommendedHairstyles.addAll(recommendation!['hairstyles']);
+        faceShapeDescription.value = recommendation['description'] as String;
+      } else {
+        faceShapeDescription.value =
+            "Sorry, we don't have recommendations for this face shape.";
+      }
+
+      logger.i("Predictions updated: $predictions");
+      logger.i("Top Prediction: ${faceShapeResult.value}");
+      logger.i("Recommended Hairstyles: $recommendedHairstyles");
+      logger.i("Face Shape Description: ${faceShapeDescription.value}");
     } else {
-      faceShapeResult.value =
-          "No face detected"; // Don't set a default face shape
-      logger.e("No face detected in the image.");
+      faceShapeResult.value = "No results from the model.";
+      predictions.clear();
+      recommendedHairstyles.clear();
+      faceShapeDescription.value = "Unable to detect a face shape.";
+      logger.e("No results from the model.");
     }
   }
 
   @override
   void onClose() {
     super.onClose();
+    faceDetector.close(); // Close ML Kit face detector
     Tflite.close(); // Unload model when controller is closed
   }
 }

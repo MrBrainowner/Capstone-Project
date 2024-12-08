@@ -22,7 +22,6 @@ class CustomerDashboard extends StatelessWidget {
         Get.find();
     final DateTime now = DateTime.now();
     final String formattedDate = DateFormat('MMMM d, y').format(now);
-    final GetDirectionsController getDirectionsController = Get.find();
 
     return Scaffold(
       key: scaffoldKey,
@@ -100,7 +99,8 @@ class CustomerDashboard extends StatelessWidget {
                           const SizedBox(width: 5),
                           ElevatedButton(
                             onPressed: () {
-                              getDirectionsController.getCurrentLocation();
+                              GetDirectionsController.instace
+                                  .getCurrentLocation();
                               Get.to(() => const GetDirectionsPage2());
                             },
                             child: const iconoir.Map(

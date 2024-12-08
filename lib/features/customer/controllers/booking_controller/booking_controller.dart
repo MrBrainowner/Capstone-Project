@@ -148,12 +148,6 @@ class CustomerBookingController extends GetxController {
     );
   }
 
-  // Listen to changes in bookings and filter them for 'pending' status
-  // void filterPendingBookings() {
-  //   pendingBookings.value =
-  //       bookings.where((booking) => booking.status == 'pending').toList();
-  // }
-
   void filterPendingAndConfirmedBookings() {
     pendingAndConfirmedBookings.value = bookings
         .where((booking) =>

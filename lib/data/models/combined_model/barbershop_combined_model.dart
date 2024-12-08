@@ -17,4 +17,16 @@ class BarbershopCombinedModel {
       required this.availableDays,
       required this.barbershop,
       required this.haircuts});
+
+  // Empty method for BarbershopCombinedModel
+  static BarbershopCombinedModel empty() {
+    return BarbershopCombinedModel(
+      barbershop:
+          BarbershopModel.empty(), // Use the empty method of BarbershopModel
+      haircuts: [],
+      timeslot: [],
+      availableDays: null,
+      review: [],
+    );
+  }
 }

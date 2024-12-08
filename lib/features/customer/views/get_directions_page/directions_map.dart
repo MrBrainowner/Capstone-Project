@@ -114,7 +114,7 @@ class MapWidget extends StatelessWidget {
                   final distance = controller.barbershopDistances[index]
                           ?.toStringAsFixed(2) ??
                       'Turn on location...';
-                  // controller.zoomToLocation(location);
+                  controller.selectBarbershop(location);
                   controller.fetchDirections(location);
                   controller.showBarbershopDetails(
                       location,

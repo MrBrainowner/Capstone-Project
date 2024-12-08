@@ -80,7 +80,7 @@ class GetHaircutsAndBarbershopsController extends GetxController {
 //======================================================================== fetch barbershop & haircuts
 
   void fetchAllBarbershopData() {
-    isLoading(true); // Show loading spinner
+    isLoading(true);
 
     _barbershopRepository.fetchAllBarbershops().listen((barbershopList) {
       List<Stream<BarbershopCombinedModel>> barbershopDataStreams =

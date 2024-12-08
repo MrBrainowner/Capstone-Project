@@ -34,7 +34,7 @@ class BarbershopAccount extends StatelessWidget {
           }
 
           // Access customer data
-          final barbershop = barbershopController.barbershop.value;
+          final barbershop = barbershopController.barbershopCombinedModel;
 
           return Padding(
             padding: const EdgeInsets.all(16.0),
@@ -51,7 +51,7 @@ class BarbershopAccount extends StatelessWidget {
                   child: ClipRRect(
                       borderRadius: const BorderRadius.all(Radius.circular(10)),
                       child: Image.network(
-                        barbershopController.barbershop.value.profileImage,
+                        barbershop.value.barbershop.profileImage,
                         fit: BoxFit.cover,
                       )),
                 ),
@@ -67,7 +67,8 @@ class BarbershopAccount extends StatelessWidget {
                 const Divider(),
                 // Full Name
                 CanBeEdited(
-                  text: '${barbershop.firstName} ${barbershop.lastName}',
+                  text:
+                      '${barbershop.value.barbershop.firstName} ${barbershop.value.barbershop.lastName}',
                   leading: 'Name',
                   onPressed: () {
                     Get.to(() => const EditNameBarbershop());
@@ -76,14 +77,14 @@ class BarbershopAccount extends StatelessWidget {
 
                 // Email
                 CanBeEdited(
-                  text: barbershop.email,
+                  text: barbershop.value.barbershop.email,
                   leading: 'Email',
                   onPressed: () => Get.to(() => const BarbershopEditEmail()),
                 ),
 
                 // Phone Number
                 CanBeEdited(
-                  text: barbershop.phoneNo,
+                  text: barbershop.value.barbershop.phoneNo,
                   leading: 'Phone',
                   onPressed: () => Get.to(() => const BarbershopEditNumber()),
                 ),
@@ -104,12 +105,11 @@ class BarbershopAccount extends StatelessWidget {
                   child: Obx(
                     () => ClipRRect(
                       borderRadius: const BorderRadius.all(Radius.circular(10)),
-                      child: barbershopController
-                              .barbershop.value.barbershopBannerImage.isEmpty
+                      child: barbershop
+                              .value.barbershop.barbershopBannerImage.isEmpty
                           ? const Center(child: Text('Upload Profile'))
                           : Image.network(
-                              barbershopController
-                                  .barbershop.value.barbershopBannerImage,
+                              barbershop.value.barbershop.barbershopBannerImage,
                               fit: BoxFit.cover,
                             ),
                     ),
@@ -129,12 +129,12 @@ class BarbershopAccount extends StatelessWidget {
                   child: Obx(
                     () => ClipRRect(
                       borderRadius: const BorderRadius.all(Radius.circular(10)),
-                      child: barbershopController
-                              .barbershop.value.barbershopProfileImage.isEmpty
+                      child: barbershop
+                              .value.barbershop.barbershopProfileImage.isEmpty
                           ? const Center(child: Text('Upload Logo'))
                           : Image.network(
-                              barbershopController
-                                  .barbershop.value.barbershopProfileImage,
+                              barbershop
+                                  .value.barbershop.barbershopProfileImage,
                               fit: BoxFit.cover,
                             ),
                     ),
@@ -146,30 +146,30 @@ class BarbershopAccount extends StatelessWidget {
                 const Divider(),
                 const SizedBox(height: 10),
                 CanBeEdited(
-                  text: barbershop.address,
+                  text: barbershop.value.barbershop.address,
                   leading: 'Address',
                   onPressed: () => Get.to(() => const BarbershopEditAddress()),
                 ),
 
                 CanBeEdited(
-                  text: barbershop.barbershopName,
+                  text: barbershop.value.barbershop.barbershopName,
                   leading: 'Barbershop Name',
                   onPressed: () =>
                       Get.to(() => const BarbershopEditBarbershopName()),
                 ),
 
                 CanBeEdited(
-                  text: barbershop.floorNumber.isEmpty
+                  text: barbershop.value.barbershop.floorNumber.isEmpty
                       ? 'None'
-                      : barbershop.floorNumber,
+                      : barbershop.value.barbershop.floorNumber,
                   leading: 'Floor Number',
                   onPressed: () => Get.to(() => const BarbershopEditFloors()),
                 ),
 
                 CanBeEdited(
-                  text: barbershop.landMark.isEmpty
+                  text: barbershop.value.barbershop.landMark.isEmpty
                       ? 'None'
-                      : barbershop.landMark,
+                      : barbershop.value.barbershop.landMark,
                   leading: 'Nearby Land Mark',
                   onPressed: () => Get.to(() => const BarbershopEditLandMark()),
                 ),
@@ -182,7 +182,8 @@ class BarbershopAccount extends StatelessWidget {
                 ),
                 const Divider(),
                 CannotBeEdited(
-                  text: format.formatDate(barbershop.createdAt),
+                  text:
+                      format.formatDate(barbershop.value.barbershop.createdAt),
                   leading: 'Created At',
                 ),
               ],

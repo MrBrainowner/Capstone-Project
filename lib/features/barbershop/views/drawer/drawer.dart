@@ -35,7 +35,8 @@ class BarbershopDrawer extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Text(
-                          controller.barbershop.value.barbershopName,
+                          controller.barbershopCombinedModel.value.barbershop
+                              .barbershopName,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 4,
                           style: Theme.of(context)
@@ -47,7 +48,7 @@ class BarbershopDrawer extends StatelessWidget {
                         ),
                         const SizedBox(height: 4.0),
                         Text(
-                          controller.barbershop.value
+                          controller.barbershopCombinedModel.value.barbershop
                               .email, // Replace with dynamic user email
                           style: Theme.of(context)
                               .textTheme

@@ -1,12 +1,21 @@
 import 'dart:async';
+import 'package:barbermate/data/models/available_days/available_days.dart';
+import 'package:barbermate/data/models/combined_model/barbershop_combined_model.dart';
+import 'package:barbermate/data/models/haircut_model/haircut_model.dart';
+import 'package:barbermate/data/models/review_model/review_model.dart';
+import 'package:barbermate/data/models/timeslot_model/timeslot_model.dart';
 import 'package:barbermate/data/repository/auth_repo/auth_repo.dart';
+import 'package:barbermate/data/repository/barbershop_repo/timeslot_repository.dart';
+import 'package:barbermate/data/repository/review_repo/review_repo.dart';
 import 'package:barbermate/features/auth/models/barbershop_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:logger/logger.dart';
 import '../../../../common/widgets/toast.dart';
 import '../../../../data/repository/barbershop_repo/barbershop_repo.dart';
+import 'package:rxdart/rxdart.dart' as rx;
 
 class BarbershopController extends GetxController {
   static BarbershopController get instance => Get.find();
@@ -16,7 +25,9 @@ class BarbershopController extends GetxController {
   Rx<BarbershopModel> barbershop = BarbershopModel.empty().obs;
   final BarbershopRepository barbershopRepository = Get.find();
   final _authRepository = Get.put(AuthenticationRepository());
-
+  final TimeslotRepository _timeslotsRepository = Get.find();
+  final ReviewRepo _reviewRepository = Get.find();
+  var isLoading = true.obs;
   final firstName = TextEditingController();
   final lastName = TextEditingController();
   TextEditingController email = TextEditingController();
@@ -31,8 +42,11 @@ class BarbershopController extends GetxController {
   GlobalKey<FormState> signUpFormKey = GlobalKey<FormState>();
   final hidePassword = true.obs;
   final ImagePicker _picker = ImagePicker();
+  final Logger logger = Logger();
+  var error = ''.obs;
 
-  StreamSubscription? _reviewsStreamSubscription;
+  Rx<BarbershopCombinedModel> barbershopCombinedModel =
+      BarbershopCombinedModel.empty().obs;
 
   @override
   void onInit() {
@@ -78,14 +92,57 @@ class BarbershopController extends GetxController {
 
   // Fetch Barbershop Data
   void listenToBarbershopStream() {
-    profileLoading.value = true;
-    barbershopRepository.barbershopDetailsStream().listen((barbershopDetails) {
-      barbershop(barbershopDetails);
-      if (profileLoading.value) {
-        profileLoading(false);
-      }
+    isLoading(true); // Show loading indicator
+
+    // Fetch the specific barbershop by its ID
+    barbershopRepository.barbershopDetailsStream().listen((barbershop) {
+      // Fetch the streams for haircuts, time slots, reviews, and available days
+      Stream<List<HaircutModel>> haircutsStream = barbershopRepository
+          .fetchBarbershopHaircuts(_authRepository.authUser!.uid);
+      Stream<List<TimeSlotModel>> timeSlotsStream = _timeslotsRepository
+          .fetchBarbershopTimeSlotsStream(_authRepository.authUser!.uid);
+      Stream<List<ReviewsModel>> reviewsStream =
+          _reviewRepository.fetchReviews(_authRepository.authUser!.uid);
+      Stream<AvailableDaysModel?> availableDaysStream =
+          _timeslotsRepository.getAvailableDaysWhenCustomerIsCurrentUserStream(
+              _authRepository.authUser!.uid);
+
+      // Combine all the streams for the barbershop data
+      rx.CombineLatestStream.combine4<List<HaircutModel>, List<TimeSlotModel>,
+          List<ReviewsModel>, AvailableDaysModel?, BarbershopCombinedModel>(
+        haircutsStream,
+        timeSlotsStream,
+        reviewsStream,
+        availableDaysStream,
+        (haircuts, timeSlots, reviews, availableDays) {
+          logger.i('Barbershop ID: ${_authRepository.authUser!.uid}');
+          logger.i('Haircuts (${haircuts.length}): $haircuts');
+          logger.i('Time Slots (${timeSlots.length}): $timeSlots');
+          logger.i('Reviews (${reviews.length}): $reviews');
+          logger.i(
+              'Available Days: ${availableDays?.disabledDates ?? 'No data'}');
+
+          // Return the combined model for the specific barbershop
+          return BarbershopCombinedModel(
+            barbershop: barbershop,
+            haircuts: haircuts,
+            timeslot: timeSlots,
+            review: reviews,
+            availableDays: availableDays,
+          );
+        },
+      ).listen((result) {
+        // Update the state with the fetched data for the barbershop
+        barbershopCombinedModel.value =
+            result; // Use .value to assign a single value
+        isLoading(false); // Hide loading spinner
+      }, onError: (error) {
+        logger.e("Error fetching combined data for barbershop: $error");
+        isLoading(false);
+      });
     }, onError: (error) {
-      profileLoading.value = false;
+      logger.e("Error fetching barbershop by ID: $error");
+      isLoading(false);
     });
   }
 
@@ -155,12 +212,5 @@ class BarbershopController extends GetxController {
     } finally {
       profileLoading.value = false;
     }
-  }
-
-  @override
-  void onClose() {
-    // Cancel the stream subscription to prevent memory leaks
-    _reviewsStreamSubscription?.cancel();
-    super.onClose();
   }
 }

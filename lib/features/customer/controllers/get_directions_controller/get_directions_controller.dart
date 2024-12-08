@@ -7,7 +7,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_geojson/flutter_map_geojson.dart';
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
-
+import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
 import '../../../../data/services/map/direction_services.dart';
 import '../../../../data/services/map/location_services.dart';
 
@@ -45,10 +45,16 @@ class GetDirectionsController extends GetxController {
 
     // React to live location changes
     _locationService.liveLocation.listen((newLocation) {
-      currentLocation.value = newLocation;
-      calculateAllDistances(); // Recalculate distances on update
+      if (newLocation != null) {
+        currentLocation.value = newLocation;
 
-      fetchDirections(newLocation!);
+        // Fetch updated directions to the selected barbershop
+        if (selectedBarbershopLocation.value != null) {
+          fetchDirections(selectedBarbershopLocation.value!);
+        }
+
+        calculateAllDistances(); // Recalculate distances on update
+      }
     });
   }
 
@@ -86,9 +92,9 @@ class GetDirectionsController extends GetxController {
     update();
   }
 
-  void zoomToLocation(LatLng location) {
+  void selectBarbershop(LatLng location) {
     selectedBarbershopLocation.value = location;
-    mapController.move(location, 15.0);
+    fetchDirections(location);
   }
 
   void updateMapHeight(double extent) {
@@ -126,7 +132,7 @@ class GetDirectionsController extends GetxController {
       String front, BarbershopCombinedModel barbershop) {
     Get.bottomSheet(
       barrierColor: Colors.transparent,
-      isDismissible: false,
+      isDismissible: true,
       Container(
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
@@ -175,13 +181,30 @@ class GetDirectionsController extends GetxController {
               const SizedBox(height: 16.0),
               Text(name, style: Get.textTheme.headlineMedium),
               Text('Distance: $distance km', style: Get.textTheme.bodyMedium),
-              const Row(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Icon(Icons.star, color: Colors.amber),
-                  Icon(Icons.star, color: Colors.amber),
-                  Icon(Icons.star, color: Colors.amber),
-                  Icon(Icons.star, color: Colors.amber),
-                  Icon(Icons.star_half, color: Colors.amber),
+                  const Text('Reviews'),
+                  const SizedBox(width: 3),
+                  const iconoir.StarSolid(
+                    height: 15,
+                  ),
+                  const SizedBox(width: 3),
+                  Flexible(
+                    child: Text(
+                      // Calculate the average rating
+                      (barbershop.review.isEmpty
+                              ? 0.0
+                              : barbershop.review.fold(0.0,
+                                      (sum, review) => sum + review.rating) /
+                                  barbershop.review.length)
+                          .toStringAsFixed(
+                              1), // Average rating rounded to 1 decimal place
+                      overflow: TextOverflow.clip,
+                      maxLines: 1,
+                    ),
+                  ),
+                  const SizedBox(width: 3),
                 ],
               ),
               const SizedBox(height: 16.0),

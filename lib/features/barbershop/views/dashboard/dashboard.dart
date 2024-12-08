@@ -57,7 +57,7 @@ class BarbershopDashboard extends StatelessWidget {
                           Flexible(
                             child: Obx(
                               () => Text(
-                                'Welcome to Barbermate, ${controller.barbershop.value.barbershopName}',
+                                'Welcome to Barbermate, ${controller.barbershopCombinedModel.value.barbershop.barbershopName}',
                                 maxLines: 3,
                                 style: Theme.of(context).textTheme.displaySmall,
                               ),

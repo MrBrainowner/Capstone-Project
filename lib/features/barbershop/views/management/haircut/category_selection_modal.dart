@@ -6,9 +6,6 @@ class CategorySelectionController extends GetxController {
   static CategorySelectionController get intance => Get.find();
 
   var availableCategories = [
-    // Fade Variants
-    'Fade', // Includes Low Fade, High Fade, Mid Fade, Taper Fade, Skin Fade, Shadow Fade
-
     // Short Haircuts
     'Buzz Cut', // Includes all short, close-shaven cuts
     'Crew Cut', // Classic, military-inspired cut
@@ -23,10 +20,6 @@ class CategorySelectionController extends GetxController {
     'Side Part', // Classic side-parted styles, including comb-over and slicked styles
     'Tapered Cuts', // Gradual shortening on the sides, less drastic than fades
 
-    // Long Haircuts
-    'Longer Styles', // Covers any medium to long hairstyles, including surfer styles
-    'Man Bun', // Tied-up styles for longer hair
-
     // Curly, Wavy, and Afro Styles
     'Wavy Styles', // Natural wavy or curly haircuts
     'Afro', // Afro-centric styles for natural hair
@@ -34,35 +27,13 @@ class CategorySelectionController extends GetxController {
 
     // Edgy and Trendy Styles
     'Mohawk', // Tall strip in the center with shaved sides
-    'Shag Cut', // Layered, messy rock-inspired styles
-    'Mullet', // Classic mullet, modern variations, and Korean Mullet
-    'K-Pop Styles', // Popular Korean trends, including Korean mullet, textured cuts, and longer fringe
-    'Bowl Cut', // Classic and modern variations, including K-Pop-inspired versions
-    'Disconnected Undercut', // Drastic difference between top and sides
-    'Burst Fade', // Fade that curves around the ear
-
-    // Slicked and Swept Styles
-    'Swept-Back', // Slicked back or combed-back styles, includes gelled looks
     'Faux Hawk', // Shorter, modern version of the mohawk
     'Comb Over', // Side-parted style, often with a fade or undercut
 
-    // Cultural and Celebrity-Inspired
-    'Celebrity Styles', // Hairstyles modeled after famous figures (e.g., Brad Pitt’s Fury cut, Ronaldo’s faux hawk)
-    'Military Cuts', // Crew cut, high and tight, flat top, buzz cut
-    'Samurai Top Knot', // Top knot styles inspired by traditional samurai hairstyles
-    'Viking Haircuts', // Long hair and beard combinations, often rugged and braided
-    'Dreadlocks', // Includes short, medium, and long dreads, with different styles
-
-    // Specialized and Region-Specific Cuts
-    'Caesar Cut', // Short cut with a small fringe
-    'French Crop', // Similar to the Caesar but often with more texture
-    'Flat Top', // Military and urban-inspired flat-top styles
-    'High Top Fade', // Classic urban haircut popularized in the 80s and 90s
-    'Temple Fade', // Also known as a Brooklyn fade, very short fade around the temples
-    'Kurdish Cut', // Middle Eastern-inspired styles with a focus on longer hair on top
-    'Regulation Cut', // Military-inspired cut, typically a tapered, neat style
-    'Surfer Hair', // Long, wavy, beachy hair
+    // Slicked and Swept Styles
+    'Swept-Back', // Slicked back or combed-back styles, includes gelled looks
   ].obs;
+
   var selectedCategories = <String>[].obs;
 
   void toggleCategory(String category) {

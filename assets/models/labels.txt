@@ -1,4 +1,4 @@
-0 Oval
-1 Rectangle
-2 Round
-3 Square
+Oval
+Rectangle
+Round
+Square

@@ -115,7 +115,7 @@ class BookingRepo extends GetxController {
     }
   }
 
-  // cancel booking
+  // cancel booking(customer)
   Future<void> cancelBooking(BookingModel booking) async {
     try {
       await _db
@@ -251,7 +251,7 @@ class BookingRepo extends GetxController {
     }
   }
 
-  // cancel booking
+  // cancel booking(barbershops)
   Future<void> cancelBookingForBarbershop(
       String bookingId, String customerId) async {
     try {
@@ -268,6 +268,32 @@ class BookingRepo extends GetxController {
           .collection('Bookings')
           .doc(bookingId)
           .update({'status': 'canceled'});
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw BFormatException('').message;
+    } on PlatformException catch (e) {
+      throw BPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Something went wrong. Please try again';
+    }
+  }
+
+  Future<void> rescheduleAppointment(
+      String reschedule, String barbershopId, String bookingId) async {
+    try {
+      await _db
+          .collection('Barbershops')
+          .doc(barbershopId)
+          .collection('Bookings')
+          .doc(bookingId)
+          .update({'date': reschedule, 'status': 'reschedule'});
+      await _db
+          .collection('Customers')
+          .doc(authId)
+          .collection('Bookings')
+          .doc(bookingId)
+          .update({'date': reschedule, 'status': 'reschedule'});
     } on FirebaseException catch (e) {
       throw BFirebaseException(e.code).message;
     } on FormatException catch (_) {

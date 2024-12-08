@@ -61,7 +61,7 @@ class BarbershopList extends StatelessWidget {
                       var locations = LatLng(barbershop.barbershop.latitude,
                           barbershop.barbershop.longitude);
                       await controller.fetchDirections(locations);
-                      controller.zoomToLocation(locations);
+                      controller.selectBarbershop(locations);
                       controller.showBarbershopDetails(
                           locations,
                           barbershop.barbershop.barbershopName,

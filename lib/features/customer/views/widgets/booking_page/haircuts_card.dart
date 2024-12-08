@@ -58,7 +58,11 @@ class HaircutsCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 5),
-                  Text(haircut.name),
+                  Text(
+                    haircut.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.clip,
+                  ),
                   const SizedBox(height: 2),
                   Text('₱ ${haircut.price}'),
                 ],
