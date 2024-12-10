@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:barbermate/common/widgets/toast.dart';
 import 'package:barbermate/data/models/review_model/review_model.dart';
 import 'package:barbermate/data/repository/review_repo/review_repo.dart';
 import 'package:barbermate/features/customer/controllers/customer_controller/customer_controller.dart';
@@ -19,7 +20,7 @@ class ReviewControllerCustomer extends GetxController {
   final averageRatingValue = 0.0.obs;
 
   // Add a review
-  Future<void> addReview(String babershopId) async {
+  Future<void> addReview(String babershopId, String bookingId) async {
     try {
       final newReview = ReviewsModel(
         customerId: customer.customer.value.id,
@@ -31,10 +32,13 @@ class ReviewControllerCustomer extends GetxController {
         name:
             '${customer.customer.value.firstName} ${customer.customer.value.lastName}',
       );
-      await _repo.createReview(newReview);
-      Get.snackbar('Success', 'Review added successfully!');
+      await _repo.createReview(newReview, bookingId);
+      ToastNotif(message: 'Review added successfully!', title: 'Success')
+          .showSuccessNotif(Get.context!);
     } catch (e) {
-      Get.snackbar('Error', e.toString());
+      ToastNotif(message: e.toString(), title: 'Error')
+          .showErrorNotif(Get.context!);
+
       print(e.toString());
     }
   }

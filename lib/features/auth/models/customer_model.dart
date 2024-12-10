@@ -7,6 +7,7 @@ class CustomerModel {
   final String email;
   String profileImage;
   String phoneNo;
+  String? fcmToken; // Added fcmToken
   final String role;
   bool existing; // Allowing this to be modified from the constructor
   final DateTime createdAt;
@@ -18,6 +19,7 @@ class CustomerModel {
     required this.email,
     required this.profileImage,
     required this.phoneNo,
+    this.fcmToken, // Added fcmToken to the constructor
     required this.role,
     required this.createdAt,
     this.existing = false,
@@ -31,6 +33,7 @@ class CustomerModel {
       email: '',
       profileImage: '',
       phoneNo: '',
+      fcmToken: '', // Ensure fcmToken defaults to an empty string
       role: '',
       createdAt: DateTime.now(),
       existing: false, // Ensure it defaults to false for an empty object
@@ -45,6 +48,7 @@ class CustomerModel {
       'email': email,
       'profile_image': profileImage,
       'phone_no': phoneNo,
+      'fcmToken': fcmToken, // Include fcmToken in JSON conversion
       'role': role,
       'created_at': createdAt.toIso8601String(),
       'existing': existing, // Include 'existing' in JSON conversion
@@ -61,6 +65,7 @@ class CustomerModel {
       email: data['email'] ?? '',
       profileImage: data['profile_image'] ?? '',
       phoneNo: data['phone_no'] ?? '',
+      fcmToken: data['fcmToken'] ?? '', // Retrieve fcmToken from Firestore
       role: data['role'] ?? '',
       createdAt: data['created_at'] != null
           ? DateTime.parse(data['created_at'])
@@ -76,6 +81,7 @@ class CustomerModel {
     String? email,
     String? profileImage,
     String? phoneNo,
+    String? fcmToken, // Add fcmToken to the copyWith
     String? role,
     DateTime? createdAt,
     bool? existing, // Add this to the copyWith
@@ -87,6 +93,7 @@ class CustomerModel {
       email: email ?? this.email,
       profileImage: profileImage ?? this.profileImage,
       phoneNo: phoneNo ?? this.phoneNo,
+      fcmToken: fcmToken ?? this.fcmToken, // Set fcmToken in copyWith
       role: role ?? this.role,
       createdAt: createdAt ?? this.createdAt,
       existing: existing ?? this.existing, // Set 'existing' in copyWith

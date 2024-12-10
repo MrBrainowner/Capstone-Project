@@ -174,6 +174,20 @@ class BarbershopRepository extends GetxController {
     }
   }
 
+  //================================== stream of barbershops with all status
+  Stream<List<BarbershopModel>> fetchAllBarbershopsFromAdmin() {
+    try {
+      return _db.collection("Barbershops").snapshots().map((querySnapshot) {
+        return querySnapshot.docs.map((doc) {
+          return BarbershopModel.fromSnapshot(
+              doc as DocumentSnapshot<Map<String, dynamic>>);
+        }).toList();
+      });
+    } catch (e) {
+      throw 'Error fetching barbershops: $e';
+    }
+  }
+
   //================================== stream of barbershop haircuts
   Stream<List<HaircutModel>> fetchBarbershopHaircuts(String barbershopId) {
     try {

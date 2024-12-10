@@ -1,3 +1,4 @@
+import 'package:barbermate/bindings/admin_bindings.dart';
 import 'package:barbermate/bindings/barbershop_bindings.dart';
 import 'package:barbermate/bindings/customer_bindings.dart';
 import 'package:barbermate/features/admin/views/admin_view.dart';
@@ -55,6 +56,7 @@ class RoleBasedPage {
       GetPage(
         name: '/admin',
         page: () => const AdminPanel(),
+        binding: AdminBinding(),
       ),
     ];
   }

@@ -65,6 +65,8 @@ class CustomerBookingController extends GetxController {
           'Please wait...', 'assets/images/animation.json');
 
       final booking = BookingModel(
+          barbershopToken: chosenBarbershop.value.fcmToken.toString(),
+          customerToken: customer.customer.value.fcmToken.toString(),
           haircutName: selectedHaircut.value.name,
           haircutPrice: selectedHaircut.value.price,
           barberShopId: chosenBarbershop.value.id,
@@ -110,7 +112,7 @@ class CustomerBookingController extends GetxController {
           booking,
           'booking',
           'Appointment Canceled',
-          '${booking.customerName} canceled this appointment',
+          '${booking.customerName} canceled an appointment',
           'notRead');
 
       ToastNotif(message: 'Appointment canceled', title: 'Success')

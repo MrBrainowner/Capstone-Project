@@ -1,5 +1,6 @@
 import 'package:barbermate/common/pages/about_us_page.dart';
 import 'package:barbermate/common/pages/privacy_policy_page.dart';
+import 'package:barbermate/features/auth/views/account_set_up/barbershop/barbeshop_name.dart';
 import 'package:barbermate/features/barbershop/views/account/barbershop_account.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

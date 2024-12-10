@@ -44,6 +44,7 @@ class BarbershopController extends GetxController {
   final ImagePicker _picker = ImagePicker();
   final Logger logger = Logger();
   var error = ''.obs;
+  GlobalKey<FormState> key = GlobalKey<FormState>();
 
   Rx<BarbershopCombinedModel> barbershopCombinedModel =
       BarbershopCombinedModel.empty().obs;

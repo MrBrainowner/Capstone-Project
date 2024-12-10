@@ -24,7 +24,6 @@ class BarbershopDashboard extends StatelessWidget {
     final BarbershopBookingController bookingController = Get.find();
     final haircutController = Get.put(HaircutController());
     final timeSlotController = Get.put(TimeSlotController());
-    final ReviewController reviewsController = Get.find();
 
     return Scaffold(
       key: scaffoldKey,
@@ -205,7 +204,18 @@ class BarbershopDashboard extends StatelessWidget {
                             color: Colors.yellow.shade100,
                             color2: Colors.white,
                             title: 'Reviews',
-                            sometext: "${reviewsController.reviewsList.length}",
+                            sometext: (controller.barbershopCombinedModel.value
+                                        .review.isEmpty
+                                    ? 0.0
+                                    : controller.barbershopCombinedModel.value
+                                            .review
+                                            .fold(
+                                                0.0,
+                                                (sum, review) =>
+                                                    sum + review.rating) /
+                                        controller.barbershopCombinedModel.value
+                                            .review.length)
+                                .toStringAsFixed(1),
                             titl2: '   ',
                             sometext2: '   ',
                             onTapCard1: () => Get.to(() => const ReviewsPage()),

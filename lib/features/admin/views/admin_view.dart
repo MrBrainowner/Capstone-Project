@@ -51,33 +51,29 @@ class AdminPanel extends StatelessWidget {
 
   Widget _buildBarbershopList(AdminController controller, String status) {
     return Obx(() {
-      final barbershops = controller.barbershops
-          .where((shop) => shop.status == status)
+      final filteredBarbershops = controller.barbershopCombinedModel
+          .where((barbershop) => barbershop.barbershop.status == status)
           .toList();
 
-      if (barbershops.isEmpty) {
+      if (filteredBarbershops.isEmpty) {
         return const Center(child: Text('No barbershops found.'));
       }
 
       return ListView.builder(
-        itemCount: barbershops.length,
+        itemCount: filteredBarbershops.length,
         itemBuilder: (context, index) {
-          final barbershop = barbershops[index];
+          final barbershop = filteredBarbershops[index];
 
           return ListTile(
             leading: CircleAvatar(
-              backgroundImage: NetworkImage(barbershop
-                  .profileImage), // Assuming `profileImageUrl` is a field in `BarbershopModel`
+              backgroundImage: NetworkImage(barbershop.barbershop
+                  .barbershopProfileImage), // Assuming `profileImageUrl` is a field in `BarbershopModel`
               radius: 30.0,
             ),
-            title: Text(barbershop.barbershopName),
-            subtitle: Text('Status: ${barbershop.status}'),
+            title: Text(barbershop.barbershop.barbershopName),
+            subtitle: Text('Status: ${barbershop.barbershop.status}'),
             onTap: () {
               Get.to(() => BarbershopDetailPage(
-                    barbershopId: barbershop.id,
-                    status: status,
-                    barbershopName: barbershop.barbershopName,
-                    recipientEmail: barbershop.email,
                     barbershop: barbershop,
                   ));
             },

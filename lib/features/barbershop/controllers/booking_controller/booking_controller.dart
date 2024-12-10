@@ -24,8 +24,6 @@ class BarbershopBookingController extends GetxController {
 
   var isLoading = false.obs;
 
-  StreamSubscription? _reviewsStreamSubscription;
-
   @override
   void onInit() {
     super.onInit();
@@ -74,7 +72,7 @@ class BarbershopBookingController extends GetxController {
 
       await notificationController.sendNotifWhenBookingUpdated(
           booking,
-          'review_prompt',
+          'appointment_status',
           'Appointment Complete',
           'Your appointment with ${booking.barbershopName} is completed',
           'notRead');
@@ -93,7 +91,7 @@ class BarbershopBookingController extends GetxController {
 
       await notificationController.sendNotifWhenBookingUpdated(
           booking,
-          'review_prompt',
+          'appointment_status',
           'Appointment Canceled',
           'Your appointment with ${booking.barbershopName} is canceled',
           'notRead');
@@ -146,12 +144,5 @@ class BarbershopBookingController extends GetxController {
             booking.status == 'declined' ||
             booking.status == 'canceled')
         .toList();
-  }
-
-  @override
-  void onClose() {
-    // Cancel the stream subscription to prevent memory leaks
-    _reviewsStreamSubscription?.cancel();
-    super.onClose();
   }
 }

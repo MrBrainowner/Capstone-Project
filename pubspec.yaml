@@ -84,6 +84,10 @@ dependencies:
   google_mlkit_face_detection: ^0.12.0
   rxdart: ^0.28.0
   percent_indicator: ^4.2.4
+  flutter_local_notifications: ^18.0.1
+  flutter_background_service: ^5.0.10
+  permission_handler: ^11.3.1
+  
 
   
 
@@ -98,6 +102,14 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.11.0
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: false
+  image_path: "assets/images/splash/barbermate_logo/logo.png"  
+  adaptive_icon_background: "assets/images/splash/barbermate_logo/logo_adaptive_back.png"
+  adaptive_icon_foreground: "assets/images/splash/barbermate_logo/logo_adaptive_fore.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -116,6 +128,7 @@ flutter:
     - assets/images/splash/barbermate_logo/
     - assets/tagum.geojson
     - assets/images/
+    - assets/images/animation.json
     - assets/models/
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -147,3 +160,4 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+

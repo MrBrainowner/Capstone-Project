@@ -22,6 +22,7 @@ class BarbershopModel {
   final String floorNumber;
   bool existing;
   String? openHours;
+  String? fcmToken; // Added fcmToken field
 
   BarbershopModel({
     required this.id,
@@ -45,6 +46,7 @@ class BarbershopModel {
     required this.floorNumber,
     this.existing = false,
     this.openHours,
+    this.fcmToken, // Add fcmToken to constructor
   });
 
   static BarbershopModel empty() {
@@ -70,6 +72,7 @@ class BarbershopModel {
       floorNumber: '',
       existing: false, // Default value
       openHours: null,
+      fcmToken: '', // Set empty fcmToken
     );
   }
 
@@ -96,6 +99,7 @@ class BarbershopModel {
       'floorNumber': floorNumber,
       'existing': existing, // Include in JSON
       'open_hours': openHours,
+      'barbershopToken': fcmToken, // Include fcmToken in JSON
     };
   }
 
@@ -126,6 +130,7 @@ class BarbershopModel {
       floorNumber: data['floorNumber'] ?? '',
       existing: data['existing'] ?? false, // Handle null or missing field
       openHours: data['open_hours'],
+      fcmToken: data['barbershopToken'] ?? '', // Extract fcmToken from snapshot
     );
   }
 
@@ -151,6 +156,7 @@ class BarbershopModel {
     String? floorNumber,
     bool? existing, // Add existing field
     String? openHours,
+    String? fcmToken, // Add fcmToken field
   }) {
     return BarbershopModel(
       id: id ?? this.id,
@@ -176,6 +182,7 @@ class BarbershopModel {
       floorNumber: floorNumber ?? this.floorNumber,
       existing: existing ?? this.existing,
       openHours: openHours ?? this.openHours,
+      fcmToken: fcmToken ?? this.fcmToken, // Add fcmToken to copyWith
     );
   }
 }

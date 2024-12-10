@@ -1,4 +1,5 @@
 import 'package:barbermate/features/barbershop/controllers/review_controller/review_controller.dart';
+import 'package:barbermate/utils/constants/format_date.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -8,6 +9,7 @@ class ReviewsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final reviewController = Get.put(ReviewController());
+    final BFormatter format = Get.put(BFormatter());
 
     return Scaffold(
       appBar: AppBar(
@@ -43,25 +45,10 @@ class ReviewsPage extends StatelessWidget {
                             child: ClipRRect(
                               borderRadius:
                                   const BorderRadius.all(Radius.circular(10)),
-                              child: review.customerImage.isNotEmpty
-                                  ? Image.network(
-                                      review.customerImage,
-                                      fit: BoxFit.cover,
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                        // Placeholder in case of an error loading the image
-                                        return const Icon(
-                                          Icons.person,
-                                          size: 30,
-                                          color: Colors.grey,
-                                        );
-                                      },
-                                    )
-                                  : const Icon(
-                                      Icons.person,
-                                      size: 30,
-                                      color: Colors.grey,
-                                    ),
+                              child: Image(
+                                fit: BoxFit.cover,
+                                image: NetworkImage(review.customerImage),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 5),
@@ -85,12 +72,48 @@ class ReviewsPage extends StatelessWidget {
                             color: Colors.grey.shade300,
                             child: Padding(
                               padding: const EdgeInsets.all(5.0),
-                              child: Text(
-                                review.reviewText,
-                                textAlign: TextAlign.justify,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 3,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        review.name,
+                                        textAlign: TextAlign.justify,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelSmall,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                      ),
+                                      Text(
+                                        format.formatDate(review.createdAt),
+                                        textAlign: TextAlign.justify,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelSmall,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                      ),
+                                    ],
+                                  ),
+                                  const Divider(),
+                                  Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          review.reviewText,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 4,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
                           ),

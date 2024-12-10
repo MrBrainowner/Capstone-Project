@@ -1,5 +1,6 @@
+import 'package:barbermate/data/services/push_notification/push_notification.dart';
 import 'package:barbermate/routes/app_pages.dart';
-import 'package:barbermate/utils/popups/animation_loader.dart';
+import 'package:barbermate/utils/popups/loader.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -12,22 +13,30 @@ import 'firebase_options.dart';
 import 'utils/themes/barbermate_theme.dart';
 
 void main() async {
-  //======================================= Widgets Binding
-  final WidgetsBinding widgetBinding =
-      WidgetsFlutterBinding.ensureInitialized();
-  //======================================= Getx Local Storage
-  await GetStorage.init();
+  // Ensure widgets binding is initialized before any platform channel usage
+  WidgetsFlutterBinding.ensureInitialized();
 
-  //======================================= Splash Screen
-  FlutterNativeSplash.preserve(widgetsBinding: widgetBinding);
-
-  //======================================= Initialize Firebase
+  // Initialize Firebase for the main application
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
-  ).then((FirebaseApp value) => Get.put(AuthenticationRepository()));
+  );
 
-  //======================================= Initialize Authentication
+  // Initialize Notification Background Service
+  // await initializeService();
 
+  await NotificationServiceRepository.instance.initializedNotification();
+
+  // Initialize GetStorage
+  await GetStorage.init();
+
+  // Preserve the splash screen
+  FlutterNativeSplash.preserve(
+      widgetsBinding: WidgetsFlutterBinding.ensureInitialized());
+
+  // Register Authentication Repository
+  Get.put(AuthenticationRepository());
+
+  // Run the app
   runApp(const MyApp());
 }
 
@@ -48,7 +57,10 @@ class MyApp extends StatelessWidget {
         home: Scaffold(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: const Center(
-            child: AnimationLoaderr(),
+            child: AnimationLoader(
+              animation: 'assets/images/animation.json',
+              text: 'Loading...',
+            ),
           ),
         ),
       ),

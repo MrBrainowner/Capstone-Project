@@ -1,3 +1,4 @@
+import 'package:barbermate/features/auth/views/account_set_up/barbershop/barbeshop_name.dart';
 import 'package:barbermate/features/barbershop/controllers/barbershop_controller/barbershop_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -66,7 +67,8 @@ class BarbershopAccountSetUpPageLogo extends StatelessWidget {
                         : ElevatedButton(
                             onPressed: () async {
                               barbershopController.makeBarbershopExist();
-                              Get.offAllNamed('/barbershop/dashboard');
+                              Get.to(() =>
+                                  const BarbershopAccountSetUpBarbershopName());
                             },
                             child: const Text('Continue'))),
               ),
@@ -75,7 +77,8 @@ class BarbershopAccountSetUpPageLogo extends StatelessWidget {
                   child: OutlinedButton(
                       onPressed: () {
                         barbershopController.makeBarbershopExist();
-                        Get.offAllNamed('/barbershop/dashboard');
+                        Get.to(
+                            () => const BarbershopAccountSetUpBarbershopName());
                       },
                       child: const Text('Skip for Now')))
             ],

@@ -1,6 +1,7 @@
 import 'package:barbermate/common/widgets/toast.dart';
 import 'package:barbermate/features/barbershop/controllers/notification_controller/notification_controller.dart';
 import 'package:barbermate/common/widgets/notifications_case.dart';
+import 'package:barbermate/features/barbershop/views/appointments/appointments.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -46,6 +47,7 @@ class BarbershopNotifications extends StatelessWidget {
               final notification = sortedNotifications[index];
               return GestureDetector(
                   onTap: () async {
+                    Get.off(() => const BarbershopAppointments());
                     await controller.updateNotifAsRead(notification);
                   },
                   child: buildNotificationWidget(notification));

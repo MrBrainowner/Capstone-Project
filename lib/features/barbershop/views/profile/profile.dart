@@ -1,4 +1,5 @@
 import 'package:barbermate/features/barbershop/controllers/barbershop_controller/barbershop_controller.dart';
+import 'package:barbermate/features/barbershop/views/reviews/reviews.dart';
 import 'package:barbermate/features/barbershop/views/widgets/management/haircut_card.dart';
 import 'package:barbermate/features/customer/views/widgets/barbershop/barbershop_infos.dart';
 import 'package:flutter/material.dart';
@@ -145,8 +146,7 @@ class BarbershopProfile extends StatelessWidget {
                           const SizedBox(height: 8.0),
                           OutlinedButton(
                             onPressed: () async {
-                              // Get.to(() =>
-                              //     CustomerReviewsPage(barbershop: barbershop));
+                              Get.to(() => const ReviewsPage());
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,

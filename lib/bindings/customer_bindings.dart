@@ -39,6 +39,7 @@ class CustomerBinding extends Bindings {
 
     //=============================================================== controllers
     //customer
+
     Get.lazyPut<CustomerController>(() => CustomerController(), fenix: true);
     //review
     Get.lazyPut<ReviewControllerCustomer>(() => ReviewControllerCustomer(),

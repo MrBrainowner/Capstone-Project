@@ -15,38 +15,36 @@ class AdminDrawer extends StatelessWidget {
       child: Column(
         children: [
           // Custom Drawer Header with CircleAvatar
-          Obx(
-            () => DrawerHeader(
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-              ),
-              child: Row(
-                children: <Widget>[
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      const Text(
-                        'Admin',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold,
-                        ),
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+            ),
+            child: Row(
+              children: <Widget>[
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const Text(
+                      'Admin',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(height: 4.0),
-                      Text(
-                        controller.barbershops.first
-                            .email, // Replace with dynamic user email
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 16.0,
-                        ),
+                    ),
+                    const SizedBox(height: 4.0),
+                    Text(
+                      AuthenticationRepository.instance.authUser!.email
+                          .toString(),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16.0,
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
 

@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:barbermate/common/widgets/toast.dart';
 import 'package:barbermate/data/models/booking_model/booking_model.dart';
+import 'package:barbermate/data/repository/auth_repo/auth_repo.dart';
 import 'package:barbermate/data/repository/notifications_repo/notifications_repo.dart';
+import 'package:barbermate/data/services/push_notification/push_notification.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 import '../../../../data/models/notifications_model/notification_model.dart';
@@ -13,6 +15,7 @@ class BarbershopNotificationController extends GetxController {
   var isLoading = false.obs;
   var notifications = <NotificationModel>[].obs;
   final NotificationsRepo _repo = Get.find();
+  final _notificationServiceRepository = NotificationServiceRepository.instance;
 
   // Check for unread notifications
   bool get hasUnreadNotifications {
@@ -26,6 +29,7 @@ class BarbershopNotificationController extends GetxController {
   void onInit() {
     super.onInit();
     bindNotificationsStream();
+    _initializeFCMToken();
   }
 
   // fetch notification
@@ -36,18 +40,18 @@ class BarbershopNotificationController extends GetxController {
     _repo.fetchNotificationsBarbershop().listen(
       (List<NotificationModel> data) {
         // Check for new notifications by comparing the current list with the previous one
-        if (notifications.isNotEmpty) {
-          for (var newNotification in data) {
-            // Show a toast for new notifications
-            if (!notifications.any((n) => n.id == newNotification.id)) {
-              // Assuming `newNotification.message` holds the notification message
-              ToastNotif(
-                message: newNotification.message,
-                title: 'New Notification',
-              ).showSuccessNotif(Get.context!);
-            }
-          }
-        }
+        // if (notifications.isNotEmpty) {
+        //   for (var newNotification in data) {
+        //     // Show a toast for new notifications
+        //     if (!notifications.any((n) => n.id == newNotification.id)) {
+        //       // Assuming `newNotification.message` holds the notification message
+        //       ToastNotif(
+        //         message: newNotification.message,
+        //         title: 'New Notification',
+        //       ).showSuccessNotif(Get.context!);
+        //     }
+        //   }
+        // }
 
         // Update the lists after showing notifications
         notifications.assignAll(data);
@@ -87,7 +91,64 @@ class BarbershopNotificationController extends GetxController {
     }
   }
 
-  // send notification to admin
+  // Call the repository method for FCM token handling
+  Future<void> _initializeFCMToken() async {
+    try {
+      final String userId = AuthenticationRepository
+          .instance.authUser!.uid; // Replace with your user ID
+      await _notificationServiceRepository
+          .fetchAndSaveFCMTokenBarbershops(userId);
+    } catch (e) {
+      print('Error initializing FCM token in controller: $e');
+    }
+  }
 
-  // send notification to customer
+  // Send a notification to a specific user
+  Future<void> sendNotificationToUser({
+    required String userType,
+    required String userId,
+    required String title,
+    required String body,
+  }) async {
+    try {
+      isLoading(true);
+      String? token =
+          await _notificationServiceRepository.getUserFCMToken(userId);
+      if (token != null) {
+        await _notificationServiceRepository.sendNotificationToUser(
+          token: token,
+          title: title,
+          body: body,
+          userType: userType,
+        );
+      } else {
+        print('User does not have a valid FCM token');
+      }
+    } catch (e) {
+      print('Error sending notification to user: $e');
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  // Send a notification to all users
+  Future<void> sendNotificationToAllUsers({
+    required String userType,
+    required String token,
+    required String title,
+    required String body,
+  }) async {
+    try {
+      isLoading(true);
+      await _notificationServiceRepository.sendNotificationToAllUsers(
+        userType: userType,
+        title: title,
+        body: body,
+      );
+    } catch (e) {
+      print('Error sending notification to all users: $e');
+    } finally {
+      isLoading(false);
+    }
+  }
 }

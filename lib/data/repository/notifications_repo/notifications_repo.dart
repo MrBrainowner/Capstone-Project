@@ -1,5 +1,6 @@
 import 'package:barbermate/data/models/booking_model/booking_model.dart';
 import 'package:barbermate/data/repository/auth_repo/auth_repo.dart';
+import 'package:barbermate/data/services/push_notification/push_notification.dart';
 import 'package:barbermate/features/auth/models/barbershop_model.dart';
 import 'package:barbermate/features/auth/models/customer_model.dart';
 import 'package:barbermate/utils/exceptions/firebase_exceptions.dart';
@@ -13,6 +14,7 @@ import '../../models/notifications_model/notification_model.dart';
 
 class NotificationsRepo extends GetxController {
   static NotificationsRepo get instance => Get.find();
+  final _notificationServiceRepository = NotificationServiceRepository.instance;
 
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final userId = Get.put(AuthenticationRepository.instance.authUser?.uid);
@@ -64,6 +66,12 @@ class NotificationsRepo extends GetxController {
       final docId = docRef.id;
 
       await docRef.update({'id': docId});
+      await _notificationServiceRepository.sendNotificationToUser(
+          userType: customer.role,
+          token: barbershop.fcmToken.toString(),
+          title: 'Booked',
+          body:
+              'You just booked an appoinment with ${barbershop.barbershopName}');
     } catch (e) {
       throw Exception("Failed to send notifications: $e");
     }
@@ -154,6 +162,12 @@ class NotificationsRepo extends GetxController {
       final docId = docRef.id;
 
       await docRef.update({'id': docId});
+
+      await _notificationServiceRepository.sendNotificationToUser(
+          userType: 'customer',
+          token: booking.customerToken,
+          title: title,
+          body: message);
     } on FirebaseException catch (e) {
       throw BFirebaseException(e.code).message;
     } on FormatException catch (_) {
@@ -193,6 +207,11 @@ class NotificationsRepo extends GetxController {
       final docId = docRef.id;
 
       await docRef.update({'id': docId});
+      await _notificationServiceRepository.sendNotificationToUser(
+          userType: 'barbershop',
+          token: booking.barbershopToken,
+          title: title,
+          body: message);
     } on FirebaseException catch (e) {
       throw BFirebaseException(e.code).message;
     } on FormatException catch (_) {

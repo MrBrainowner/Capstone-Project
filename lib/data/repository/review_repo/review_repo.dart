@@ -11,13 +11,25 @@ class ReviewRepo extends GetxController {
 
 //=========================================================== if the current user is the customer
   // Create a review and save it in the barbershop's reviews collection
-  Future<void> createReview(ReviewsModel review) async {
+  Future<void> createReview(ReviewsModel review, String bookingId) async {
     try {
       final reviews = await _db
           .collection('Barbershops')
           .doc(review.barberShopId)
           .collection('Reviews')
           .add(review.toJson());
+      await _db
+          .collection('Barbershops')
+          .doc(review.barberShopId)
+          .collection('Bookings')
+          .doc(bookingId)
+          .update({'isReviewed': true});
+      await _db
+          .collection('Customers')
+          .doc(review.customerId)
+          .collection('Bookings')
+          .doc(bookingId)
+          .update({'isReviewed': true});
 
       final docId = reviews.id;
 
