@@ -1,6 +1,7 @@
 import 'package:barbermate/data/models/booking_model/booking_model.dart';
 import 'package:barbermate/data/repository/auth_repo/auth_repo.dart';
 import 'package:barbermate/data/repository/notifications_repo/notifications_repo.dart';
+import 'package:barbermate/data/services/push_notification/push_notification.dart';
 import 'package:barbermate/features/auth/models/customer_model.dart';
 import 'package:barbermate/utils/exceptions/firebase_exceptions.dart';
 import 'package:barbermate/utils/exceptions/format_exceptions.dart';
@@ -17,6 +18,7 @@ class BookingRepo extends GetxController {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final authId = Get.put(AuthenticationRepository.instance.authUser?.uid);
   final bookingNotif = Get.put(NotificationsRepo());
+  final _notificationServiceRepository = NotificationServiceRepository.instance;
 
   // create booking
   Future<void> addBooking(BookingModel booking, BarbershopModel barbershop,
@@ -104,6 +106,13 @@ class BookingRepo extends GetxController {
       // Step 11: Send notifications
       await bookingNotif.sendBookingNotifications(
           barbershop, customer, booking.id);
+
+      await _notificationServiceRepository.sendNotificationToUser(
+          userType: customer.role,
+          token: barbershop.fcmToken.toString(),
+          title: 'Booked',
+          body:
+              'You just booked an appoinment with ${barbershop.barbershopName}');
     } on FirebaseException catch (e) {
       throw BFirebaseException(e.code).message;
     } on FormatException catch (_) {

@@ -1,6 +1,7 @@
 import 'package:barbermate/common/widgets/toast.dart';
 import 'package:barbermate/data/repository/auth_repo/auth_repo.dart';
 import 'package:barbermate/data/repository/customer_repo/customer_repo.dart';
+import 'package:barbermate/features/customer/controllers/customer_controller/customer_controller.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
@@ -8,6 +9,7 @@ class ChangeEmailController extends GetxController {
   static ChangeEmailController get intace => Get.find();
   final AuthenticationRepository authrepo = Get.find();
   final CustomerRepository customerRepository = Get.find();
+  final CustomerController customerController = Get.find();
 
   final email = TextEditingController();
   final password = TextEditingController();
@@ -24,24 +26,8 @@ class ChangeEmailController extends GetxController {
         // Step 2: Send verification email
         await authrepo.sendEmailVerification();
 
-        // Step 3: Wait for user to verify their new email
-        bool isVerified = await _waitForNewEmailVerificationStream(newEmail);
-
-        if (isVerified) {
-          // Step 4: Update email in Firestore
-          await customerRepository
-              .updateCustomerSingleField({'email': newEmail});
-          ToastNotif(
-            message: 'Email verified and updated successfully.',
-            title: 'Success',
-          ).showSuccessNotif(Get.context!);
-          Get.back();
-        } else {
-          ToastNotif(
-            message: 'Email verification not completed. Please try again.',
-            title: 'Error',
-          ).showErrorNotif(Get.context!);
-        }
+        // Step 3: Update email in Firestore
+        await customerRepository.updateCustomerSingleField({'email': newEmail});
       } catch (e) {
         ToastNotif(
           message: e.toString(),
@@ -56,25 +42,39 @@ class ChangeEmailController extends GetxController {
     }
   }
 
-  // Helper function to wait for the new email verification
-  Stream<bool> _emailVerificationStream(String newEmail) async* {
-    while (true) {
-      await Future.delayed(const Duration(seconds: 3));
-      await authrepo.authUser?.reload();
+  // If the email in Firestore does not match the authenticated email, revert it
+  Future<void> handleEmailMismatch() async {
+    // Check if the email in Firestore is different from the authenticated email
+    String authenticatedEmail = authrepo.authUser?.email ?? '';
 
-      if (authrepo.authUser?.email == newEmail &&
-          authrepo.authUser?.emailVerified == true) {
-        yield true;
-        break;
-      }
+    if (customerController.customer.value.email != authenticatedEmail) {
+      // Email mismatch, revert to the old authenticated email in Firestore and Firebase
+      await _revertEmailChange(
+          authenticatedEmail, customerController.customer.value.email);
+    } else {
+      // Successfully updated the email
+      ToastNotif(
+        message: 'Email successfully updated.',
+        title: 'Success',
+      ).showSuccessNotif(Get.context!);
+      Get.back();
     }
-    yield false;
   }
 
-  Future<bool> _waitForNewEmailVerificationStream(String newEmail) async {
-    await for (bool isVerified in _emailVerificationStream(newEmail)) {
-      if (isVerified) return true;
-    }
-    return false;
+  // Revert the email change in Firestore and Firebase Authentication
+  Future<void> _revertEmailChange(
+      String authenticatedEmail, String firestoreEmail) async {
+    // Revert email in Firestore
+    await customerRepository
+        .updateCustomerSingleField({'email': authenticatedEmail});
+
+    // Revert email in Firebase Authentication
+    await authrepo.changeUserEmail(authenticatedEmail);
+
+    ToastNotif(
+      message:
+          'Email verification not completed. Email reverted to the original authenticated email.',
+      title: 'Error',
+    ).showErrorNotif(Get.context!);
   }
 }

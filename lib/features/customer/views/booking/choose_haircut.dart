@@ -21,7 +21,7 @@ class ChooseHaircut extends StatelessWidget {
 
     return PopScope(
       canPop: true,
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (didPop, result) {
         bookingController.clearBookingData();
       },
       child: Scaffold(

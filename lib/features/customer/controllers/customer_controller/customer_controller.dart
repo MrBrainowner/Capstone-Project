@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:barbermate/data/repository/auth_repo/auth_repo.dart';
+import 'package:barbermate/features/customer/controllers/change_email_controller/change_email_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -34,6 +35,7 @@ class CustomerController extends GetxController {
   void onInit() async {
     super.onInit();
     fetchCustomerData();
+    ChangeEmailController.intace.handleEmailMismatch();
   }
 
   void makeCustomerExist() async {

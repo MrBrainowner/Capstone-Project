@@ -1,7 +1,5 @@
 import 'package:barbermate/data/models/combined_model/barbershop_combined_model.dart';
 import 'package:barbermate/features/customer/controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
-import 'package:barbermate/features/customer/controllers/review_controller/review_controller.dart';
-import 'package:barbermate/features/customer/views/dashboard/dashboard.dart';
 import 'package:barbermate/utils/constants/format_date.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,7 +11,6 @@ class CustomerReviewsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ReviewControllerCustomer controller = Get.find();
     final GetHaircutsAndBarbershopsController customerController = Get.find();
     final BFormatter format = Get.put(BFormatter());
 

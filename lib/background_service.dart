@@ -4,6 +4,7 @@
 // import 'package:firebase_core/firebase_core.dart';
 // import 'package:firebase_messaging/firebase_messaging.dart';
 // import 'package:flutter_background_service/flutter_background_service.dart';
+// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 // Future<void> initializeService() async {
 //   final service = FlutterBackgroundService();
@@ -23,17 +24,38 @@
 //   );
 // }
 
-// @pragma('vm:entry-point')
+// Future<void> showNotification(RemoteMessage message) async {
+//   final localNofitications = FlutterLocalNotificationsPlugin();
+//   RemoteNotification? notification = message.notification;
+//   AndroidNotification? android = message.notification?.android;
+//   if (notification != null && android != null) {
+//     await localNofitications.show(
+//       notification.hashCode,
+//       notification.title,
+//       notification.body,
+//       const NotificationDetails(
+//           android: AndroidNotificationDetails(
+//         'hight_importance_channel',
+//         'High Importance Notifications',
+//         channelDescription: 'This channel is used for important notifications',
+//         importance: Importance.high,
+//         priority: Priority.high,
+//         icon: '@mipmap/ic_launcher',
+//       )),
+//       payload: message.data.toString(),
+//     );
+//   }
+// }
+
 // Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 //   // Ensure Firebase and Notifications are initialized
 //   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 //   await NotificationServiceRepository.instance.setUpFlutterNotifications();
-//   await NotificationServiceRepository.instance.showNotification(message);
+//   await showNotification(message);
 
 //   print("Background notification received: ${message.messageId}");
 // }
 
-// @pragma('vm:entry-point')
 // void onStart(ServiceInstance service) async {
 //   // Set up FCM background handling
 //   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);

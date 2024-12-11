@@ -229,12 +229,12 @@ class SuggestHaircutAiPage extends StatelessWidget {
                                           .firstWhere((barbershopCombined) {
                                     return barbershopCombined.haircuts
                                         .contains(haircut);
-                                  });
+                                  }).obs;
 
                                   // Pass the haircut and the barbershop to the SuggestHairstyle widget
                                   return SuggestHairstyle(
                                     haircut: haircut,
-                                    barbershop: barbershopCombined,
+                                    barbershop: barbershopCombined.value,
                                   );
                                 },
                               );

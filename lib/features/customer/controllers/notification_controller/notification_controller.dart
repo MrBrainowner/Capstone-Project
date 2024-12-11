@@ -1,11 +1,9 @@
 import 'dart:async';
-
 import 'package:barbermate/data/models/booking_model/booking_model.dart';
 import 'package:barbermate/data/models/notifications_model/notification_model.dart';
 import 'package:barbermate/data/repository/auth_repo/auth_repo.dart';
 import 'package:barbermate/data/repository/notifications_repo/notifications_repo.dart';
 import 'package:barbermate/data/services/push_notification/push_notification.dart';
-import 'package:barbermate/features/auth/models/customer_model.dart';
 import 'package:get/get.dart';
 import '../../../../common/widgets/toast.dart';
 
