@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:barbermate/data/repository/auth_repo/auth_repo.dart';
-import 'package:barbermate/features/customer/controllers/change_email_controller/change_email_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -26,7 +25,7 @@ class CustomerController extends GetxController {
   final number = TextEditingController();
   final currentPasswordController = TextEditingController();
   final newPasswordController = TextEditingController();
-  GlobalKey<FormState> signUpFormKey = GlobalKey<FormState>();
+  GlobalKey<FormState> updateKey = GlobalKey<FormState>();
   final hidePassword = true.obs;
   RxString profileImageUrl = ''.obs;
   final ImagePicker _picker = ImagePicker();
@@ -35,7 +34,16 @@ class CustomerController extends GetxController {
   void onInit() async {
     super.onInit();
     fetchCustomerData();
-    ChangeEmailController.intace.handleEmailMismatch();
+  }
+
+  void clear() async {
+    firstName.value = TextEditingValue.empty;
+    lastName.value = TextEditingValue.empty;
+    email.value = TextEditingValue.empty;
+    password.value = TextEditingValue.empty;
+    number.value = TextEditingValue.empty;
+    currentPasswordController.value = TextEditingValue.empty;
+    newPasswordController.value = TextEditingValue.empty;
   }
 
   void makeCustomerExist() async {
@@ -100,8 +108,7 @@ class CustomerController extends GetxController {
   }
 
   // Save customer data from any registration provider
-  Future<void> saveCustomerData(
-      {String? firstNamee, String? lastNamee, String? emaill}) async {
+  Future<void> saveCustomerData({String? firstNamee, String? lastNamee}) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
 
@@ -111,7 +118,6 @@ class CustomerController extends GetxController {
         final updatedCustomer = existingData.copyWith(
           firstName: firstNamee ?? customer.value.firstName,
           lastName: lastNamee ?? customer.value.lastName,
-          email: emaill ?? customer.value.email,
         );
 
         // Update the customer data in Firestore
@@ -129,9 +135,9 @@ class CustomerController extends GetxController {
     }
   }
 
-  Future<void> updateSingleField(String number) async {
+  Future<void> updateSingleField(Map<String, dynamic> json) async {
     try {
-      await customerRepository.updateCustomerSingleField({'phone_no': number});
+      await customerRepository.updateCustomerSingleField(json);
       ToastNotif(
         message: 'Field updated successfully.',
         title: 'Success',
@@ -149,18 +155,15 @@ class CustomerController extends GetxController {
     try {
       profileLoading.value = true;
 
-      if (!signUpFormKey.currentState!.validate()) {
-        return;
-      }
-
       // Call the repository method to change the password
-      await authrepo.changePassword(
-          email.text.trim(),
-          currentPasswordController.text.trim(),
+      await authrepo.changePassword(currentPasswordController.text.trim(),
           newPasswordController.text.trim());
     } catch (e) {
       // Show an error message if something went wrong
-      Get.snackbar('Error', 'Failed to change password: ${e.toString()}');
+      ToastNotif(
+              message: 'Failed to change password: ${e.toString()}',
+              title: 'Error')
+          .showWarningNotif(Get.context!);
     } finally {
       profileLoading.value = false;
     }

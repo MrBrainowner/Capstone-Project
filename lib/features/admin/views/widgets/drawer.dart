@@ -1,4 +1,3 @@
-import 'package:barbermate/features/admin/controllers/admin_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../data/repository/auth_repo/auth_repo.dart';
@@ -10,7 +9,6 @@ class AdminDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(AdminController());
     return Drawer(
       child: Column(
         children: [

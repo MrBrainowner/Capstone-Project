@@ -1,7 +1,6 @@
 import 'package:barbermate/features/barbershop/controllers/barbershop_controller/barbershop_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/booking_controller/booking_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/haircuts_controller/haircuts_controller.dart';
-import 'package:barbermate/features/barbershop/controllers/review_controller/review_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/timeslot_controller/timeslot_controller.dart';
 import 'package:barbermate/features/barbershop/views/appointments/appointments.dart';
 import 'package:barbermate/features/barbershop/views/management/haircut/management.dart';
@@ -56,7 +55,7 @@ class BarbershopDashboard extends StatelessWidget {
                           Flexible(
                             child: Obx(
                               () => Text(
-                                'Welcome to Barbermate, ${controller.barbershopCombinedModel.value.barbershop.barbershopName}',
+                                'Welcome to Barbermate, ${controller.barbershop.value.barbershopName}',
                                 maxLines: 3,
                                 style: Theme.of(context).textTheme.displaySmall,
                               ),
@@ -204,17 +203,13 @@ class BarbershopDashboard extends StatelessWidget {
                             color: Colors.yellow.shade100,
                             color2: Colors.white,
                             title: 'Reviews',
-                            sometext: (controller.barbershopCombinedModel.value
-                                        .review.isEmpty
+                            sometext: (controller.reviews.isEmpty
                                     ? 0.0
-                                    : controller.barbershopCombinedModel.value
-                                            .review
-                                            .fold(
-                                                0.0,
-                                                (sum, review) =>
-                                                    sum + review.rating) /
-                                        controller.barbershopCombinedModel.value
-                                            .review.length)
+                                    : controller.reviews.fold(
+                                            0.0,
+                                            (sum, review) =>
+                                                sum + review.rating) /
+                                        controller.reviews.length)
                                 .toStringAsFixed(1),
                             titl2: '   ',
                             sometext2: '   ',

@@ -1,5 +1,7 @@
+import 'package:barbermate/common/widgets/toast.dart';
 import 'package:barbermate/features/auth/views/sign_in/sign_in_widgets/textformfield.dart';
 import 'package:barbermate/features/customer/controllers/customer_controller/customer_controller.dart';
+import 'package:barbermate/utils/popups/confirm_cancel_pop_up.dart';
 import 'package:barbermate/utils/validators/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -20,30 +22,51 @@ class CustomerEditNumber extends StatelessWidget {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: Column(
-            children: [
-              const Text('Update Phone Number'),
-              const SizedBox(height: 20),
-              MyTextField(
-                controller: controller.number,
-                keyboardtype: TextInputType.name,
-                validator: (value) => validator.validateEmpty(value),
-                labelText: 'Phone',
-                obscureText: false,
-                icon: const Icon(Icons.phone),
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                    onPressed: () async {
-                      controller
-                          .updateSingleField(controller.number.text.trim());
-                      Get.back();
-                    },
-                    child: const Text('Update')),
-              )
-            ],
+          child: Form(
+            key: controller.updateKey,
+            child: Column(
+              children: [
+                const Text('Update Phone Number'),
+                const SizedBox(height: 20),
+                MyTextField(
+                  controller: controller.number,
+                  keyboardtype: TextInputType.name,
+                  validator: (value) => validator.validateEmpty(value),
+                  labelText: 'Phone',
+                  obscureText: false,
+                  icon: const Icon(Icons.phone),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                      onPressed: () async {
+                        if (!controller.updateKey.currentState!.validate()) {
+                          ToastNotif(
+                                  message:
+                                      'Please make sure the field is not empty',
+                                  title: 'Opss!')
+                              .showWarningNotif(context);
+                        } else {
+                          ConfirmCancelPopUp.showDialog(
+                              context: context,
+                              title: 'Updte Phone Number?',
+                              description:
+                                  'Are you sure you want to update your phone number?',
+                              textConfirm: 'Confirm',
+                              textCancel: 'Cancel',
+                              onConfirm: () async {
+                                controller.updateSingleField({
+                                  'phone_no': controller.number.text.trim()
+                                });
+                                Get.back();
+                              });
+                        }
+                      },
+                      child: const Text('Update')),
+                )
+              ],
+            ),
           ),
         ),
       ),

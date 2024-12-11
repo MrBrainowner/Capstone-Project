@@ -1,5 +1,7 @@
+import 'package:barbermate/common/widgets/toast.dart';
 import 'package:barbermate/features/auth/views/sign_in/sign_in_widgets/textformfield.dart';
 import 'package:barbermate/features/customer/controllers/customer_controller/customer_controller.dart';
+import 'package:barbermate/utils/popups/confirm_cancel_pop_up.dart';
 import 'package:barbermate/utils/validators/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -22,20 +24,11 @@ class CustomerEditPassword extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Form(
-              key: controller.signUpFormKey,
+              key: controller.updateKey,
               child: Column(
                 children: [
-                  const Text('Update Phone Number'),
+                  const Text('Update Password'),
                   const SizedBox(height: 20),
-                  MyTextField(
-                    controller: controller.email,
-                    keyboardtype: TextInputType.name,
-                    validator: (value) => validator.validateEmpty(value),
-                    labelText: 'Email',
-                    obscureText: false,
-                    icon: const Icon(Icons.email_outlined),
-                  ),
-                  const SizedBox(height: 10),
                   Obx(
                     () => MyTextField(
                       suffixIcon: IconButton(
@@ -88,8 +81,25 @@ class CustomerEditPassword extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                         onPressed: () async {
-                          await controller.changePassword();
-                          Get.back();
+                          if (!controller.updateKey.currentState!.validate()) {
+                            ToastNotif(
+                                    message:
+                                        'Please make sure the password is not empty and matching',
+                                    title: 'Opss!')
+                                .showWarningNotif(context);
+                          } else {
+                            ConfirmCancelPopUp.showDialog(
+                                context: context,
+                                title: 'Updte Password?',
+                                description:
+                                    'Are you sure you want to update your password?',
+                                textConfirm: 'Confirm',
+                                textCancel: 'Cancel',
+                                onConfirm: () async {
+                                  await controller.changePassword();
+                                  Get.back();
+                                });
+                          }
                         },
                         child: const Text('Update')),
                   )

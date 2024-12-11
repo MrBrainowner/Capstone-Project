@@ -39,8 +39,10 @@ class CustomerBinding extends Bindings {
 
     //=============================================================== controllers
     //customer
-
     Get.lazyPut<CustomerController>(() => CustomerController(), fenix: true);
+    //change email
+    Get.lazyPut<ChangeEmailController>(() => ChangeEmailController(),
+        fenix: true);
     //review
     Get.lazyPut<ReviewControllerCustomer>(() => ReviewControllerCustomer(),
         fenix: true);
@@ -59,7 +61,5 @@ class CustomerBinding extends Bindings {
         permanent: true);
     //ai
     Get.lazyPut<DetectFaceShape>(() => DetectFaceShape(), fenix: true);
-    Get.lazyPut<ChangeEmailController>(() => ChangeEmailController(),
-        fenix: true);
   }
 }

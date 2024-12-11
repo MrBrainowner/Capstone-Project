@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -13,23 +12,18 @@ import '../barbershop_controller/barbershop_controller.dart';
 
 class HaircutController extends GetxController {
   static HaircutController get instance => Get.find();
-
   final BarbershopController barbershopController = Get.find();
-
   final HaircutRepository _haircutRepository = Get.find();
 
   final nameController = TextEditingController();
-  final descriptionController = TextEditingController();
   final priceController = TextEditingController();
   final durationController = TextEditingController();
+  Rx<File?> selectedImage = Rx<File?>(null);
 
   RxList<HaircutModel> haircuts = <HaircutModel>[].obs;
-
+  final ImagePicker picker = ImagePicker();
   var isLoading = true.obs;
-  var imageUrls = <String>[].obs;
-  RxList<File> tempImageFiles = <File>[].obs;
-  var toBeDeletedImageUrls = <String>[].obs;
-
+  var imageUrl = ''.obs; // Now stores only a single image URL
   var selectedCategories = <String>[].obs;
 
   GlobalKey<FormState> addHaircutFormKey = GlobalKey<FormState>();
@@ -48,118 +42,108 @@ class HaircutController extends GetxController {
 
   void resetForm() {
     nameController.clear();
-    descriptionController.clear();
     priceController.clear();
     durationController.clear();
     selectedCategories.clear();
-    toBeDeletedImageUrls.clear();
+    selectedImage.value = null; // Reset image URL
   }
 
   Future<void> addHaircut() async {
-    if (addHaircutFormKey.currentState?.validate() ?? false) {
-      // Check if an image is selected
-      if (tempImageFiles.isEmpty && selectedCategories.isEmpty) {
-        // Show a warning if no image is selected
-        ToastNotif(message: 'Image and Categoris is required', title: 'Error')
-            .showErrorNotif(Get.context!);
-        return;
-      }
-      try {
-        FullScreenLoader.openLoadingDialog(
-            'Adding Haircut...', 'assets/images/animation.json');
+    if (!addHaircutFormKey.currentState!.validate()) {
+      ToastNotif(message: 'Field is required', title: 'Error')
+          .showWarningNotif(Get.context!);
+      return;
+    } else if (selectedImage.value == null) {
+      // Show a warning if no image is selected
+      ToastNotif(message: 'Please upload an image', title: 'Error')
+          .showWarningNotif(Get.context!);
+      return;
+    }
+    try {
+      FullScreenLoader.openLoadingDialog(
+          'Adding Haircut...', 'assets/images/animation.json');
+      // Create a HaircutModel with initial data
+      final haircut = HaircutModel(
+        name: nameController.text,
+        price: double.parse(priceController.text),
+        duration: int.parse(durationController.text),
+        category: selectedCategories,
+        imageUrl: '', // Initially empty
+        createdAt: DateTime.now(),
+        id: '',
+      );
 
-        // Create a HaircutModel with initial data
-        final tempHaircut = HaircutModel(
-          name: nameController.text,
-          description: descriptionController.text,
-          price: double.parse(priceController.text),
-          duration: int.parse(durationController.text),
-          category: selectedCategories,
-          imageUrls: [], // Empty list for now, will be updated after uploading images
-          createdAt: DateTime.now(), id: '',
-        );
+      // Add the haircut model to Firestore and get the document ID
+      final haircutId = await _haircutRepository.addHaircut(haircut);
 
-        // Add the haircut model to Firestore and get the document ID
-        final haircutId = await _haircutRepository.addHaircut(tempHaircut);
+      // Upload image if any image has been selected
 
-        // Upload images using the document ID to create the folder
-        final imageUrls = await uploadImages(
-            tempImageFiles.map((file) => XFile(file.path)).toList(), haircutId);
+      final imageUrl = await _haircutRepository.uploadImageToStorage(
+          XFile(selectedImage.value!.path),
+          haircutId); // Pass XFile to the repository
 
-        // Update the Firestore document with image URLs
-        await _haircutRepository.updateHaircutImages(haircutId, imageUrls);
+      // Update the image URL in Firestore if the upload is successful
+      await _haircutRepository.updateHaircutImage(haircutId, imageUrl);
 
-        ToastNotif(
-                message: 'Haircut added successfully',
-                title: 'New Haircut Added')
-            .showSuccessNotif(Get.context!);
-
-        tempImageFiles.clear();
-        Get.back();
-      } catch (e) {
-        ToastNotif(message: e.toString(), title: 'Error adding haircut')
-            .showErrorNotif(Get.context!);
-      } finally {
-        FullScreenLoader.stopLoading();
-      }
+      ToastNotif(
+              message: 'Haircut added successfully', title: 'New Haircut Added')
+          .showSuccessNotif(Get.context!);
+      resetForm();
+      Get.back();
+    } catch (e) {
+      ToastNotif(message: e.toString(), title: 'Error adding haircut')
+          .showErrorNotif(Get.context!);
+    } finally {
+      FullScreenLoader.stopLoading();
     }
   }
 
-  Future<List<String>> uploadImages(
-      List<XFile> imageFiles, String haircutId) async {
-    return await _haircutRepository.uploadImageToStorage(imageFiles, haircutId);
-  }
-
   Future<void> updateHaircut(HaircutModel haircut) async {
-    if (addHaircutFormKey.currentState?.validate() ?? false) {
-      // Check if an image is selected
-      if (tempImageFiles.isEmpty && selectedCategories.isEmpty) {
-        // Show a warning if no image is selected
-        ToastNotif(message: 'Image and Categoris is required', title: 'Error')
-            .showErrorNotif(Get.context!);
-        return;
+    if (!addHaircutFormKey.currentState!.validate()) {
+      ToastNotif(message: 'Field is required', title: 'Error')
+          .showWarningNotif(Get.context!);
+      return;
+    } else if (haircut.imageUrl.isEmpty) {
+      // Show a warning if no image is selected
+      ToastNotif(message: 'Please upload an image', title: 'Error')
+          .showWarningNotif(Get.context!);
+      return;
+    }
+    try {
+      FullScreenLoader.openLoadingDialog(
+          'Updating Haircut...', 'assets/images/animation.json');
+      XFile? newImageFile;
+
+      // Convert Rx<File?> to XFile if a new image is selected
+      if (selectedImage.value != null) {
+        newImageFile = XFile(selectedImage.value!.path);
       }
 
-      try {
-        FullScreenLoader.openLoadingDialog(
-            'Updating Haircut...', 'assets/images/animation.json');
+      // Create the updated haircut model
+      final haircutUpdate = haircut.copyWith(
+        name: nameController.text,
+        price: double.parse(priceController.text),
+        duration: int.parse(durationController.text),
+        category: selectedCategories,
+        imageUrl: '', // Update image URL if necessary
+      );
 
-        // Upload images first and get their URLs
+      // Update the haircut model in Firestore
+      await _haircutRepository.updateHaircut(
+          haircutId: haircut.id.toString(),
+          updatedHaircut: haircutUpdate,
+          newImageFile: newImageFile);
 
-        final haircutUpdate = haircut.copyWith(
-          name: nameController.text,
-          description: descriptionController.text,
-          price: double.parse(priceController.text),
-          duration: int.parse(durationController.text),
-          category: selectedCategories,
-        );
+      ToastNotif(
+              message: 'Haircut updated successfully', title: 'Haircut Updated')
+          .showSuccessNotif(Get.context!);
 
-        await _haircutRepository.updateHaircut(
-            haircut.id.toString(), haircutUpdate);
-
-        final imageUrls = await uploadImages(
-            tempImageFiles.map((file) => XFile(file.path)).toList(),
-            haircut.id.toString());
-        // logger.i('Temp Image Files: ${tempImageFiles.toString()}');
-
-        await _haircutRepository.addHaircutImages(
-            haircut.id.toString(), imageUrls);
-        if (toBeDeletedImageUrls.isNotEmpty) {
-          await deleteImages(haircut.id.toString(), toBeDeletedImageUrls);
-        }
-        ToastNotif(
-                message: 'Haicut updated successfuly', title: 'Haircut Updated')
-            .showSuccessNotif(Get.context!);
-        tempImageFiles.clear();
-        // Reset deletion list
-        toBeDeletedImageUrls.clear();
-        Get.back();
-      } catch (e) {
-        ToastNotif(message: 'Error updaing haircuts', title: 'Error')
-            .showErrorNotif(Get.context!);
-      } finally {
-        FullScreenLoader.stopLoading();
-      }
+      Get.back(); // Close the update screen
+    } catch (e) {
+      ToastNotif(message: 'Error updating haircut', title: 'Error')
+          .showErrorNotif(Get.context!);
+    } finally {
+      FullScreenLoader.stopLoading();
     }
   }
 
@@ -170,17 +154,14 @@ class HaircutController extends GetxController {
     try {
       await _haircutRepository.deleteHaircut(haircutId);
       ToastNotif(
-              message: 'Haicut deleted successfuly', title: 'Haircut Deleted')
+              message: 'Haircut deleted successfully', title: 'Haircut Deleted')
           .showSuccessNotif(Get.context!);
       resetForm();
+      Get.back();
     } catch (e) {
-      ToastNotif(message: 'Error deleting haircuts', title: 'Error')
+      ToastNotif(message: 'Error deleting haircut', title: 'Error')
           .showErrorNotif(Get.context!);
     } finally {
-      ToastNotif(
-              message: 'Haicut deleted successfuly', title: 'Haircut Deleted')
-          .showSuccessNotif(Get.context!);
-
       FullScreenLoader.stopLoading();
     }
   }
@@ -202,39 +183,6 @@ class HaircutController extends GetxController {
         isLoading(false); // Stop loading when the stream is done
       },
     );
-  }
-
-  void removeCategory(String category) {
-    selectedCategories.remove(category);
-  }
-
-  void removeImage(String url) {
-    imageUrls.remove(url);
-  }
-
-  void removeTempImage(File file) {
-    tempImageFiles.remove(file);
-  }
-
-  Future<void> deleteImages(String id, List<String> imageUrl) async {
-    try {
-      await _haircutRepository.deleteImageAndRemoveUrl(id, imageUrl);
-    } catch (e) {
-      ToastNotif(message: 'Error deleting image', title: 'Error')
-          .showErrorNotif(Get.context!);
-    }
-  }
-
-  Future<void> handleImageSelection(List<XFile> files) async {
-    try {
-      if (files.isNotEmpty) {
-        final fileList = files.map((xFile) => File(xFile.path)).toList();
-        tempImageFiles.addAll(fileList);
-      }
-    } catch (e) {
-      ToastNotif(message: 'Error selecting images', title: 'Error')
-          .showErrorNotif(Get.context!);
-    }
   }
 
   @override

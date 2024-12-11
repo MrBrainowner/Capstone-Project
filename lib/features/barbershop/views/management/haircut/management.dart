@@ -30,7 +30,7 @@ class HaircutManagementPage extends StatelessWidget {
           if (controller.isLoading.value) {
             return const Center(child: CircularProgressIndicator());
           } else if (controller.haircuts.isEmpty) {
-            return const Center(child: Text('No barber available.'));
+            return const Center(child: Text('No Haircut available.'));
           } else {
             final haircut = controller.haircuts;
             return GridView.builder(

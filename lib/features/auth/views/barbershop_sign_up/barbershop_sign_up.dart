@@ -36,16 +36,16 @@ class BarbershopSignUpPage extends StatelessWidget {
             return Row(
               children: <Widget>[
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: details.onStepContinue,
-                    child: const Text('Next'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
                   child: OutlinedButton(
                     onPressed: details.onStepCancel,
                     child: const Text('Back'),
+                  ),
+                ),
+                const SizedBox(width: 5),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: details.onStepContinue,
+                    child: const Text('Next'),
                   ),
                 ),
               ],

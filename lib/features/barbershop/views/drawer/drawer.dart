@@ -1,6 +1,5 @@
 import 'package:barbermate/common/pages/about_us_page.dart';
 import 'package:barbermate/common/pages/privacy_policy_page.dart';
-import 'package:barbermate/features/auth/views/account_set_up/barbershop/barbeshop_name.dart';
 import 'package:barbermate/features/barbershop/views/account/barbershop_account.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -36,8 +35,7 @@ class BarbershopDrawer extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Text(
-                          controller.barbershopCombinedModel.value.barbershop
-                              .barbershopName,
+                          controller.barbershop.value.barbershopName,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 4,
                           style: Theme.of(context)
@@ -49,7 +47,7 @@ class BarbershopDrawer extends StatelessWidget {
                         ),
                         const SizedBox(height: 4.0),
                         Text(
-                          controller.barbershopCombinedModel.value.barbershop
+                          controller.barbershop.value
                               .email, // Replace with dynamic user email
                           style: Theme.of(context)
                               .textTheme

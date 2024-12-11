@@ -52,7 +52,7 @@ class StepperController extends GetxController {
         return; // Do not proceed to the next step if validation fails
       }
       // If Step 3 validation is successful, show confirmation dialog
-      showConfirmationDialog();
+      showConfirmationBottomSheet();
       return; // Do not proceed to the next step if showing confirmation dialog
     }
 
@@ -84,34 +84,71 @@ class StepperController extends GetxController {
   }
 
   // Show confirmation dialog on last step
-  void showConfirmationDialog() {
-    Get.defaultDialog(
-      title: "Confirm Your Details",
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Barbershop Name: ${controller.barbershopName.text}"),
-          Text("First Name: ${controller.firstName.text}"),
-          Text("Last Name: ${controller.lastName.text}"),
-          Text("Email: ${controller.email.text}"),
-          Text("Phone Number: ${controller.phone.text}"),
-          Text("Street Address: ${controller.streetAddress.text}"),
-          Text("Address: ${controller.address.text}"),
-          Text("Landmark: ${controller.landMark.text}"),
-          Text("Postal Code: ${controller.postalCode.text}"),
-        ],
-      ),
-      actions: [
-        Column(
+  void showConfirmationBottomSheet() {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(16.0),
+        decoration: const BoxDecoration(
+          color: Colors.white, // Background color of the bottom sheet
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(16.0),
+            topRight: Radius.circular(16.0),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Center(
+              child: Text(
+                "Review Your Details",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18.0,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            Text("First Name: ${controller.firstName.text}",
+                maxLines: 2, overflow: TextOverflow.ellipsis),
+            Text("Last Name: ${controller.lastName.text}",
+                maxLines: 2, overflow: TextOverflow.ellipsis),
+            const Divider(),
+            Text("Email: ${controller.email.text}",
+                maxLines: 2, overflow: TextOverflow.ellipsis),
+            const Divider(),
+            Text("Phone Number: ${controller.phone.text}",
+                maxLines: 2, overflow: TextOverflow.ellipsis),
+            const Divider(),
+            Text("Street Address: ${controller.streetAddress.text}",
+                maxLines: 2, overflow: TextOverflow.ellipsis),
+            const Divider(),
+            Text("Address: ${controller.address.text}",
+                maxLines: 2, overflow: TextOverflow.ellipsis),
+            const Divider(),
+            Text("Landmark: ${controller.landMark.text}",
+                maxLines: 2, overflow: TextOverflow.ellipsis),
+            const Divider(),
+            Text("Postal Code: ${controller.postalCode.text}",
+                maxLines: 2, overflow: TextOverflow.ellipsis),
+            const SizedBox(height: 16.0),
             Row(
               children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Get.back(); // Close the bottom sheet without action
+                    },
+                    child: const Text("Cancel"),
+                  ),
+                ),
+                const SizedBox(width: 5.0),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
                       // Call your sign-up function here
                       controller.signUp();
-                      // Add sign-up logic here
                       logger.i("Sign up confirmed");
                     },
                     child: const Text("Confirm and Sign Up"),
@@ -119,21 +156,10 @@ class StepperController extends GetxController {
                 ),
               ],
             ),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      Get.back(); // Close the dialog without action
-                    },
-                    child: const Text("Cancel"),
-                  ),
-                ),
-              ],
-            ),
           ],
-        )
-      ],
+        ),
+      ),
+      isScrollControlled: true, // Allows the bottom sheet to resize dynamically
     );
   }
 }

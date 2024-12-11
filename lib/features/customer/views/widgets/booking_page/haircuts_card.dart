@@ -51,8 +51,8 @@ class HaircutsCard extends StatelessWidget {
                     child: Image(
                       height: 140,
                       fit: BoxFit.cover,
-                      image: haircut.imageUrls.isNotEmpty
-                          ? NetworkImage(haircut.imageUrls.first)
+                      image: haircut.imageUrl.isNotEmpty
+                          ? NetworkImage(haircut.imageUrl)
                           : const AssetImage('assets/images/prof.jpg')
                               as ImageProvider,
                     ),

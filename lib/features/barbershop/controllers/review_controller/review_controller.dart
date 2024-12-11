@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:barbermate/common/widgets/toast.dart';
 import 'package:barbermate/data/models/review_model/review_model.dart';
 import 'package:barbermate/data/repository/review_repo/review_repo.dart';

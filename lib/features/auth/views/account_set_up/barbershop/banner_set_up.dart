@@ -2,6 +2,7 @@ import 'package:barbermate/features/auth/views/account_set_up/barbershop/logo_se
 import 'package:barbermate/features/barbershop/controllers/barbershop_controller/barbershop_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
 
 class BarbershopAccountSetUpPageBanner extends StatelessWidget {
   const BarbershopAccountSetUpPageBanner({super.key});
@@ -46,7 +47,16 @@ class BarbershopAccountSetUpPageBanner extends StatelessWidget {
               ),
               TextButton(
                   onPressed: () => barbershopController.uploadImage('Banner'),
-                  child: const Text('Upload Your Barbershop Banner')),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      iconoir.MediaImagePlus(),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Text('Upload Banner'),
+                    ],
+                  )),
               const SizedBox(height: 20),
               Text(
                   'You can skip this step and complete it later in your profile settings.',

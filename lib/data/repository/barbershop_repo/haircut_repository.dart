@@ -33,25 +33,22 @@ class HaircutRepository extends GetxController {
     return digest.toString();
   }
 
-  Future<List<String>> uploadImageToStorage(
-      List<XFile> imageFiles, String haircutId) async {
-    final List<String> urls = [];
+  Future<String> uploadImageToStorage(XFile imageFile, String haircutId) async {
+    String imageUrl = '';
 
     try {
-      for (var image in imageFiles) {
-        final file = File(image.path);
-        final imageHash = generateImageHash(file);
+      final file = File(imageFile.path);
+      final imageHash = generateImageHash(file);
 
-        final ref = storage.ref().child(
-            'Barbershops/${AuthenticationRepository.instance.authUser?.uid}/haircuts/$haircutId/$imageHash');
-        await ref.putFile(file);
-        final url = await ref.getDownloadURL();
-        urls.add(url);
-      }
+      final ref = storage.ref().child(
+          'Barbershops/${AuthenticationRepository.instance.authUser?.uid}/haircuts/$haircutId/$imageHash');
+      await ref.putFile(file);
+      imageUrl = await ref.getDownloadURL();
     } catch (e) {
-      throw Exception('Failed to upload images: $e');
+      throw Exception('Failed to upload image: $e');
     }
-    return urls;
+
+    return imageUrl;
   }
 
   Future<String> addHaircut(HaircutModel haircut) async {
@@ -78,12 +75,11 @@ class HaircutRepository extends GetxController {
     }
   }
 
-  // to make the folder name of the image the id document
-  Future<void> updateHaircutImages(
-      String haircutId, List<String> imageUrls) async {
+  // Updated for single image
+  Future<void> updateHaircutImage(String haircutId, String imageUrl) async {
     try {
-      // Update the specific document with image URLs
-      await haircutsCollection.doc(haircutId).update({'imageUrls': imageUrls});
+      // Update the specific document with a single image URL
+      await haircutsCollection.doc(haircutId).update({'imageUrl': imageUrl});
     } on FirebaseException catch (e) {
       throw BFirebaseException(e.code).message;
     } on FormatException catch (_) {
@@ -95,16 +91,13 @@ class HaircutRepository extends GetxController {
     }
   }
 
-  Future<void> addHaircutImages(
-      String haircutId, List<String> imageUrls) async {
+  // Updated for single image
+  Future<void> addHaircutImage(String haircutId, String imageUrl) async {
     try {
-      // Add new image URLs to the existing document without deleting existing URLs
+      // Update the document with a new single image URL
       await haircutsCollection.doc(haircutId).update({
-        'imageUrls': FieldValue.arrayUnion(imageUrls),
+        'imageUrl': imageUrl,
       });
-
-      logger.i('Image Files: ${imageUrls.toString()}');
-      logger.i('Id: ${haircutId.toString()}');
     } on FirebaseException catch (e) {
       logger.e('FirebaseException: ${e.code} - ${e.message}');
       throw BFirebaseException(e.code).message;
@@ -120,9 +113,42 @@ class HaircutRepository extends GetxController {
     }
   }
 
-  Future<void> updateHaircut(String haircutId, HaircutModel haircut) async {
+  Future<void> updateHaircut({
+    required String haircutId,
+    required HaircutModel updatedHaircut,
+    XFile? newImageFile, // Optional new image file
+  }) async {
     try {
-      await haircutsCollection.doc(haircutId).update(haircut.toJson());
+      // Fetch the current haircut details from Firestore
+      final haircutDoc = await haircutsCollection.doc(haircutId).get();
+
+      if (haircutDoc.exists) {
+        final HaircutModel currentHaircut = HaircutModel.fromSnapshot(
+            haircutDoc as DocumentSnapshot<Map<String, dynamic>>);
+
+        // If a new image is provided, handle the image replacement
+        if (newImageFile != null) {
+          // Delete the old image from Firebase Storage if it exists
+          if (currentHaircut.imageUrl.isNotEmpty) {
+            await deleteImage(currentHaircut.imageUrl);
+          }
+
+          // Upload the new image to Firebase Storage
+          final newImageUrl =
+              await uploadImageToStorage(newImageFile, haircutId);
+
+          // Update the haircut model with the new image URL
+          updatedHaircut.imageUrl = newImageUrl;
+        } else {
+          // Keep the old image URL if no new image is uploaded
+          updatedHaircut.imageUrl = currentHaircut.imageUrl;
+        }
+
+        // Update the haircut data in Firestore
+        await haircutsCollection.doc(haircutId).update(updatedHaircut.toJson());
+      } else {
+        logger.d('Haircut not found');
+      }
     } on FirebaseException catch (e) {
       throw BFirebaseException(e.code).message;
     } on FormatException catch (_) {
@@ -136,20 +162,16 @@ class HaircutRepository extends GetxController {
 
   Future<void> deleteHaircut(String haircutId) async {
     try {
-      // Fetch the haircut document to get image URLs
+      // Fetch the haircut document to get the image URL
       final docSnapshot = await haircutsCollection.doc(haircutId).get();
       final data = docSnapshot.data() as Map<String, dynamic>?;
 
-      if (data != null && data['imageUrls'] != null) {
-        final List<String> imageUrls = List<String>.from(data['imageUrls']);
+      if (data != null && data['imageUrl'] != null) {
+        final String imageUrl = data['imageUrl'];
 
-        // Delete images from Firebase Storage
-        for (var url in imageUrls) {
-          final ref = storage.refFromURL(url);
-          await ref.delete();
-        }
+        // Delete the image from Firebase Storage
+        await deleteImage(imageUrl);
       }
-
       // Delete the haircut document from Firestore
       await haircutsCollection.doc(haircutId).delete();
     } on FirebaseException catch (e) {
@@ -179,13 +201,13 @@ class HaircutRepository extends GetxController {
   }
 
   Future<void> deleteImageAndRemoveUrl(
-      String haircutId, List<String> imageUrl) async {
+      String haircutId, String imageUrl) async {
     try {
-      // Remove image URL from Firestore
+      // Remove the image URL from Firestore
       await removeImageUrlFromFirestore(haircutId, imageUrl);
 
-      // Delete image from Storage
-      await deleteImages(imageUrl);
+      // Delete the image from Firebase Storage
+      await deleteImage(imageUrl);
 
       logger.i('Image successfully deleted and URL removed.');
     } catch (e) {
@@ -194,29 +216,26 @@ class HaircutRepository extends GetxController {
     }
   }
 
-  Future<void> deleteImages(List<String> imageUrls) async {
+  Future<void> deleteImage(String imageUrl) async {
     try {
-      for (final url in imageUrls) {
-        final ref = FirebaseStorage.instance.refFromURL(url);
-        await ref.delete();
-      }
+      final ref = FirebaseStorage.instance.refFromURL(imageUrl);
+      await ref.delete();
     } on FirebaseException catch (e) {
       throw BFirebaseException(e.code).message;
     } on PlatformException catch (e) {
       throw BPlatformException(e.code).message;
     } catch (e) {
-      throw 'Failed to delete images: $e';
+      throw 'Failed to delete image: $e';
     }
   }
 
   Future<void> removeImageUrlFromFirestore(
-      String haircutId, List<String> imageUrl) async {
+      String haircutId, String imageUrl) async {
     try {
       // Remove the image URL from the Firestore document
       await haircutsCollection.doc(haircutId).update({
-        'imageUrls': FieldValue.arrayRemove(imageUrl),
+        'imageUrl': imageUrl,
       });
-
       logger.i('Image URL removed from Firestore: $imageUrl');
     } on FirebaseException catch (e) {
       logger.e('FirebaseException: ${e.code} - ${e.message}');

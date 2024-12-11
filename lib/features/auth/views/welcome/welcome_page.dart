@@ -22,7 +22,7 @@ class WelcomePage extends StatelessWidget {
                     flex: 3,
                     child: ClipRRect(
                       borderRadius:
-                          const BorderRadius.all(Radius.circular(20.0)),
+                          const BorderRadius.all(Radius.circular(10.0)),
                       child: Image.asset(
                         'assets/images/banner.jpg',
                         fit: BoxFit.cover,
@@ -42,25 +42,29 @@ class WelcomePage extends StatelessWidget {
                             style: Theme.of(context).textTheme.bodyLarge)
                       ]),
                 ),
-                Expanded(
+                SizedBox(
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      ElevatedWelcomeButton(
-                        width: 150,
-                        text: 'Sign In',
-                        onPressed: () {
-                          Get.offAll(() => const SignInPage());
-                        },
+                      Expanded(
+                        child: ElevatedWelcomeButton(
+                          width: 150,
+                          text: 'Sign In',
+                          onPressed: () {
+                            Get.offAll(() => const SignInPage());
+                          },
+                        ),
                       ),
-                      OutlinedWelcomeButton(
-                        width: 150,
-                        text: 'Sign Up',
-                        onPressed: () {
-                          Get.offAll(() => const SignUpPage());
-                        },
-                        icon: null,
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: OutlinedWelcomeButton(
+                          width: 150,
+                          text: 'Sign Up',
+                          onPressed: () {
+                            Get.offAll(() => const SignUpPage());
+                          },
+                          icon: null,
+                        ),
                       )
                     ],
                   ),

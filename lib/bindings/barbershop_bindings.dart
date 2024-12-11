@@ -31,8 +31,6 @@ class BarbershopBinding extends Bindings {
     //reviews
     Get.lazyPut<ReviewRepo>(() => ReviewRepo(), fenix: true);
     //barbers
-    Get.lazyPut<BarbersRepository>(() => BarbersRepository(), fenix: true);
-    //haircuts
     Get.lazyPut<HaircutRepository>(() => HaircutRepository(), fenix: true);
     //timeslots
     Get.lazyPut<TimeslotRepository>(() => TimeslotRepository(), fenix: true);
@@ -43,6 +41,10 @@ class BarbershopBinding extends Bindings {
 
     //barbershop
     Get.lazyPut<BarbershopController>(() => BarbershopController(),
+        fenix: true);
+    //change email
+    Get.lazyPut<ChangeEmailControllerBarbershop>(
+        () => ChangeEmailControllerBarbershop(),
         fenix: true);
     //barbershop notification
     Get.put<BarbershopNotificationController>(
@@ -55,16 +57,13 @@ class BarbershopBinding extends Bindings {
     //barbershop review
     Get.lazyPut<ReviewController>(() => ReviewController(), fenix: true);
     //barber
-    Get.lazyPut<BarberController>(() => BarberController(), fenix: true);
+    // Get.lazyPut<BarberController>(() => BarberController(), fenix: true);
     //haircuts
     Get.lazyPut<HaircutController>(() => HaircutController(), fenix: true);
     //timeslots
     Get.lazyPut<TimeSlotController>(() => TimeSlotController(), fenix: true);
     //verification
     Get.lazyPut<VerificationController>(() => VerificationController(),
-        fenix: true);
-    Get.lazyPut<ChangeEmailControllerBarbershop>(
-        () => ChangeEmailControllerBarbershop(),
         fenix: true);
   }
 }

@@ -223,6 +223,7 @@ class BarbershopRepository extends GetxController {
 
       // Get the download URL
       final downloadUrl = await ref.getDownloadURL();
+
       return downloadUrl;
     } catch (e) {
       return null;
@@ -231,21 +232,30 @@ class BarbershopRepository extends GetxController {
 
   //================================== udate image in firestore
   Future<void> updateProfileImageInFirestore(
-      String barbershopId, String imageUrl, String type) async {
+      String imageUrl, String type) async {
     try {
       switch (type) {
         case 'Profile':
-          await _db.collection('Barbershops').doc(barbershopId).update({
+          await _db
+              .collection('Barbershops')
+              .doc(AuthenticationRepository.instance.authUser?.uid)
+              .update({
             'profile_image': imageUrl,
           });
           break;
         case 'Banner':
-          await _db.collection('Barbershops').doc(barbershopId).update({
+          await _db
+              .collection('Barbershops')
+              .doc(AuthenticationRepository.instance.authUser?.uid)
+              .update({
             'barbershop_banner_image': imageUrl,
           });
           break;
         case 'Logo':
-          await _db.collection('Barbershops').doc(barbershopId).update({
+          await _db
+              .collection('Barbershops')
+              .doc(AuthenticationRepository.instance.authUser?.uid)
+              .update({
             'barbershop_profile_image': imageUrl,
           });
       }

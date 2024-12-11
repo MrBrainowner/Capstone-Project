@@ -10,6 +10,7 @@ class ChangeEmailController extends GetxController {
   final AuthenticationRepository authrepo = Get.find();
   final CustomerRepository customerRepository = Get.find();
   final CustomerController customerController = Get.find();
+  GlobalKey<FormState> updateKey = GlobalKey<FormState>();
 
   final email = TextEditingController();
   final password = TextEditingController();

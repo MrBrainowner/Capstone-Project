@@ -1,4 +1,5 @@
 import 'package:barbermate/features/barbershop/controllers/barbershop_controller/barbershop_controller.dart';
+import 'package:barbermate/features/barbershop/controllers/haircuts_controller/haircuts_controller.dart';
 import 'package:barbermate/features/barbershop/views/reviews/reviews.dart';
 import 'package:barbermate/features/barbershop/views/widgets/management/haircut_card.dart';
 import 'package:barbermate/features/customer/views/widgets/barbershop/barbershop_infos.dart';
@@ -15,7 +16,8 @@ class BarbershopProfile extends StatelessWidget {
     const double profileHeight = 80;
     const top = bannerHeight - profileHeight / 2;
     const bottom = profileHeight / 2;
-    final controller = Get.put(BarbershopController());
+    final BarbershopController controller = Get.find();
+    final HaircutController haircutController = Get.find();
 
     return DefaultTabController(
         length: 2,
@@ -45,13 +47,13 @@ class BarbershopProfile extends StatelessWidget {
                           child: ClipRRect(
                             borderRadius:
                                 const BorderRadius.all(Radius.circular(5)),
-                            child: controller.barbershopCombinedModel.value
-                                    .barbershop.barbershopBannerImage.isEmpty
+                            child: controller.barbershop.value
+                                    .barbershopBannerImage.isEmpty
                                 ? Image.asset('assets/images/barbershop.jpg',
                                     fit: BoxFit.cover)
                                 : Image.network(
-                                    controller.barbershopCombinedModel.value
-                                        .barbershop.barbershopBannerImage,
+                                    controller
+                                        .barbershop.value.barbershopBannerImage,
                                     fit: BoxFit.cover),
                           ),
                         ),
@@ -72,13 +74,13 @@ class BarbershopProfile extends StatelessWidget {
                             child: ClipRRect(
                               borderRadius:
                                   const BorderRadius.all(Radius.circular(5)),
-                              child: controller.barbershopCombinedModel.value
-                                      .barbershop.barbershopProfileImage.isEmpty
+                              child: controller.barbershop.value
+                                      .barbershopProfileImage.isEmpty
                                   ? Image.asset('assets/images/prof.jpg',
                                       fit: BoxFit.cover)
                                   : Image.network(
-                                      controller.barbershopCombinedModel.value
-                                          .barbershop.barbershopProfileImage,
+                                      controller.barbershop.value
+                                          .barbershopProfileImage,
                                       fit: BoxFit.cover),
                             ),
                           ),
@@ -91,9 +93,7 @@ class BarbershopProfile extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Flexible(
-                        child: Text(
-                            controller.barbershopCombinedModel.value.barbershop
-                                .barbershopName,
+                        child: Text(controller.barbershop.value.barbershopName,
                             maxLines: 2,
                             style: Theme.of(context).textTheme.headlineSmall),
                       ),
@@ -116,32 +116,28 @@ class BarbershopProfile extends StatelessWidget {
                         children: [
                           const SizedBox(height: 20),
                           BarbershopInfos(
-                              text: controller.barbershopCombinedModel.value
-                                  .barbershop.streetAddress,
+                              text: controller.barbershop.value.streetAddress,
                               widget: const iconoir.MapPin()),
                           const SizedBox(height: 8.0),
                           BarbershopInfos(
-                              text: controller.barbershopCombinedModel.value
-                                  .barbershop.phoneNo,
+                              text: controller.barbershop.value.phoneNo,
                               widget: const iconoir.Phone()),
                           const SizedBox(height: 8.0),
                           BarbershopInfos(
-                              text: controller.barbershopCombinedModel.value
-                                      .barbershop.landMark.isEmpty
+                              text: controller.barbershop.value.landMark.isEmpty
                                   ? 'Nearby landmark not specified'
-                                  : "Near ${controller.barbershopCombinedModel.value.barbershop.landMark}",
+                                  : "Near ${controller.barbershop.value.landMark}",
                               widget: const iconoir.Neighbourhood()),
                           const SizedBox(height: 8.0),
                           BarbershopInfos(
-                              text: controller.barbershopCombinedModel.value
-                                  .barbershop.email,
+                              text: controller.barbershop.value.email,
                               widget: const iconoir.Mail()),
                           const SizedBox(height: 8.0),
                           BarbershopInfos(
-                              text: controller.barbershopCombinedModel.value
-                                      .barbershop.floorNumber.isEmpty
+                              text: controller
+                                      .barbershop.value.floorNumber.isEmpty
                                   ? 'Ground Floor'
-                                  : "Floor ${controller.barbershopCombinedModel.value.barbershop.floorNumber}",
+                                  : "Floor ${controller.barbershop.value.floorNumber}",
                               widget: const iconoir.Elevator()),
                           const SizedBox(height: 8.0),
                           OutlinedButton(
@@ -162,21 +158,13 @@ class BarbershopProfile extends StatelessWidget {
                                 Flexible(
                                   child: Text(
                                     // Calculate the average rating
-                                    (controller.barbershopCombinedModel.value
-                                                .review.isEmpty
+                                    (controller.reviews.isEmpty
                                             ? 0.0
-                                            : controller.barbershopCombinedModel
-                                                    .value.review
-                                                    .fold(
-                                                        0.0,
-                                                        (sum, review) =>
-                                                            sum +
-                                                            review.rating) /
-                                                controller
-                                                    .barbershopCombinedModel
-                                                    .value
-                                                    .review
-                                                    .length)
+                                            : controller.reviews.fold(
+                                                    0.0,
+                                                    (sum, review) =>
+                                                        sum + review.rating) /
+                                                controller.reviews.length)
                                         .toStringAsFixed(
                                             1), // Average rating rounded to 1 decimal place
                                     overflow: TextOverflow.clip,
@@ -193,13 +181,11 @@ class BarbershopProfile extends StatelessWidget {
                         if (controller.isLoading.value) {
                           return const Center(
                               child: CircularProgressIndicator());
-                        } else if (controller
-                            .barbershopCombinedModel.value.haircuts.isEmpty) {
+                        } else if (haircutController.haircuts.isEmpty) {
                           return const Center(
                               child: Text('No haircuts available.'));
                         } else {
-                          final haircut =
-                              controller.barbershopCombinedModel.value.haircuts;
+                          final haircut = haircutController.haircuts;
                           return GridView.builder(
                             shrinkWrap: true,
                             gridDelegate:
@@ -211,8 +197,7 @@ class BarbershopProfile extends StatelessWidget {
                               mainAxisExtent:
                                   215, // Aspect ratio for vertical cards
                             ),
-                            itemCount: controller
-                                .barbershopCombinedModel.value.haircuts.length,
+                            itemCount: haircut.length,
                             itemBuilder: (BuildContext context, int index) {
                               final barbershopHaircut = haircut[index];
                               return HaircutCard2(haircut: barbershopHaircut);

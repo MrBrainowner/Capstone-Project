@@ -239,7 +239,7 @@ class AuthenticationRepository extends GetxController {
 
   //======================================= Change Password
   Future<void> changePassword(
-      String email, String currentPassword, String newPassword) async {
+      String currentPassword, String newPassword) async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
 
@@ -249,11 +249,11 @@ class AuthenticationRepository extends GetxController {
       }
 
       // Step 1: Re-authenticate the user
-      AuthCredential credential =
-          EmailAuthProvider.credential(email: email, password: currentPassword);
+      AuthCredential credential = EmailAuthProvider.credential(
+          email: AuthenticationRepository.instance.authUser!.email.toString(),
+          password: currentPassword);
       await user.reauthenticateWithCredential(credential);
 
-      logger.e(email);
       logger.e(currentPassword);
       logger.e(newPassword);
 

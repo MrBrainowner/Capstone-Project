@@ -73,11 +73,11 @@ class CustomerRepository extends GetxController {
       final futures = [
         _db
             .collection("Customers")
-            .doc(updateCustomer.id)
+            .doc(AuthenticationRepository.instance.authUser?.uid)
             .update(updateCustomer.toJson()),
         _db
             .collection("Users")
-            .doc(updateCustomer.id)
+            .doc(AuthenticationRepository.instance.authUser?.uid)
             .update(updateCustomer.toJson()),
       ];
 

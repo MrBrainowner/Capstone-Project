@@ -3,21 +3,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class HaircutModel {
   String? id;
   String name;
-  String description;
   double price;
   int duration;
   List<String> category;
-  List<String> imageUrls; // New field for image URLs
+  String imageUrl; // Changed to store a single image only
   final DateTime? createdAt;
 
   HaircutModel({
     required this.id,
     required this.name,
-    required this.description,
     required this.price,
     required this.duration,
     required this.category,
-    required this.imageUrls, // Initialize new field
+    required this.imageUrl, // Initialize for single image
     this.createdAt,
   });
 
@@ -25,11 +23,10 @@ class HaircutModel {
     return HaircutModel(
       id: null,
       name: '',
-      description: '',
       price: 0.0,
       duration: 0,
       category: [],
-      imageUrls: [], // Initialize with an empty list
+      imageUrl: '', // Initialize with empty string for single image
       createdAt: DateTime.now(),
     );
   }
@@ -38,11 +35,10 @@ class HaircutModel {
     return {
       'id': id,
       'name': name,
-      'description': description,
       'price': price,
       'duration': duration,
       'category': category,
-      'imageUrls': imageUrls, // Serialize new field
+      'imageUrl': imageUrl, // Serialize single image
       'created_at': createdAt?.toIso8601String(),
     };
   }
@@ -53,12 +49,10 @@ class HaircutModel {
     return HaircutModel(
       id: document.id,
       name: data['name'] ?? '',
-      description: data['description'] ?? '',
       price: data['price'] ?? 0.0,
       duration: data['duration'] ?? 0,
       category: List<String>.from(data['category'] ?? []),
-      imageUrls:
-          List<String>.from(data['imageUrls'] ?? []), // Deserialize new field
+      imageUrl: data['imageUrl'] ?? '', // Deserialize single image
       createdAt: data['created_at'] != null
           ? DateTime.parse(data['created_at'])
           : null,
@@ -68,21 +62,19 @@ class HaircutModel {
   HaircutModel copyWith({
     String? id,
     String? name,
-    String? description,
     double? price,
     int? duration,
     List<String>? category,
-    List<String>? imageUrls, // Add new field to copyWith
+    String? imageUrl, // Single image in copyWith
     DateTime? createdAt,
   }) {
     return HaircutModel(
       id: id ?? this.id,
       name: name ?? this.name,
-      description: description ?? this.description,
       price: price ?? this.price,
       duration: duration ?? this.duration,
       category: category ?? this.category,
-      imageUrls: imageUrls ?? this.imageUrls, // Update new field
+      imageUrl: imageUrl ?? this.imageUrl, // Update single image field
       createdAt: createdAt ?? this.createdAt,
     );
   }
