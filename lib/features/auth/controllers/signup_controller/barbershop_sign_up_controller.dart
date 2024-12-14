@@ -9,7 +9,7 @@ import '../../../../common/widgets/toast.dart';
 import '../../../../data/repository/auth_repo/auth_repo.dart';
 import '../../../../data/repository/barbershop_repo/barbershop_repo.dart';
 import '../../../../utils/popups/full_screen_loader.dart';
-import '../../models/barbershop_model.dart';
+import '../../../../data/models/user_authenthication_model/barbershop_model.dart';
 import '../../views/email_verification/email_verification.dart';
 import 'network_manager.dart';
 

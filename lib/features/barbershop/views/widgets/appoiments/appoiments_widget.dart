@@ -4,74 +4,65 @@ import 'package:barbermate/utils/constants/format_date.dart';
 import 'package:barbermate/utils/popups/confirm_cancel_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
 
 class AppointmentCard extends StatelessWidget {
-  final String title;
-  final String message;
   final BookingModel booking;
 
   const AppointmentCard({
     super.key,
-    required this.title,
-    required this.message,
     required this.booking,
   });
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(BarbershopBookingController());
+    final BarbershopBookingController controller = Get.find();
     final formatterController = Get.put(BFormatter());
 
     return Card(
-      elevation: 1,
-      color: Colors.white,
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      child: ExpansionTile(
+        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+        childrenPadding: const EdgeInsets.all(10.0),
+        title: Row(
           children: [
-            Row(
-              children: [
-                const iconoir.Calendar(),
-                const SizedBox(width: 10),
-                Text(
-                  title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(color: Colors.orange),
-                ),
-              ],
+            Text(
+              _getTitle(booking.status),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(color: _getStatusColor(booking.status)),
             ),
-            const SizedBox(height: 5),
-            Text(formatterController.formatDate(booking.createdAt),
-                style: Theme.of(context).textTheme.labelSmall),
-            const SizedBox(height: 5),
-            Divider(color: Theme.of(context).primaryColor),
-            const SizedBox(height: 3),
-            Text('Name: ${booking.customerName}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Phone: ${booking.customerPhoneNo}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Divider(color: Theme.of(context).primaryColor),
-            const SizedBox(height: 3),
-            Text('Hairstyle: ${booking.haircutName}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Price: ${booking.haircutPrice}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Time Slot: ${booking.timeSlot}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Date: ${booking.date}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 10),
-            Row(
+          ],
+        ),
+        leading: CircleAvatar(
+          radius: 20.0,
+          backgroundImage: booking.barbershopProfileImageUrl.isNotEmpty
+              ? NetworkImage(booking.barbershopProfileImageUrl)
+              : null,
+          child: (booking.barbershopProfileImageUrl.isEmpty)
+              ? Text(
+                  formatterController.formatInitial(
+                      booking.customerProfileImageUrl, booking.customerName),
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
+                )
+              : null,
+        ),
+        subtitle: Text("From: ${booking.customerName}",
+            style: Theme.of(context).textTheme.labelSmall,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis),
+        children: [
+          Text('Name: ${booking.customerName}'),
+          Text('Phone: ${booking.customerPhoneNo}'),
+          const Divider(),
+          Text('Hairstyle: ${booking.haircutName}'),
+          Text('Price: ${booking.haircutPrice}'),
+          Text('Time Slot: ${booking.timeSlot}'),
+          Text('Schedule Date: ${booking.date}'),
+          const Divider(),
+          SizedBox(
+            width: double.infinity,
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Expanded(
@@ -113,80 +104,71 @@ class AppointmentCard extends StatelessWidget {
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
 class AppointmentConfirmedCard extends StatelessWidget {
-  final String title;
-  final String message;
   final BookingModel booking;
 
   const AppointmentConfirmedCard({
     super.key,
-    required this.title,
-    required this.message,
     required this.booking,
   });
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(BarbershopBookingController());
+    final BarbershopBookingController controller = Get.find();
     final formatterController = Get.put(BFormatter());
 
     return Card(
-      elevation: 1,
-      color: Colors.white,
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      child: ExpansionTile(
+        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+        childrenPadding: const EdgeInsets.all(10.0),
+        title: Row(
           children: [
-            Row(
-              children: [
-                const iconoir.Calendar(),
-                const SizedBox(width: 10),
-                Text(
-                  title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(color: Colors.blue),
-                ),
-              ],
+            Text(
+              _getTitle(booking.status),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(color: _getStatusColor(booking.status)),
             ),
-            const SizedBox(height: 5),
-            Text(formatterController.formatDate(booking.createdAt),
-                style: Theme.of(context).textTheme.labelSmall),
-            const SizedBox(height: 5),
-            Divider(color: Theme.of(context).primaryColor),
-            const SizedBox(height: 3),
-            Text('Name: ${booking.customerName}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Phone: ${booking.customerPhoneNo}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Divider(color: Theme.of(context).primaryColor),
-            const SizedBox(height: 3),
-            Text('Hairstyle: ${booking.haircutName}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Price: ${booking.haircutPrice}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Time Slot: ${booking.timeSlot}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Date: ${booking.date}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          ],
+        ),
+        leading: CircleAvatar(
+          radius: 20.0,
+          backgroundImage: booking.barbershopProfileImageUrl.isNotEmpty
+              ? NetworkImage(booking.barbershopProfileImageUrl)
+              : null,
+          child: (booking.barbershopProfileImageUrl.isEmpty)
+              ? Text(
+                  formatterController.formatInitial(
+                      booking.customerProfileImageUrl, booking.customerName),
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
+                )
+              : null,
+        ),
+        subtitle: Text("Schedule: ${booking.date}",
+            style: Theme.of(context).textTheme.labelSmall,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis),
+        children: [
+          Text('Name: ${booking.customerName}'),
+          Text('Phone: ${booking.customerPhoneNo}'),
+          const Divider(),
+          Text('Hairstyle: ${booking.haircutName}'),
+          Text('Price: ${booking.haircutPrice}'),
+          Text('Time Slot: ${booking.timeSlot}'),
+          Text('Schedule Date: ${booking.date}'),
+          const Divider(),
+          SizedBox(
+            width: double.infinity,
+            child: Row(
               children: [
                 Expanded(
                   child: ElevatedButton(
@@ -195,7 +177,7 @@ class AppointmentConfirmedCard extends StatelessWidget {
                         context: context,
                         title: 'Appointment Complete',
                         description:
-                            'Do you want manually complete this appoiment?',
+                            'Do you want to manually complete this appointment?',
                         textConfirm: 'Confirm',
                         textCancel: 'Cancel',
                         onConfirm: () async {
@@ -229,81 +211,76 @@ class AppointmentConfirmedCard extends StatelessWidget {
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
 class AppointmentDoneCard extends StatelessWidget {
-  final String title;
-  final String message;
   final BookingModel booking;
 
   const AppointmentDoneCard({
     super.key,
-    required this.title,
-    required this.message,
     required this.booking,
   });
 
   @override
   Widget build(BuildContext context) {
     final formatterController = Get.put(BFormatter());
-
     return Card(
-      elevation: 0,
-      color: Colors.grey.shade300,
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      child: ExpansionTile(
+        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+        childrenPadding: const EdgeInsets.all(10.0),
+        title: Row(
           children: [
-            Row(
-              children: [
-                const iconoir.Calendar(),
-                const SizedBox(width: 10),
-                Text(
-                  _getTitleColor(booking.status),
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(color: _getStatusColor(booking.status)),
-                ),
-              ],
+            Text(
+              _getTitle(booking.status),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(color: _getStatusColor(booking.status)),
             ),
-            const SizedBox(height: 5),
-            Text(formatterController.formatDate(booking.createdAt),
-                style: Theme.of(context).textTheme.labelSmall),
-            const SizedBox(height: 5),
-            Divider(color: Theme.of(context).primaryColor),
-            const SizedBox(height: 3),
-            Text('Name: ${booking.customerName}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Phone: ${booking.customerPhoneNo}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Divider(color: Theme.of(context).primaryColor),
-            const SizedBox(height: 3),
-            Text('Hairstyle: ${booking.haircutName}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Price: ${booking.haircutPrice}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Time Slot: ${booking.timeSlot}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Date: ${booking.date}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 10),
-            Text('Status: ${booking.status}',
-                style: Theme.of(context).textTheme.bodyMedium),
           ],
         ),
+        leading: CircleAvatar(
+          radius: 20.0,
+          backgroundImage: booking.barbershopProfileImageUrl.isNotEmpty
+              ? NetworkImage(booking.barbershopProfileImageUrl)
+              : null,
+          child: (booking.barbershopProfileImageUrl.isEmpty)
+              ? Text(
+                  formatterController.formatInitial(
+                      booking.customerProfileImageUrl, booking.customerName),
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
+                )
+              : null,
+        ),
+        subtitle: Text("From: ${booking.customerName}",
+            style: Theme.of(context).textTheme.labelSmall,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis),
+        children: [
+          Text('Name: ${booking.customerName}'),
+          Text('Phone: ${booking.customerPhoneNo}'),
+          const Divider(),
+          Text('Hairstyle: ${booking.haircutName}'),
+          Text('Price: ${booking.haircutPrice}'),
+          Text('Time Slot: ${booking.timeSlot}'),
+          Text('Schedule Date: ${booking.date}'),
+          const Divider(),
+          ListTile(
+            title: Text(
+              'Status: ${booking.status}',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: _getStatusColor(booking.status),
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -327,14 +304,16 @@ Color _getStatusColor(String status) {
   }
 }
 
-String _getTitleColor(String title) {
+String _getTitle(String title) {
   switch (title.toLowerCase()) {
     case 'done':
-      return 'Appointment Complete';
+      return 'Appointment Completed';
     case 'declined':
       return 'Appointment Declined';
     case 'pending':
       return 'Appointment Pending';
+    case 'confirmed':
+      return 'Upcoming Appointment';
     case 'canceled':
       return 'Appointment Canceled';
     default:

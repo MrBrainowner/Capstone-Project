@@ -4,7 +4,7 @@ import '../../../../common/widgets/toast.dart';
 import '../../../../data/repository/auth_repo/auth_repo.dart';
 import '../../../../data/repository/customer_repo/customer_repo.dart';
 import '../../../../utils/popups/full_screen_loader.dart';
-import '../../models/customer_model.dart';
+import '../../../../data/models/user_authenthication_model/customer_model.dart';
 import '../../views/email_verification/email_verification.dart';
 import 'network_manager.dart';
 

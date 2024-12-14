@@ -1,8 +1,6 @@
-import 'package:barbermate/features/barbershop/controllers/barbershop_controller/barbershop_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../common/widgets/toast.dart';
-import '../../../../data/models/available_days/available_days.dart';
 import '../../../../data/models/timeslot_model/timeslot_model.dart';
 import '../../../../data/repository/barbershop_repo/timeslot_repository.dart';
 
@@ -10,7 +8,6 @@ class TimeSlotController extends GetxController {
   static TimeSlotController get instance => Get.find();
 
   final TimeslotRepository _repository = Get.find();
-  final BarbershopController _barbershop = Get.find();
 
   //variables
   var isLoading = false.obs;
@@ -26,7 +23,6 @@ class TimeSlotController extends GetxController {
 
   var selectedOpenStartTime = TimeOfDay.now().obs;
   var selectedCloseEndTime = TimeOfDay.now().obs;
-  var openHours = ''.obs;
 
   //================================================== available days
 
@@ -35,23 +31,13 @@ class TimeSlotController extends GetxController {
   RxList<bool> disabledDaysOfWeek =
       List.filled(7, false).obs; // Store disabled recurring days
 
-  // List of days
-  var daysOfWeekStatus = <String, bool>{
-    'Mon': true,
-    'Tue': true,
-    'Wed': true,
-    'Thu': true,
-    'Fri': true,
-    'Sat': true,
-    'Sun': true,
-  }.obs;
+  var openHours = ''.obs;
 
   @override
   void onInit() async {
     super.onInit();
     await fetchTimeSlots();
     await fetchOpenHours();
-    await fetchAvailableDays();
   }
 
   //============================================================================ Open Hours
@@ -66,10 +52,11 @@ class TimeSlotController extends GetxController {
 
   Future<void> fetchOpenHours() async {
     try {
-      openHours.value = _barbershop.barbershop.value.openHours.toString();
+      final data = await _repository.fetchOpenHours();
+      openHours.value = data!;
       _setInitialTimes();
     } catch (e) {
-      throw 'error fetching';
+      throw 'error fetching $e';
     }
   }
 
@@ -78,7 +65,7 @@ class TimeSlotController extends GetxController {
     String startTime = '';
     String endTime = '';
 
-    if (openHours.isNotEmpty) {
+    if (openHours.value.isEmpty) {
       // Split the openHours string into start and end times
       List<String> times = openHours.value.split(' to ');
       if (times.length == 2) {
@@ -115,8 +102,7 @@ class TimeSlotController extends GetxController {
       await _repository.updateOpenHours(openHours);
       ToastNotif(message: 'Open hours updated successfully', title: 'Success')
           .showSuccessNotif(Get.context!);
-      await fetchOpenHours();
-      _setInitialTimes();
+      fetchOpenHours();
     } catch (e) {
       ToastNotif(message: 'Failed to update open hours: $e', title: 'Error')
           .showErrorNotif(Get.context!);
@@ -126,103 +112,20 @@ class TimeSlotController extends GetxController {
   //============================================================================ Available Days
 
   // Fetch available days and disabled dates from Firestore
-  Future<void> fetchAvailableDays() async {
-    AvailableDaysModel? model = await _repository.getAvailableDays();
-    if (model != null) {
-      daysOfWeekStatus.assignAll(model.daysOfWeekStatus);
-      disabledDates.assignAll(model.disabledDates);
-    }
-  }
-
-  // Add a disabled specific date
-  void addDisabledDate(DateTime date) {
-    if (!disabledDates.contains(date)) {
-      disabledDates.add(date);
-    } else {
-      ToastNotif(message: 'Date already disabled.', title: 'Error')
-          .showErrorNotif(Get.context!);
-    }
-  }
-
-  // Remove a disabled specific date
-  void removeDisabledDate(DateTime date) {
-    disabledDates.remove(date);
-  }
-
-  // Toggle the disabled/enabled status of a day
-  void toggleDayOfWeek(String day) {
-    if (daysOfWeekStatus.containsKey(day)) {
-      daysOfWeekStatus[day] = !daysOfWeekStatus[day]!;
-    }
-  }
 
   // Check if a date is disabled (specific date or recurring day)
-  bool isDateDisabled(DateTime date) {
-    // Check specific dates
-    if (disabledDates.contains(date)) return true;
-
-    // Check recurring days of the week
-    int weekdayIndex = date.weekday - 1; // Convert to 0-based index
-    if (disabledDaysOfWeek[weekdayIndex]) return true;
-
-    return false;
-  }
 
   // Save available days to Firebase
-  Future<void> saveAvailableDays() async {
-    try {
-      isLoading.value = true;
-      await _repository.saveAvailableDays(AvailableDaysModel(
-        daysOfWeekStatus: daysOfWeekStatus,
-        disabledDates: disabledDates,
-      ));
-      ToastNotif(
-              message: 'Available days saved successfully.', title: 'Success')
-          .showSuccessNotif(Get.context!);
-      fetchAvailableDays();
-    } catch (e) {
-      ToastNotif(message: 'Failed to save disabled data: $e', title: 'Error')
-          .showErrorNotif(Get.context!);
-    } finally {
-      isLoading.value = false;
-    }
-  }
 
   //============================================================================ Time Slots
-
-  void increment() {
-    if (number.value < 10) {
-      // Ensure it doesn't go beyond 10
-      number.value++;
-    } else {
-      ToastNotif(
-              message: 'You hit the max number of this timeslot.',
-              title: 'Oh snap!')
-          .showErrorNotif(Get.context!);
-    }
-  }
-
-  void decrement() {
-    if (number.value > 1) {
-      number.value--;
-    } else {
-      ToastNotif(message: "You can't get lower than 1.", title: 'Oh snap!')
-          .showErrorNotif(Get.context!);
-    }
-  }
 
   bool isTimeSlotConflict(TimeOfDay startTime, TimeOfDay endTime) {
     for (var timeSlot in timeSlots) {
       final existingStart = timeSlot.startTime;
       final existingEnd = timeSlot.endTime;
 
-      // Check if the new slot overlaps or is identical
-      if ((startTime.hour < existingEnd.hour ||
-              (startTime.hour == existingEnd.hour &&
-                  startTime.minute < existingEnd.minute)) &&
-          (endTime.hour > existingStart.hour ||
-              (endTime.hour == existingStart.hour &&
-                  endTime.minute > existingStart.minute))) {
+      // Check if the new slot is identical to an existing slot (same start and end times)
+      if (startTime == existingStart && endTime == existingEnd) {
         return true;
       }
     }
@@ -272,6 +175,7 @@ class TimeSlotController extends GetxController {
             .showSuccessNotif(Get.context!);
       }
       await fetchTimeSlots();
+      Get.back();
     } catch (e) {
       ToastNotif(message: e.toString(), title: 'Error')
           .showErrorNotif(Get.context!);
@@ -295,6 +199,7 @@ class TimeSlotController extends GetxController {
             .showSuccessNotif(Get.context!);
       }
       await fetchTimeSlots();
+      Get.back();
     } catch (e) {
       ToastNotif(message: e.toString(), title: 'Error')
           .showErrorNotif(Get.context!);

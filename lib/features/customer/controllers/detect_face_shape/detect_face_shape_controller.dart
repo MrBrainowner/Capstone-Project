@@ -1,9 +1,15 @@
 import 'dart:io';
+import 'package:barbermate/data/models/combined_model/barber_haircut.dart';
+import 'package:barbermate/data/models/haircut_model/haircut_model.dart';
+import 'package:barbermate/data/models/review_model/review_model.dart';
+import 'package:barbermate/data/repository/barbershop_repo/barbershop_repo.dart';
+import 'package:barbermate/data/repository/review_repo/review_repo.dart';
 import 'package:flutter_tflite/flutter_tflite.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+import 'package:rxdart/rxdart.dart' as rx;
 
 class DetectFaceShape extends GetxController {
   static DetectFaceShape get instance => Get.find();
@@ -16,6 +22,12 @@ class DetectFaceShape extends GetxController {
   Logger logger = Logger();
   var predictions = <String, double>{}.obs;
   var recommendedHairstyles = <String>[].obs; // Recommended hairstyles
+  var isLoading = true.obs;
+
+  final BarbershopRepository _barbershopRepository = Get.find();
+  final ReviewRepo _reviewRepository = Get.find();
+
+  RxList<BarbershopHaircut> barbershopCombinedModel = <BarbershopHaircut>[].obs;
 
   final Map<String, Map<String, dynamic>> faceShapeRecommendations = {
     'Oval': {
@@ -82,6 +94,57 @@ class DetectFaceShape extends GetxController {
   void onInit() {
     super.onInit();
     _tfliteInit();
+    fetchAllBarbershopData();
+  }
+
+  void fetchAllBarbershopData() {
+    isLoading(true);
+
+    _barbershopRepository.fetchAllBarbershopsFromAdmin().listen(
+        (barbershopList) {
+      List<Stream<BarbershopHaircut>> barbershopDataStreams =
+          barbershopList.map((barbershop) {
+        // Fetch haircut, timeslot, and review streams for each barbershop
+        Stream<List<HaircutModel>> haircutsStream =
+            _barbershopRepository.fetchBarbershopHaircuts(barbershop.id);
+        Stream<List<ReviewsModel>> reviewsStream =
+            _reviewRepository.fetchReviewsStream(barbershop.id);
+
+        // Combine all streams for a single barbershop
+        return rx.CombineLatestStream.combine2<List<HaircutModel>,
+            List<ReviewsModel>, BarbershopHaircut>(
+          haircutsStream,
+          reviewsStream,
+          (haircuts, reviews) {
+            logger.i('Barbershop ID: ${barbershop.id}');
+            logger.i('Haircuts (${haircuts.length}): $haircuts');
+
+            logger.i('Reviews (${reviews.length}): $reviews');
+
+            return BarbershopHaircut(
+              barbershop: barbershop,
+              haircuts: haircuts,
+              review: reviews,
+            );
+          },
+        );
+      }).toList();
+
+      // Combine all barbershops data streams
+      rx.CombineLatestStream(
+        barbershopDataStreams,
+        (List<BarbershopHaircut> combinedList) => combinedList,
+      ).listen((result) {
+        barbershopCombinedModel.assignAll(result);
+        isLoading(false); // Hide loading spinner
+      }, onError: (error) {
+        logger.e("Error fetching combined data: $error");
+        isLoading(false);
+      });
+    }, onError: (error) {
+      logger.e("Error fetching barbershops: $error");
+      isLoading(false);
+    });
   }
 
   Future<void> selectImage() async {
@@ -205,3 +268,7 @@ class DetectFaceShape extends GetxController {
     Tflite.close(); // Unload model when controller is closed
   }
 }
+
+class _reviewRepository {}
+
+class _timeslotsRepository {}

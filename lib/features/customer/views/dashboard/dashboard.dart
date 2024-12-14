@@ -1,5 +1,6 @@
+import 'package:barbermate/features/customer/controllers/barbershop_controller/get_barbershop_data_controller.dart';
 import 'package:barbermate/features/customer/controllers/get_directions_controller/get_directions_controller.dart';
-import 'package:barbermate/features/customer/controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
+import 'package:barbermate/features/customer/controllers/barbershop_controller/get_barbershops_controller.dart';
 import 'package:barbermate/features/customer/views/face_shape_detector/face_shape_detection_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -18,8 +19,8 @@ class CustomerDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
     final CustomerController customerController = Get.find();
-    final GetHaircutsAndBarbershopsController haircutBarberController =
-        Get.find();
+    final GetBarbershopsController getBarbershopsController = Get.find();
+    final GetBarbershopDataController getBarbershopsDataController = Get.find();
     final DateTime now = DateTime.now();
     final String formattedDate = DateFormat('MMMM d, y').format(now);
 
@@ -34,7 +35,9 @@ class CustomerDashboard extends StatelessWidget {
       // Make sure you have a drawer defined here
       body: RefreshIndicator(
         triggerMode: RefreshIndicatorTriggerMode.anywhere,
-        onRefresh: () => haircutBarberController.refreshData(),
+        onRefresh: () async {
+          await getBarbershopsController.refreshData();
+        },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Padding(
@@ -119,25 +122,27 @@ class CustomerDashboard extends StatelessWidget {
                     width: double.infinity,
                     height: 300,
                     child: Obx(() {
-                      if (haircutBarberController.isLoading.value) {
+                      if (getBarbershopsController.isLoading.value) {
                         return const Center(child: CircularProgressIndicator());
-                      } else if (haircutBarberController
-                          .barbershopCombinedModel.isEmpty) {
+                      } else if (getBarbershopsController.barbershop.isEmpty) {
                         return const Center(
                             child: Text('No Barbershop available.'));
                       } else {
-                        final barbershops =
-                            haircutBarberController.barbershopCombinedModel;
+                        final barbershops = getBarbershopsController.barbershop;
 
                         return ListView.builder(
                           itemCount: barbershops.length,
                           scrollDirection: Axis.horizontal,
                           itemBuilder: (context, index) {
                             final shops = barbershops[index];
-                            haircutBarberController
-                                .checkIsOpenNow(shops.barbershop.openHours);
+                            getBarbershopsController
+                                .checkIsOpenNow(shops.openHours);
+                            getBarbershopsDataController.fetchReviews(shops.id);
 
                             return CustomerBarbershopCard(
+                              averageRating: getBarbershopsDataController
+                                      .averageRatings[shops.id] ??
+                                  0.0,
                               barbershop: shops,
                             );
                           },

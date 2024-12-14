@@ -5,18 +5,13 @@ import 'package:barbermate/features/customer/controllers/review_controller/revie
 import 'package:barbermate/utils/constants/format_date.dart';
 import 'package:barbermate/utils/popups/confirm_cancel_pop_up.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
-import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
 
 class AppointmentCardCustomers extends StatelessWidget {
-  final String title;
-  final String message;
   final BookingModel booking;
-
   const AppointmentCardCustomers({
     super.key,
-    required this.title,
-    required this.message,
     required this.booking,
   });
 
@@ -26,54 +21,49 @@ class AppointmentCardCustomers extends StatelessWidget {
     final formatterController = Get.put(BFormatter());
 
     return Card(
-      elevation: 1,
-      color: Colors.white,
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      child: ExpansionTile(
+        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+        childrenPadding: const EdgeInsets.all(10.0),
+        title: Row(
           children: [
-            Row(
-              children: [
-                const iconoir.Calendar(),
-                const SizedBox(width: 10),
-                Text(
-                  title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(color: Colors.orange),
-                ),
-              ],
+            Text(
+              _getTitle(booking.status),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(color: _getStatusColor(booking.status)),
             ),
-            const SizedBox(height: 5),
-            Text(formatterController.formatDate(booking.createdAt),
-                style: Theme.of(context).textTheme.labelSmall),
-            const SizedBox(height: 5),
-            Divider(color: Theme.of(context).primaryColor),
-            const SizedBox(height: 3),
-            Text('Name: ${booking.customerName}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Phone: ${booking.customerPhoneNo}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Divider(color: Theme.of(context).primaryColor),
-            const SizedBox(height: 3),
-            Text('Hairstyle: ${booking.haircutName}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Price: ${booking.haircutPrice}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Time Slot: ${booking.timeSlot}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Date: ${booking.date}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 10),
-            Row(
+          ],
+        ),
+        leading: CircleAvatar(
+          radius: 20.0,
+          backgroundImage: booking.barbershopProfileImageUrl.isNotEmpty
+              ? NetworkImage(booking.barbershopProfileImageUrl)
+              : null,
+          child: (booking.barbershopProfileImageUrl.isEmpty)
+              ? Text(
+                  formatterController.formatInitial(
+                      booking.barbershopProfileImageUrl,
+                      booking.barbershopName),
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
+                )
+              : null,
+        ),
+        subtitle: Text("Schedule: ${booking.date}",
+            style: Theme.of(context).textTheme.labelSmall),
+        children: [
+          Text('Barbershop: ${booking.barbershopName}'),
+          const Divider(),
+          Text('Hairstyle: ${booking.haircutName}'),
+          Text('Price: ${booking.haircutPrice}'),
+          Text('Time Slot: ${booking.timeSlot}'),
+          Text('Schedule Date: ${booking.date}'),
+          const Divider(),
+          Text('Status: ${booking.status}'),
+          SizedBox(
+            width: double.infinity,
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Expanded(
@@ -96,22 +86,18 @@ class AppointmentCardCustomers extends StatelessWidget {
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
 class AppointmentConfirmedCardCustomers extends StatelessWidget {
-  final String title;
-  final String message;
   final BookingModel booking;
 
   const AppointmentConfirmedCardCustomers({
     super.key,
-    required this.title,
-    required this.message,
     required this.booking,
   });
 
@@ -121,54 +107,49 @@ class AppointmentConfirmedCardCustomers extends StatelessWidget {
     final formatterController = Get.put(BFormatter());
 
     return Card(
-      elevation: 1,
-      color: Colors.white,
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      child: ExpansionTile(
+        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+        childrenPadding: const EdgeInsets.all(10.0),
+        title: Row(
           children: [
-            Row(
-              children: [
-                const iconoir.Calendar(),
-                const SizedBox(width: 10),
-                Text(
-                  title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(color: Colors.blue),
-                ),
-              ],
+            Text(
+              _getTitle(booking.status),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(color: _getStatusColor(booking.status)),
             ),
-            const SizedBox(height: 5),
-            Text(formatterController.formatDate(booking.createdAt),
-                style: Theme.of(context).textTheme.labelSmall),
-            const SizedBox(height: 5),
-            Divider(color: Theme.of(context).primaryColor),
-            const SizedBox(height: 3),
-            Text('Name: ${booking.customerName}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Phone: ${booking.customerPhoneNo}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Divider(color: Theme.of(context).primaryColor),
-            const SizedBox(height: 3),
-            Text('Hairstyle: ${booking.haircutName}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Price: ${booking.haircutPrice}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Time Slot: ${booking.timeSlot}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Date: ${booking.date}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 10),
-            Row(
+          ],
+        ),
+        leading: CircleAvatar(
+          radius: 20.0,
+          backgroundImage: booking.barbershopProfileImageUrl.isNotEmpty
+              ? NetworkImage(booking.barbershopProfileImageUrl)
+              : null,
+          child: (booking.barbershopProfileImageUrl.isEmpty)
+              ? Text(
+                  formatterController.formatInitial(
+                      booking.barbershopProfileImageUrl,
+                      booking.barbershopName),
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
+                )
+              : null,
+        ),
+        subtitle: Text("Schedule: ${booking.date}",
+            style: Theme.of(context).textTheme.labelSmall),
+        children: [
+          Text('Barbershop: ${booking.barbershopName}'),
+          const Divider(),
+          Text('Hairstyle: ${booking.haircutName}'),
+          Text('Price: ${booking.haircutPrice}'),
+          Text('Time Slot: ${booking.timeSlot}'),
+          Text('Schedule Date: ${booking.date}'),
+          const Divider(),
+          Text('Status: ${booking.status}'),
+          SizedBox(
+            width: double.infinity,
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Expanded(
@@ -191,22 +172,18 @@ class AppointmentConfirmedCardCustomers extends StatelessWidget {
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
 class AppointmentDoneCardCustomers extends StatelessWidget {
-  final String title;
-  final String message;
   final BookingModel booking;
 
   const AppointmentDoneCardCustomers({
     super.key,
-    required this.title,
-    required this.message,
     required this.booking,
   });
 
@@ -216,74 +193,71 @@ class AppointmentDoneCardCustomers extends StatelessWidget {
     final ReviewControllerCustomer controller = Get.find();
 
     return Card(
-      elevation: 1,
-      color: Colors.white,
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      child: ExpansionTile(
+        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+        childrenPadding: const EdgeInsets.all(10.0),
+        title: Row(
           children: [
-            Row(
-              children: [
-                const iconoir.Calendar(),
-                const SizedBox(width: 10),
-                Text(
-                  _getTitleColor(booking.status),
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(color: _getStatusColor(booking.status)),
-                ),
-              ],
+            Text(
+              _getTitle(booking.status),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(color: _getStatusColor(booking.status)),
             ),
-            const SizedBox(height: 5),
-            Text(formatterController.formatDate(booking.createdAt),
-                style: Theme.of(context).textTheme.labelSmall),
-            const SizedBox(height: 5),
-            Divider(color: Theme.of(context).primaryColor),
-            const SizedBox(height: 3),
-            Text('Name: ${booking.customerName}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Phone: ${booking.customerPhoneNo}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Divider(color: Theme.of(context).primaryColor),
-            const SizedBox(height: 3),
-            Text('Hairstyle: ${booking.haircutName}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Price: ${booking.haircutPrice}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Time Slot: ${booking.timeSlot}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 3),
-            Text('Date: ${booking.date}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 10),
-            Text('Status: ${booking.status}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              child: booking.isReviewed == false
-                  ? ElevatedButton(
-                      onPressed: () =>
-                          _showWriteReviewDialog(context, controller, booking),
-                      child: const Text('Write a Review'),
-                    )
-                  : ElevatedButton(
-                      style: ButtonStyle(
-                          backgroundColor:
-                              WidgetStatePropertyAll(Colors.grey.shade300)),
-                      onPressed: () {},
-                      child: const Text('Reviewed'),
-                    ),
-            )
           ],
         ),
+        leading: CircleAvatar(
+          radius: 20,
+          backgroundImage: booking.barbershopProfileImageUrl.isNotEmpty
+              ? NetworkImage(booking.barbershopProfileImageUrl)
+              : null,
+          child: (booking.barbershopProfileImageUrl.isEmpty)
+              ? Text(
+                  formatterController.formatInitial(
+                      booking.barbershopProfileImageUrl,
+                      booking.barbershopName),
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
+                )
+              : null,
+        ),
+        subtitle: Text(booking.barbershopName,
+            style: Theme.of(context).textTheme.labelSmall),
+        children: [
+          Text('Barbershop: ${booking.barbershopName}'),
+          const Divider(),
+          Text('Hairstyle: ${booking.haircutName}'),
+          Text('Price: ${booking.haircutPrice}'),
+          Text('Time Slot: ${booking.timeSlot}'),
+          Text('Schedule Date: ${booking.date}'),
+          const Divider(),
+          Text('Status: ${booking.status}'),
+          SizedBox(
+            width: double.infinity,
+            child: booking.status == 'canceled' || booking.status == 'declined'
+                ? ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor:
+                            WidgetStatePropertyAll(Colors.grey.shade300)),
+                    onPressed: () {},
+                    child: const Text('Review not available'),
+                  )
+                : booking.isReviewed == false
+                    ? ElevatedButton(
+                        onPressed: () => _showWriteReviewDialog(
+                            context, controller, booking),
+                        child: const Text('Write a Review'),
+                      )
+                    : ElevatedButton(
+                        style: ButtonStyle(
+                            backgroundColor:
+                                WidgetStatePropertyAll(Colors.grey.shade300)),
+                        onPressed: () {},
+                        child: const Text('Reviewed'),
+                      ),
+          ),
+        ],
       ),
     );
   }
@@ -291,6 +265,8 @@ class AppointmentDoneCardCustomers extends StatelessWidget {
 
 void _showWriteReviewDialog(BuildContext context,
     ReviewControllerCustomer controller, BookingModel booking) {
+  double userRating = 0.0; // Initialize the rating
+
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -301,14 +277,28 @@ void _showWriteReviewDialog(BuildContext context,
           children: [
             TextField(
               controller: controller.reviewText,
-              decoration: const InputDecoration(labelText: 'Your Review'),
+              decoration: const InputDecoration(
+                labelText: 'Your Review',
+                hintText: 'Write your experience here...',
+              ),
               maxLines: 3,
             ),
             const SizedBox(height: 10),
-            TextField(
-              controller: controller.ratingController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Rating (0-5)'),
+            const Text('Rating:',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            RatingBar.builder(
+              initialRating: userRating,
+              minRating: 1,
+              direction: Axis.horizontal,
+              allowHalfRating: true,
+              itemCount: 5,
+              itemBuilder: (context, _) => const Icon(
+                Icons.star,
+                color: Colors.amber,
+              ),
+              onRatingUpdate: (rating) {
+                userRating = rating;
+              },
             ),
           ],
         ),
@@ -319,19 +309,14 @@ void _showWriteReviewDialog(BuildContext context,
           ),
           ElevatedButton(
             onPressed: () async {
-              final rating =
-                  double.tryParse(controller.ratingController.text) ?? 0.0;
-
-              if (controller.reviewText.text.isNotEmpty &&
-                  rating > 0 &&
-                  rating <= 5) {
-                controller.review.value.rating = rating;
+              if (controller.reviewText.text.isNotEmpty && userRating > 0) {
+                controller.review.value.rating = userRating;
                 controller.addReview(booking.barberShopId, booking.id);
 
                 Get.back();
               } else {
                 ToastNotif(
-                        message: 'Please provide valid review and rating.',
+                        message: 'Please provide a valid review and rating.',
                         title: 'Invalid Input')
                     .showErrorNotif(Get.context!);
               }
@@ -344,29 +329,34 @@ void _showWriteReviewDialog(BuildContext context,
   );
 }
 
+// Helper to map status to colors
 Color _getStatusColor(String status) {
-  switch (status.toLowerCase()) {
-    case 'done':
-      return Colors.green;
-    case 'declined':
-      return Colors.red;
+  switch (status) {
     case 'pending':
       return Colors.orange;
+    case 'confirmed':
+      return Colors.blue;
+    case 'done':
+      return Colors.green;
     case 'canceled':
       return Colors.red;
+    case 'declined':
+      return Colors.red;
     default:
-      return Colors.grey.shade400;
+      return Colors.grey;
   }
 }
 
-String _getTitleColor(String title) {
+String _getTitle(String title) {
   switch (title.toLowerCase()) {
     case 'done':
-      return 'Appointment Complete';
+      return 'Appointment Completed';
     case 'declined':
       return 'Appointment Declined';
     case 'pending':
       return 'Appointment Pending';
+    case 'confirmed':
+      return 'Upcoming Appointment';
     case 'canceled':
       return 'Appointment Canceled';
     default:

@@ -39,4 +39,13 @@ class BFormatter extends GetxController {
   Timestamp convertDateTimeToTimestamp(DateTime dateTime) {
     return Timestamp.fromDate(dateTime);
   }
+
+  String formatInitial(String? imageUrl, String name) {
+    if (imageUrl != null && imageUrl.isNotEmpty) {
+      return ""; // Return empty since the imageUrl exists
+    }
+    return name.isNotEmpty
+        ? name[0].toUpperCase()
+        : "?"; // Return the first letter of the name
+  }
 }

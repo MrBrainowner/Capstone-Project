@@ -1,6 +1,5 @@
 import 'package:barbermate/common/widgets/appointment_case.dart';
 import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
-import 'package:barbermate/features/customer/views/widgets/dashboard/appointment_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -38,13 +37,13 @@ class CustomerAppointments extends StatelessWidget {
               },
               child: Obx(() {
                 return ListView.builder(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(10),
                   itemCount: controller.pendingAndConfirmedBookings.length,
                   itemBuilder: (context, index) {
                     final booking =
                         controller.pendingAndConfirmedBookings[index];
 
-                    return buildAppointmentWidget(booking);
+                    return buildAppointmentWidgetCustomers(booking);
                   },
                 );
               }),
@@ -58,16 +57,12 @@ class CustomerAppointments extends StatelessWidget {
               },
               child: Obx(() {
                 return ListView.builder(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(0.0),
                   itemCount: controller.doneBookings.length,
                   itemBuilder: (context, index) {
                     final booking = controller.doneBookings[index];
 
-                    return AppointmentDoneCardCustomers(
-                      title: 'Appointment Complete',
-                      message: 'Name: ${booking.customerName}',
-                      booking: booking,
-                    );
+                    return buildAppointmentWidgetCustomers(booking);
                   },
                 );
               }),

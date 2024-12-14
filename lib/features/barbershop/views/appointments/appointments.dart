@@ -1,3 +1,4 @@
+import 'package:barbermate/common/widgets/appointment_case.dart';
 import 'package:barbermate/features/barbershop/controllers/booking_controller/booking_controller.dart';
 import 'package:barbermate/features/barbershop/views/widgets/appoiments/appoiments_widget.dart';
 import 'package:flutter/material.dart';
@@ -40,16 +41,12 @@ class BarbershopAppointments extends StatelessWidget {
               onRefresh: () async {},
               child: Obx(() {
                 return ListView.builder(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(10),
                   itemCount: controller.pendingBookings.length,
                   itemBuilder: (context, index) {
                     final booking = controller.pendingBookings[index];
 
-                    return AppointmentCard(
-                      title: 'New Appoiments',
-                      message: 'Name: ${booking.customerName}',
-                      booking: booking,
-                    );
+                    return buildAppointmentWidgetBarbershops(booking);
                   },
                 );
               }),
@@ -61,16 +58,12 @@ class BarbershopAppointments extends StatelessWidget {
               onRefresh: () async {},
               child: Obx(() {
                 return ListView.builder(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(10),
                   itemCount: controller.confirmedBookings.length,
                   itemBuilder: (context, index) {
                     final booking = controller.confirmedBookings[index];
 
-                    return AppointmentConfirmedCard(
-                      title: 'Scheduled Appointment',
-                      message: 'Name: ${booking.customerName}',
-                      booking: booking,
-                    );
+                    return buildAppointmentWidgetBarbershops(booking);
                   },
                 );
               }),
@@ -82,16 +75,12 @@ class BarbershopAppointments extends StatelessWidget {
               onRefresh: () async {},
               child: Obx(() {
                 return ListView.builder(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(10),
                   itemCount: controller.doneBookings.length,
                   itemBuilder: (context, index) {
                     final booking = controller.doneBookings[index];
 
-                    return AppointmentDoneCard(
-                      title: 'Appointment Complete',
-                      message: 'Name: ${booking.customerName}',
-                      booking: booking,
-                    );
+                    return buildAppointmentWidgetBarbershops(booking);
                   },
                 );
               }),

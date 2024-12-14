@@ -72,6 +72,7 @@ class CustomerNotificationController extends GetxController {
     }
   }
 
+  // also for creating a booking to send notifications
   Future<void> sendNotifWhenBookingUpdatedCustomers(
     BookingModel booking,
     String type,
@@ -110,9 +111,9 @@ class CustomerNotificationController extends GetxController {
     try {
       isLoading(true);
       String? token =
-          await _notificationServiceRepository.getUserFCMToken(userId);
+          await _notificationServiceRepository.getBarbershopFCMToken(userId);
       if (token != null) {
-        await _notificationServiceRepository.sendNotificationToUser(
+        await _notificationServiceRepository.sendFCMNotificationToUser(
           token: token,
           title: title,
           body: body,

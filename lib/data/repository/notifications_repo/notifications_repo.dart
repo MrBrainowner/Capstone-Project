@@ -1,8 +1,8 @@
 import 'package:barbermate/data/models/booking_model/booking_model.dart';
 import 'package:barbermate/data/repository/auth_repo/auth_repo.dart';
 import 'package:barbermate/data/services/push_notification/push_notification.dart';
-import 'package:barbermate/features/auth/models/barbershop_model.dart';
-import 'package:barbermate/features/auth/models/customer_model.dart';
+import 'package:barbermate/data/models/user_authenthication_model/barbershop_model.dart';
+import 'package:barbermate/data/models/user_authenthication_model/customer_model.dart';
 import 'package:barbermate/utils/exceptions/firebase_exceptions.dart';
 import 'package:barbermate/utils/exceptions/format_exceptions.dart';
 import 'package:barbermate/utils/exceptions/platform_exceptions.dart';
@@ -20,36 +20,14 @@ class NotificationsRepo extends GetxController {
   final userId = Get.put(AuthenticationRepository.instance.authUser?.uid);
 
   // Method to send notifications to both customer and barbershop
-  Future<void> sendBookingNotifications(BarbershopModel barbershop,
+  Future<void> recieveNotificationCustomerOnly(BarbershopModel barbershop,
       CustomerModel customer, String bookingId) async {
     try {
-      // Notification for Barbershop: New appointment (Accept/Reject)
-      final barbershopNotification = NotificationModel(
-        bookingId: bookingId,
-        type: 'booking',
-        title: 'New Appointment',
-        message:
-            'You have a new appointment request from ${customer.firstName} ${customer.lastName}. Please accept or reject.',
-        status: 'notRead',
-        createdAt: DateTime.now(),
-        customerId: customer.id,
-        id: '',
-        barbershopId: barbershop.id,
-      );
-      final notifDoc = await _db
-          .collection('Barbershops')
-          .doc(barbershop.id)
-          .collection('Notifications')
-          .add(barbershopNotification.toJson());
-      final bdocId = notifDoc.id;
-
-      await notifDoc.update({'id': bdocId});
-
       // Notification for Customer: Appointment confirmed
       final customerNotification = NotificationModel(
         bookingId: bookingId,
         type: 'booking',
-        title: 'You just made an appoiment',
+        title: 'You just made an appoiment!',
         message:
             'Your appointment with ${barbershop.barbershopName} is pending.',
         status: 'notRead',
@@ -66,12 +44,6 @@ class NotificationsRepo extends GetxController {
       final docId = docRef.id;
 
       await docRef.update({'id': docId});
-      await _notificationServiceRepository.sendNotificationToUser(
-          userType: customer.role,
-          token: barbershop.fcmToken.toString(),
-          title: 'Booked',
-          body:
-              'You just booked an appoinment with ${barbershop.barbershopName}');
     } catch (e) {
       throw Exception("Failed to send notifications: $e");
     }
@@ -134,6 +106,7 @@ class NotificationsRepo extends GetxController {
     }
   }
 
+  // for barbershop updating the booking status
   Future<void> sendNotifWhenBookingUpdated(
     BookingModel booking,
     String type,
@@ -163,7 +136,7 @@ class NotificationsRepo extends GetxController {
 
       await docRef.update({'id': docId});
 
-      await _notificationServiceRepository.sendNotificationToUser(
+      await _notificationServiceRepository.sendFCMNotificationToUser(
           userType: 'customer',
           token: booking.customerToken,
           title: title,
@@ -179,6 +152,7 @@ class NotificationsRepo extends GetxController {
     }
   }
 
+  // for customers when they update the booking status
   Future<void> sendNotifWhenBookingUpdatedCustomers(
     BookingModel booking,
     String type,
@@ -207,7 +181,7 @@ class NotificationsRepo extends GetxController {
       final docId = docRef.id;
 
       await docRef.update({'id': docId});
-      await _notificationServiceRepository.sendNotificationToUser(
+      await _notificationServiceRepository.sendFCMNotificationToUser(
           userType: 'barbershop',
           token: booking.barbershopToken,
           title: title,

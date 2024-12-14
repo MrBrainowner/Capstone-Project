@@ -1,15 +1,15 @@
+import 'package:barbermate/features/barbershop/views/management/haircut/add.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../controllers/haircuts_controller/haircuts_controller.dart';
 import '../../widgets/management/haircut_card.dart';
-import 'add.dart';
 
 class HaircutManagementPage extends StatelessWidget {
   const HaircutManagementPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(HaircutController());
+    final HaircutController controller = Get.find();
 
     return Scaffold(
       appBar: AppBar(

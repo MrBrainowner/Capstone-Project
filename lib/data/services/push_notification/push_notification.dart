@@ -12,7 +12,6 @@ import 'package:http/http.dart' as http;
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await NotificationServiceRepository.instance.setUpFlutterNotifications();
   await NotificationServiceRepository.instance.showNotification(message);
-
   print("Background notification received: ${message.messageId}");
 }
 
@@ -59,7 +58,7 @@ class NotificationServiceRepository {
 
     //android
     const channel = AndroidNotificationChannel(
-        'hight_importance_channel', 'High Importance Notifications',
+        'high_importance_channel', 'High Importance Notifications',
         description: 'This channel is used for important notifications',
         importance: Importance.high);
 
@@ -90,7 +89,7 @@ class NotificationServiceRepository {
         notification.body,
         const NotificationDetails(
             android: AndroidNotificationDetails(
-          'hight_importance_channel',
+          'high_importance_channel',
           'High Importance Notifications',
           channelDescription:
               'This channel is used for important notifications',
@@ -122,11 +121,11 @@ class NotificationServiceRepository {
 
   void _handleBackgroundMessage(RemoteMessage message) {
     if (message.data['userType'] == 'barbershop') {
-      Get.off(() => const BarbershopNotifications());
+      Get.to(() => const BarbershopNotifications());
     } else if (message.data['userType'] == 'customer') {
-      Get.off(() => const CustomerNotifications());
+      Get.to(() => const CustomerNotifications());
     } else if (message.data['userType'] == 'admin') {
-      Get.off(() => const CustomerNotifications());
+      Get.to(() => const CustomerNotifications());
     }
   }
 
@@ -185,7 +184,7 @@ class NotificationServiceRepository {
   Future<void> saveFCMTokenBarbershops(String userId, String token) async {
     try {
       await _firestore.collection('Barbershops').doc(userId).update({
-        'fcmToken': token,
+        'barbershopToken': token,
       });
       print('FCM token saved to database');
     } catch (e) {
@@ -194,11 +193,23 @@ class NotificationServiceRepository {
     }
   }
 
-  // Get the FCM token of a specific user
-  Future<String?> getUserFCMToken(String userId) async {
+  // Get the FCM token of a specific customer
+  Future<String?> getCustomerFCMToken(String customerId) async {
     try {
       DocumentSnapshot userDoc =
-          await _firestore.collection('users').doc(userId).get();
+          await _firestore.collection('Customers').doc(customerId).get();
+      return userDoc['fcmToken'];
+    } catch (e) {
+      print('Error fetching FCM token: $e');
+      return null;
+    }
+  }
+
+  // Get the FCM token of a specific barbershop
+  Future<String?> getBarbershopFCMToken(String barbershopId) async {
+    try {
+      DocumentSnapshot userDoc =
+          await _firestore.collection('Barbershops').doc(barbershopId).get();
       return userDoc['fcmToken'];
     } catch (e) {
       print('Error fetching FCM token: $e');
@@ -253,7 +264,7 @@ class NotificationServiceRepository {
   }
 
   // Send a notification to a specific user
-  Future<void> sendNotificationToUser({
+  Future<void> sendFCMNotificationToUser({
     required String userType,
     required String token,
     required String title,
@@ -264,6 +275,7 @@ class NotificationServiceRepository {
         'https://fcm.googleapis.com/v1/projects/barbershop-booking-syste-cbffd/messages:send';
 
     try {
+      print('data userType: $userType');
       final Map<String, dynamic> message = {
         'message': {
           'token': token,

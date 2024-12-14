@@ -7,6 +7,7 @@ import 'package:barbermate/features/barbershop/views/account/edit_landmark.dart'
 import 'package:barbermate/features/barbershop/views/account/edit_name.dart';
 import 'package:barbermate/features/barbershop/views/account/edit_number.dart';
 import 'package:barbermate/features/barbershop/views/account/edit_password.dart';
+import 'package:barbermate/features/barbershop/views/appointments/appointments.dart';
 import 'package:barbermate/utils/constants/format_date.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -22,7 +23,7 @@ class BarbershopAccount extends StatelessWidget {
 
     return PopScope(
       canPop: true,
-      onPopInvokedWithResult: (didPop, dynamic) async {
+      onPopInvoked: (didPop) async {
         barbershopController.clear();
       },
       child: Scaffold(
@@ -227,6 +228,23 @@ class BarbershopAccount extends StatelessWidget {
                     text: barbershop.value.streetAddress,
                     widget: const iconoir.MapPin(),
                   ),
+                  const SizedBox(height: 10),
+                  CannotBeEdited(
+                    text: "Account status ${barbershop.value.status}",
+                    widget: const iconoir.MapPin(),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                          child: ElevatedButton(
+                        child: const Text('Verify account'),
+                        onPressed: () {
+                          Get.to(() => const BarbershopAppointments());
+                        },
+                      ))
+                    ],
+                  )
                 ],
               ),
             );

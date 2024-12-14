@@ -5,7 +5,7 @@ import 'package:path/path.dart';
 import 'package:barbermate/data/repository/auth_repo/auth_repo.dart';
 import 'package:logger/logger.dart';
 
-import '../../../features/barbershop/models/document_model.dart';
+import '../../models/barbershops_verfication_model/document_model.dart';
 
 class VerificationRepo {
   static VerificationRepo get instance => VerificationRepo();
@@ -44,8 +44,11 @@ class VerificationRepo {
         final downloadUrl = await storageRef.getDownloadURL();
 
         // Add the document to Firestore under the barbershop application
-        final applicationRef =
-            _firestore.collection('BarbershopApplications').doc(barbershopId);
+        final applicationRef = _firestore
+            .collection('Barbershops')
+            .doc(barbershopId)
+            .collection('Documents')
+            .doc(barbershopId);
 
         final snapshot = await applicationRef.get();
 

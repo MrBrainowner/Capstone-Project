@@ -20,7 +20,7 @@ class CustomerAccount extends StatelessWidget {
 
     return PopScope(
       canPop: true,
-      onPopInvokedWithResult: (dipPop, dynamic) async {
+      onPopInvoked: (dipPop) async {
         customerController.clear();
       },
       child: Scaffold(
@@ -33,7 +33,6 @@ class CustomerAccount extends StatelessWidget {
           if (customerController.profileLoading.value) {
             return const Center(child: CircularProgressIndicator());
           }
-
           // Access customer data
           final customer = customerController.customer.value;
 

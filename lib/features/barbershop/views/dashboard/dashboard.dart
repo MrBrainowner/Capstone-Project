@@ -21,8 +21,8 @@ class BarbershopDashboard extends StatelessWidget {
     final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
     final BarbershopController controller = Get.find();
     final BarbershopBookingController bookingController = Get.find();
-    final haircutController = Get.put(HaircutController());
-    final timeSlotController = Get.put(TimeSlotController());
+    final HaircutController haircutController = Get.find();
+    final TimeSlotController timeSlotController = Get.find();
 
     return Scaffold(
       key: scaffoldKey,

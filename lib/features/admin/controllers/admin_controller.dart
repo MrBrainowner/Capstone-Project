@@ -11,7 +11,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart' as rx;
-import '../../auth/models/barbershop_model.dart';
+import '../../../data/models/user_authenthication_model/barbershop_model.dart';
 
 class AdminController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -47,7 +47,7 @@ class AdminController extends GetxController {
         Stream<List<TimeSlotModel>> timeSlotsStream =
             _timeslotsRepository.fetchBarbershopTimeSlotsStream(barbershop.id);
         Stream<List<ReviewsModel>> reviewsStream =
-            _reviewRepository.fetchReviews(barbershop.id);
+            _reviewRepository.fetchReviewsStream(barbershop.id);
         Stream<AvailableDaysModel?> availableDaysStream = _timeslotsRepository
             .getAvailableDaysWhenCustomerIsCurrentUserStream(barbershop.id);
 

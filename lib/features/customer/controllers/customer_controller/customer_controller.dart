@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../common/widgets/toast.dart';
 import '../../../../data/repository/customer_repo/customer_repo.dart';
-import '../../../auth/models/customer_model.dart';
+import '../../../../data/models/user_authenthication_model/customer_model.dart';
 
 class CustomerController extends GetxController {
   static CustomerController get instance => Get.find();

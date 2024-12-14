@@ -1,28 +1,34 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:barbermate/data/models/combined_model/barbershop_combined_model.dart';
+import 'package:barbermate/data/models/user_authenthication_model/barbershop_model.dart';
+import 'package:barbermate/features/customer/controllers/barbershop_controller/get_barbershop_data_controller.dart';
+import 'package:barbermate/features/customer/controllers/barbershop_controller/get_barbershops_controller.dart';
+import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
 import 'package:barbermate/features/customer/views/barbershop/barbershop.dart';
 import 'package:barbermate/utils/themes/text_theme.dart';
 import '../../../../../utils/themes/outline_button_theme.dart';
-import '../../../controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
 import '../../booking/choose_haircut.dart';
 
 class CustomerBarbershopCard extends StatelessWidget {
   const CustomerBarbershopCard({
     super.key,
     required this.barbershop,
+    required this.averageRating,
   });
 
-  final BarbershopCombinedModel barbershop;
+  final BarbershopModel barbershop;
+  final double averageRating;
 
   @override
   Widget build(BuildContext context) {
     final darkThemeOutlinedButton =
         BarbermateOutlinedButton.darkThemeOutlinedButton.style;
     final forOutlinedDarkText = BarbermateTextTheme.darkTextTheme.bodyMedium;
-    final GetHaircutsAndBarbershopsController controller = Get.find();
+    final GetBarbershopsController controller = Get.find();
+    final GetBarbershopDataController dataController = Get.find();
+    final CustomerBookingController bookingController = Get.find();
 
     const ngolor = Color.fromRGBO(238, 238, 238, 1);
     return SizedBox(
@@ -44,13 +50,11 @@ class CustomerBarbershopCard extends StatelessWidget {
                       child: ClipRRect(
                         borderRadius:
                             const BorderRadius.all(Radius.circular(5)),
-                        child:
-                            barbershop.barbershop.barbershopBannerImage.isEmpty
-                                ? Image.asset('assets/images/barbershop.jpg',
-                                    fit: BoxFit.cover)
-                                : Image.network(
-                                    barbershop.barbershop.barbershopBannerImage,
-                                    fit: BoxFit.cover),
+                        child: barbershop.barbershopBannerImage.isEmpty
+                            ? Image.asset('assets/images/barbershop.jpg',
+                                fit: BoxFit.cover)
+                            : Image.network(barbershop.barbershopBannerImage,
+                                fit: BoxFit.cover),
                       ),
                     ),
                     Padding(
@@ -74,16 +78,8 @@ class CustomerBarbershopCard extends StatelessWidget {
                             const SizedBox(width: 3),
                             Flexible(
                               child: Text(
-                                // Calculate the average rating
-                                (barbershop.review.isEmpty
-                                        ? 0.0
-                                        : barbershop.review.fold(
-                                                0.0,
-                                                (sum, review) =>
-                                                    sum + review.rating) /
-                                            barbershop.review.length)
-                                    .toStringAsFixed(
-                                        1), // Average rating rounded to 1 decimal place
+                                averageRating
+                                    .toString(), // Average rating rounded to 1 decimal place
                                 overflow: TextOverflow.clip,
                                 maxLines: 1,
                                 style: TextStyle(color: Colors.yellow.shade600),
@@ -99,16 +95,16 @@ class CustomerBarbershopCard extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      barbershop.barbershop.openHours == null ||
-                              barbershop.barbershop.openHours!.isEmpty
-                          ? 'UNVERIFIED'
+                      barbershop.openHours == null ||
+                              barbershop.openHours!.isEmpty
+                          ? 'Not set'
                           : controller.isOpenNow.value
                               ? 'OPEN NOW'
                               : 'CLOSED',
                       maxLines: 1,
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: barbershop.barbershop.openHours == null ||
-                                    barbershop.barbershop.openHours!.isEmpty
+                            color: barbershop.openHours == null ||
+                                    barbershop.openHours!.isEmpty
                                 ? Colors.orange
                                 : controller.isOpenNow.value
                                     ? Colors.green
@@ -124,7 +120,7 @@ class CustomerBarbershopCard extends StatelessWidget {
                     Row(
                       children: [
                         Expanded(
-                          child: Text(barbershop.barbershop.barbershopName,
+                          child: Text(barbershop.barbershopName,
                               overflow: TextOverflow.clip,
                               maxLines: 1,
                               style: Theme.of(context)
@@ -137,7 +133,7 @@ class CustomerBarbershopCard extends StatelessWidget {
                     Row(
                       children: [
                         Expanded(
-                          child: Text(barbershop.barbershop.address,
+                          child: Text(barbershop.address,
                               overflow: TextOverflow.clip,
                               maxLines: 1,
                               style: Theme.of(context)
@@ -155,8 +151,22 @@ class CustomerBarbershopCard extends StatelessWidget {
                             children: [
                               OutlinedButton(
                                 onPressed: () async {
+                                  dataController.fetchHaircuts(
+                                      barberShopId: barbershop.id,
+                                      descending: true);
+                                  dataController.fetchTimeSlots(barbershop.id);
+                                  bookingController.chosenBarbershop.value =
+                                      barbershop;
+
+                                  await dataController
+                                      .fetchReviews(barbershop.id);
+                                  bookingController.averageRating.value =
+                                      dataController
+                                              .averageRatings[barbershop.id] ??
+                                          0.0;
                                   Get.to(() => BarbershopProfilePage(
-                                      barbershop: barbershop));
+                                        barbershop: barbershop,
+                                      ));
                                 },
                                 style: darkThemeOutlinedButton,
                                 child: const iconoir.Shop(
@@ -168,8 +178,14 @@ class CustomerBarbershopCard extends StatelessWidget {
                               Expanded(
                                 child: OutlinedButton(
                                   onPressed: () async {
-                                    Get.to(() => ChooseHaircut(
-                                        barbershopCombinedData: barbershop));
+                                    dataController.fetchHaircuts(
+                                        barberShopId: barbershop.id,
+                                        descending: true);
+                                    dataController
+                                        .fetchTimeSlots(barbershop.id);
+                                    bookingController.chosenBarbershop.value =
+                                        barbershop;
+                                    Get.to(() => const ChooseHaircut());
                                   },
                                   style: darkThemeOutlinedButton,
                                   child: Text(

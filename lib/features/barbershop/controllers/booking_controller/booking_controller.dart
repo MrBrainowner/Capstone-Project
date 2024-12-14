@@ -72,7 +72,7 @@ class BarbershopBookingController extends GetxController {
 
       await notificationController.sendNotifWhenBookingUpdated(
           booking,
-          'appointment_status',
+          'review_prompt',
           'Appointment Complete',
           'Your appointment with ${booking.barbershopName} is completed',
           'notRead');

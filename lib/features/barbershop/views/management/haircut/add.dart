@@ -1,33 +1,31 @@
 import 'dart:io';
-import 'package:barbermate/common/widgets/toast.dart';
+import 'package:barbermate/features/auth/views/sign_in/sign_in_widgets/textformfield.dart';
+import 'package:barbermate/features/barbershop/controllers/haircuts_controller/haircuts_controller.dart';
+import 'package:barbermate/features/barbershop/views/management/haircut/category_selection_modal.dart';
 import 'package:barbermate/utils/validators/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../../auth/views/sign_in/sign_in_widgets/textformfield.dart';
-import '../../../controllers/haircuts_controller/haircuts_controller.dart';
 
 class HaircutAddPage extends StatelessWidget {
   const HaircutAddPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(HaircutController());
+    final HaircutController controller = Get.find();
     final validator = Get.put(ValidatorController());
+    final categoryController = Get.put(CategorySelectionController());
 
-    return PopScope(
-      canPop: true,
-      onPopInvokedWithResult: (didPop, dynamic) => controller.resetForm(),
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Add New Haircut'),
-          centerTitle: true,
-          automaticallyImplyLeading: true,
-        ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Add New Haircut'),
+        centerTitle: true,
+        automaticallyImplyLeading: true,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
               key: controller.addHaircutFormKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -109,12 +107,32 @@ class HaircutAddPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Selected Categories:',
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
                   const SizedBox(height: 10),
+                  Obx(() => Wrap(
+                        spacing: 8.0,
+                        runSpacing: 4.0,
+                        children: categoryController.selectedOptionsList
+                            .map((category) => Chip(
+                                  label: Text(category),
+                                  deleteIcon: const Icon(Icons.close),
+                                  onDeleted: () {
+                                    categoryController.selectedOptionsList
+                                        .remove(category);
+                                  },
+                                ))
+                            .toList(),
+                      )),
+                  const SizedBox(height: 10),
+                  Row(children: [
+                    Expanded(
+                      child: ElevatedButton(
+                          onPressed: () {
+                            categoryController.showCategorySelectionSheet();
+                          },
+                          child: const Text('Select Category')),
+                    )
+                  ]),
+                  const SizedBox(height: 20),
                   Row(
                     children: [
                       Expanded(
@@ -130,6 +148,8 @@ class HaircutAddPage extends StatelessWidget {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () async {
+                            controller.selectedCategories.value =
+                                categoryController.selectedOptionsList;
                             await controller.addHaircut(); // Updated method
                           },
                           child: const Text('Add Haircut'),
@@ -138,9 +158,7 @@ class HaircutAddPage extends StatelessWidget {
                     ],
                   ),
                 ],
-              ),
-            ),
-          ),
+              )),
         ),
       ),
     );

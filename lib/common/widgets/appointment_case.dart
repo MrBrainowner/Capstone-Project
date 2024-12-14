@@ -1,22 +1,48 @@
 import 'package:barbermate/data/models/booking_model/booking_model.dart';
+import 'package:barbermate/features/barbershop/views/widgets/appoiments/appoiments_widget.dart';
 import 'package:barbermate/features/customer/views/widgets/dashboard/appointment_card.dart';
 import 'package:flutter/material.dart';
 
-Widget buildAppointmentWidget(BookingModel booking) {
+Widget buildAppointmentWidgetCustomers(BookingModel booking) {
   switch (booking.status) {
     case 'pending':
-      return AppointmentCardCustomers(
-          title: 'Appointment Pending',
-          message: 'You appointment with ${booking.barbershopName} is pending',
-          booking: booking);
+      return AppointmentCardCustomers(booking: booking);
     case 'confirmed':
-      return AppointmentConfirmedCardCustomers(
-          title: 'Appointment Confirmed',
-          message:
-              'You appointment with ${booking.barbershopName} is confirmed',
-          booking: booking);
+      return AppointmentConfirmedCardCustomers(booking: booking);
+    case 'canceled':
+      return AppointmentDoneCardCustomers(booking: booking);
+    case 'declined':
+      return AppointmentDoneCardCustomers(booking: booking);
+    case 'done':
+      return AppointmentDoneCardCustomers(booking: booking);
     default:
-      return AppointmentCardCustomers(
-          title: 'Unknown', message: 'unknown appointment', booking: booking);
+      return AppointmentCardCustomers(booking: booking);
+  }
+}
+
+Widget buildAppointmentWidgetBarbershops(BookingModel booking) {
+  switch (booking.status) {
+    case 'pending':
+      return AppointmentCard(
+        booking: booking,
+      );
+    case 'confirmed':
+      return AppointmentConfirmedCard(
+        booking: booking,
+      );
+    case 'canceled':
+      return AppointmentDoneCard(
+        booking: booking,
+      );
+    case 'declined':
+      return AppointmentDoneCard(
+        booking: booking,
+      );
+    case 'done':
+      return AppointmentDoneCard(
+        booking: booking,
+      );
+    default:
+      return AppointmentCardCustomers(booking: booking);
   }
 }

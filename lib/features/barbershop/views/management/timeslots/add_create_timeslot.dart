@@ -1,3 +1,5 @@
+import 'package:barbermate/common/widgets/toast.dart';
+import 'package:barbermate/utils/popups/confirm_cancel_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -9,7 +11,7 @@ class AddCreateTimeSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(TimeSlotController());
+    final TimeSlotController controller = Get.find();
 
     return Scaffold(
       body: Column(
@@ -46,7 +48,8 @@ class AddCreateTimeSlot extends StatelessWidget {
                           ),
                           child: Center(
                             child: Text(
-                              timeSlot.schedule,
+                              (TimeSlotModel.formatTimeRange(
+                                  timeSlot.startTime, timeSlot.endTime)),
                               textAlign: TextAlign.center,
                               style: const TextStyle(fontSize: 14),
                             ),
@@ -62,7 +65,14 @@ class AddCreateTimeSlot extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => showAddTimeSlotModal(context, controller),
+        onPressed: () async {
+          if (controller.openHours.value.isEmpty) {
+            ToastNotif(
+                message: 'You need to add open hours irst', title: 'Opss!');
+          } else {
+            showAddTimeSlotModal(context, controller);
+          }
+        },
         child: const Icon(Icons.add),
       ),
     );
@@ -130,41 +140,27 @@ void showAddTimeSlotModal(BuildContext context, TimeSlotController controller) {
                 ),
               ),
             ),
-            const SizedBox(height: 10),
-            Text('Max Customer in this Time Slot',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 10),
-            Obx(
-              () => Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                      onPressed: () => controller.decrement(),
-                      child: const Text('-')),
-                  const SizedBox(width: 30),
-                  Text('${controller.number}',
-                      style: Theme.of(context).textTheme.displaySmall),
-                  const SizedBox(width: 30),
-                  ElevatedButton(
-                      onPressed: () => controller.increment(),
-                      child: const Text('+')),
-                ],
-              ),
-            ),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
-                  final timeSlot = TimeSlotModel(
-                      startTime: controller.selectedStartTime.value,
-                      endTime: controller.selectedEndTime.value,
-                      maxBooking: controller.number.value,
-                      isAvailable: true,
-                      createdAt: DateTime.now() // Default for new slots
-                      );
-                  controller.createTimeSlot(timeSlot);
-                  Get.back();
+                  ConfirmCancelPopUp.showDialog(
+                      context: context,
+                      title: 'Add Time Slot',
+                      description:
+                          'Are you sure you want to add this time slot?',
+                      textConfirm: 'Confirm',
+                      textCancel: 'Cancel',
+                      onConfirm: () async {
+                        final timeSlot = TimeSlotModel(
+                            startTime: controller.selectedStartTime.value,
+                            endTime: controller.selectedEndTime.value,
+                            createdAt: DateTime.now() // Default for new slots
+                            );
+                        await controller.createTimeSlot(timeSlot);
+                        Get.back();
+                      });
                 },
                 child: const Text("Add Time Slot"),
               ),
@@ -259,19 +255,23 @@ void showEditDeleteModal(BuildContext context, TimeSlotController controller,
                 ),
               ),
               const SizedBox(height: 16),
-              Text("Max number in this Time Slot can't be edited.",
-                  style: Theme.of(context).textTheme.bodyMedium),
-              const SizedBox(height: 10),
-              const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () async {
-                    controller.updateTimeSlot(
-                        timeSlot.id.toString(),
-                        controller.selectedStartTime.value,
-                        controller.selectedEndTime.value);
-                    Get.back();
+                    ConfirmCancelPopUp.showDialog(
+                        context: context,
+                        title: 'Edit Time Slot',
+                        description: 'Save changes to this time slot?',
+                        textConfirm: 'Confirm',
+                        textCancel: 'Cancel',
+                        onConfirm: () async {
+                          await controller.updateTimeSlot(
+                              timeSlot.id.toString(),
+                              controller.selectedStartTime.value,
+                              controller.selectedEndTime.value);
+                          Get.back();
+                        });
                   },
                   child: const Text("Save Changes"),
                 ),
@@ -280,8 +280,18 @@ void showEditDeleteModal(BuildContext context, TimeSlotController controller,
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () async {
-                    await controller.deleteTimeSlot(timeSlot.id.toString());
-                    Get.back();
+                    ConfirmCancelPopUp.showDialog(
+                        context: context,
+                        title: 'Delete Time Slot',
+                        description:
+                            'Are you sure you want to delete this time slot?',
+                        textConfirm: 'Confirm',
+                        textCancel: 'Cancel',
+                        onConfirm: () async {
+                          await controller
+                              .deleteTimeSlot(timeSlot.id.toString());
+                          Get.back();
+                        });
                   },
                   child: const Text("Delete Time Slot"),
                 ),

@@ -1,6 +1,6 @@
 import 'package:barbermate/data/models/haircut_model/haircut_model.dart';
 import 'package:barbermate/features/customer/controllers/detect_face_shape/detect_face_shape_controller.dart';
-import 'package:barbermate/features/customer/controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
+import 'package:barbermate/features/customer/controllers/barbershop_controller/get_barbershops_controller.dart';
 import 'package:barbermate/features/customer/views/widgets/suggest_hairstyle/suggest_hairstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,8 +13,7 @@ class SuggestHaircutAiPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final DetectFaceShape controller = Get.find();
-    final GetHaircutsAndBarbershopsController haircutBarberController =
-        Get.find();
+    final GetBarbershopsController barbershops = Get.find();
 
     return Scaffold(
         appBar: AppBar(
@@ -175,10 +174,10 @@ class SuggestHaircutAiPage extends StatelessWidget {
                         width: double.infinity,
                         height: 400,
                         child: Obx(() {
-                          if (haircutBarberController.isLoading.value) {
+                          if (barbershops.isLoading.value) {
                             return const Center(
                                 child: CircularProgressIndicator());
-                          } else if (haircutBarberController
+                          } else if (controller
                               .barbershopCombinedModel.isEmpty) {
                             return const Center(
                                 child: Text('No Barbershops available.'));
@@ -187,8 +186,7 @@ class SuggestHaircutAiPage extends StatelessWidget {
                             final allMatchingHaircuts = <HaircutModel>[];
 
                             for (var barbershopCombined
-                                in haircutBarberController
-                                    .barbershopCombinedModel) {
+                                in controller.barbershopCombinedModel) {
                               // Filter haircuts that match the recommended categories for this barbershop
                               final matchingHaircuts =
                                   barbershopCombined.haircuts.where((haircut) {
@@ -223,10 +221,9 @@ class SuggestHaircutAiPage extends StatelessWidget {
                                   final haircut = allMatchingHaircuts[index];
 
                                   // Find the barbershop that owns this haircut
-                                  final barbershopCombined =
-                                      haircutBarberController
-                                          .barbershopCombinedModel
-                                          .firstWhere((barbershopCombined) {
+                                  final barbershopCombined = controller
+                                      .barbershopCombinedModel
+                                      .firstWhere((barbershopCombined) {
                                     return barbershopCombined.haircuts
                                         .contains(haircut);
                                   }).obs;

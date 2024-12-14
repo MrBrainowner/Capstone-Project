@@ -1,4 +1,5 @@
 import 'package:barbermate/data/repository/barbershop_repo/barbershop_repo.dart';
+import 'package:barbermate/data/repository/barbershop_repo/haircut_repository.dart';
 import 'package:barbermate/data/repository/barbershop_repo/timeslot_repository.dart';
 import 'package:barbermate/data/repository/booking_repo/booking_repo.dart';
 import 'package:barbermate/data/repository/customer_repo/customer_repo.dart';
@@ -11,7 +12,8 @@ import 'package:barbermate/features/customer/controllers/change_email_controller
 import 'package:barbermate/features/customer/controllers/customer_controller/customer_controller.dart';
 import 'package:barbermate/features/customer/controllers/detect_face_shape/detect_face_shape_controller.dart';
 import 'package:barbermate/features/customer/controllers/get_directions_controller/get_directions_controller.dart';
-import 'package:barbermate/features/customer/controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
+import 'package:barbermate/features/customer/controllers/barbershop_controller/get_barbershop_data_controller.dart';
+import 'package:barbermate/features/customer/controllers/barbershop_controller/get_barbershops_controller.dart';
 import 'package:barbermate/features/customer/controllers/notification_controller/notification_controller.dart';
 import 'package:barbermate/features/customer/controllers/review_controller/review_controller.dart';
 import 'package:get/get.dart';
@@ -36,6 +38,7 @@ class CustomerBinding extends Bindings {
     //directions service
     Get.lazyPut<LocationService>(() => LocationService(), fenix: true);
     Get.lazyPut<DirectionsService>(() => DirectionsService(), fenix: true);
+    Get.lazyPut<HaircutRepository>(() => HaircutRepository(), fenix: true);
 
     //=============================================================== controllers
     //customer
@@ -50,8 +53,7 @@ class CustomerBinding extends Bindings {
     Get.put<CustomerNotificationController>(CustomerNotificationController(),
         permanent: true);
     //haircuts and barbershop
-    Get.lazyPut<GetHaircutsAndBarbershopsController>(
-        () => GetHaircutsAndBarbershopsController(),
+    Get.lazyPut<GetBarbershopsController>(() => GetBarbershopsController(),
         fenix: true);
     //booking
     Get.lazyPut<CustomerBookingController>(() => CustomerBookingController(),
@@ -61,5 +63,9 @@ class CustomerBinding extends Bindings {
         permanent: true);
     //ai
     Get.lazyPut<DetectFaceShape>(() => DetectFaceShape(), fenix: true);
+    //barbershop
+    Get.lazyPut<GetBarbershopDataController>(
+        () => GetBarbershopDataController(),
+        fenix: true);
   }
 }

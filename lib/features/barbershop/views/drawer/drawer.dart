@@ -96,16 +96,6 @@ class BarbershopDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const iconoir.Calendar(
-              height: 25,
-            ),
-            title: const Text('Appointments'),
-            onTap: () {
-              // Handle profile navigation
-              Get.to(() => const BarbershopAppointments());
-            },
-          ),
-          ListTile(
             leading: const iconoir.PrivacyPolicy(
               height: 25,
             ),

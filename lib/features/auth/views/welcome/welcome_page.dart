@@ -61,7 +61,7 @@ class WelcomePage extends StatelessWidget {
                           width: 150,
                           text: 'Sign Up',
                           onPressed: () {
-                            Get.offAll(() => const SignUpPage());
+                            Get.to(() => const SignUpPage());
                           },
                           icon: null,
                         ),

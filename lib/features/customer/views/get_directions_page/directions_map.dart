@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 import '../../controllers/get_directions_controller/get_directions_controller.dart';
+import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
 
 class MapWidget extends StatelessWidget {
   const MapWidget({super.key});
@@ -65,8 +66,7 @@ class MapWidget extends StatelessWidget {
     final GetDirectionsController controller = Get.find();
     final CustomerController customerController = Get.find();
 
-    final barbershops =
-        controller.barbershopsController.barbershopCombinedModel;
+    final barbershops = controller.barbershopsController.barbershop;
 
     return [
       if (controller.currentLocation.value != null)
@@ -93,9 +93,8 @@ class MapWidget extends StatelessWidget {
       ...barbershops.asMap().entries.map((entry) {
         final index = entry.key;
         final barbershop = barbershops[index];
-        final location = LatLng(
-            barbershop.barbershop.latitude, barbershop.barbershop.longitude);
-        final logoUrl = barbershop.barbershop.barbershopProfileImage;
+        final location = LatLng(barbershop.latitude, barbershop.longitude);
+        final logoUrl = barbershop.barbershopProfileImage;
 
         return Marker(
           point: location,
@@ -105,7 +104,7 @@ class MapWidget extends StatelessWidget {
             children: [
               Flexible(
                   child: Text(
-                barbershop.barbershop.barbershopName,
+                barbershop.barbershopName,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               )),
@@ -118,16 +117,20 @@ class MapWidget extends StatelessWidget {
                   controller.fetchDirections(location);
                   controller.showBarbershopDetails(
                       location,
-                      barbershop.barbershop.barbershopName,
+                      barbershop.barbershopName,
                       distance,
-                      barbershop.barbershop.barbershopBannerImage,
+                      barbershop.barbershopBannerImage,
                       barbershop);
                 },
-                child: CircleAvatar(
-                  radius: 20.0,
-                  backgroundImage: NetworkImage(logoUrl),
-                ),
-              ),
+                child: logoUrl.isEmpty
+                    ? CircleAvatar(
+                        radius: 20.0,
+                        backgroundColor: Colors.grey.shade400,
+                        child: const iconoir.QuestionMark(height: 30),
+                      )
+                    : CircleAvatar(
+                        radius: 20.0, backgroundImage: NetworkImage(logoUrl)),
+              )
             ],
           ),
         );

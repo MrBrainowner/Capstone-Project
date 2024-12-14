@@ -34,6 +34,20 @@ class TimeslotRepository extends GetxController {
     }
   }
 
+  Future<String?> fetchOpenHours() async {
+    try {
+      // Fetch the document snapshot for the specific barbershop ID
+      final ds = await _db.collection('Barbershops').doc(barbershopId).get();
+
+      // Use `data()` to retrieve the map and access the 'openHours' field
+      return ds.data()?['open_hours'] as String?;
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } catch (e) {
+      throw 'Something went wrong. Please try again';
+    }
+  }
+
   //============================================================================ Time slots
 
   Future<void> createTimeSlot(TimeSlotModel timeSlot) async {

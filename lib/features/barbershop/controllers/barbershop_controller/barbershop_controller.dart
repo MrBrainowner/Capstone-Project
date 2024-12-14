@@ -1,9 +1,8 @@
 import 'dart:async';
-import 'package:barbermate/data/models/combined_model/barbershop_combined_model.dart';
 import 'package:barbermate/data/models/review_model/review_model.dart';
 import 'package:barbermate/data/repository/auth_repo/auth_repo.dart';
 import 'package:barbermate/data/repository/review_repo/review_repo.dart';
-import 'package:barbermate/features/auth/models/barbershop_model.dart';
+import 'package:barbermate/data/models/user_authenthication_model/barbershop_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,6 +18,7 @@ class BarbershopController extends GetxController {
   final profileLoading = false.obs;
   Rx<BarbershopModel> barbershop = BarbershopModel.empty().obs;
   final BarbershopRepository barbershopRepository = Get.find();
+  final ReviewRepo reviewRepo = Get.find();
   final _authRepository = Get.put(AuthenticationRepository());
   var isLoading = true.obs;
   var reviews = <ReviewsModel>[].obs;
@@ -39,8 +39,6 @@ class BarbershopController extends GetxController {
   var error = ''.obs;
   GlobalKey<FormState> key = GlobalKey<FormState>();
 
-  final ReviewRepo reviewRepo = Get.find();
-
   late StreamSubscription<List<ReviewsModel>> _reviewsSubscription;
 
   @override
@@ -48,6 +46,7 @@ class BarbershopController extends GetxController {
     super.onInit();
     listenToBarbershopStream();
     fetchReviewsForBarbershop();
+    // fetchReviewsForBarbershop();
   }
 
   void clear() async {
@@ -116,12 +115,12 @@ class BarbershopController extends GetxController {
     });
   }
 
-  // Method to fetch reviews for a specific barbershop
+  // // Method to fetch reviews for a specific barbershop
   void fetchReviewsForBarbershop() {
     isLoading(true); // Set loading to true when fetching
 
     // Start listening to the reviews stream from the repository
-    _reviewsSubscription = reviewRepo.fetchReviews(barbershop.value.id).listen(
+    _reviewsSubscription = reviewRepo.fetchReviewsStreamBarbershop().listen(
       (reviewsData) {
         reviews.value = reviewsData; // Update the reviews with fetched data
         isLoading(false); // Set loading to false once data is fetched

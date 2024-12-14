@@ -1,27 +1,28 @@
 import 'package:barbermate/data/models/combined_model/barbershop_combined_model.dart';
+import 'package:barbermate/features/customer/controllers/barbershop_controller/get_barbershop_data_controller.dart';
 import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
 import 'package:barbermate/features/customer/views/booking/choose_schedule.dart';
 import 'package:barbermate/features/customer/views/widgets/booking_page/haircuts_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
+import 'package:intl/intl.dart';
+import 'package:syncfusion_flutter_sliders/sliders.dart';
+import '../../controllers/barbershop_controller/get_barbershops_controller.dart';
 
 class ChooseHaircut extends StatelessWidget {
   const ChooseHaircut({
     super.key,
-    required this.barbershopCombinedData,
   });
-
-  final BarbershopCombinedModel barbershopCombinedData;
 
   @override
   Widget build(BuildContext context) {
-    final GetHaircutsAndBarbershopsController controller = Get.find();
+    final GetBarbershopsController controller = Get.find();
     final CustomerBookingController bookingController = Get.find();
+    final GetBarbershopDataController getBarbershopsDataController = Get.find();
 
     return PopScope(
       canPop: true,
-      onPopInvokedWithResult: (didPop, result) {
+      onPopInvoked: (didPop) {
         bookingController.clearBookingData();
       },
       child: Scaffold(
@@ -37,40 +38,69 @@ class ChooseHaircut extends StatelessWidget {
                 onPressed: () async {
                   bookingController.selectedHaircut.value.id = null;
 
-                  Get.to(() => ChooseSchedule(
-                        timeslots: barbershopCombinedData,
-                      ));
+                  Get.to(() => const ChooseSchedule());
                 },
                 child:
                     Text('Skip', style: Theme.of(context).textTheme.bodyLarge))
           ],
         ),
         body: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Obx(() {
-            if (controller.isLoading.value) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (barbershopCombinedData.haircuts.isEmpty) {
-              return const Center(child: Text('No Haircut available.'));
-            } else {
-              final haircuts = barbershopCombinedData.haircuts;
-              return GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // 2 columns
-                  mainAxisSpacing: 15, // Spacing between rows
-                  crossAxisSpacing: 15, // Spacing between columns
-                  childAspectRatio: 0.7,
-                  mainAxisExtent: 215, // Aspect ratio for vertical cards
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: [
+                Text(
+                  'Price Range: ',
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
-                itemCount: haircuts.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final barbershopHaircut = haircuts[index];
-                  return HaircutsCard(haircut: barbershopHaircut);
-                },
-              );
-            }
-          }),
-        ),
+                Obx(
+                  () => SfRangeSlider(
+                    min: 0.0,
+                    max: 500.0,
+                    values: getBarbershopsDataController.selectedRange.value,
+                    interval: 100,
+                    showLabels: true,
+                    showTicks: true,
+                    enableTooltip: true,
+                    minorTicksPerInterval: 1,
+                    dragMode: SliderDragMode.both,
+                    numberFormat: NumberFormat('\₱'),
+                    onChanged: (SfRangeValues value) {
+                      getBarbershopsDataController.selectedRange.value = value;
+                    },
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  height: 400,
+                  child: Obx(() {
+                    // Wait for data to load and filter based on selected range
+                    final filteredHaircuts =
+                        getBarbershopsDataController.getFilteredHaircuts();
+
+                    if (filteredHaircuts.isEmpty) {
+                      return const Center(
+                          child: Text('No Haircuts found in this range.'));
+                    }
+
+                    return GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 15,
+                        crossAxisSpacing: 15,
+                        childAspectRatio: 0.7,
+                        mainAxisExtent: 215,
+                      ),
+                      itemCount: filteredHaircuts.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final haircut = filteredHaircuts[index];
+                        return HaircutsCard(haircut: haircut);
+                      },
+                    );
+                  }),
+                ),
+              ],
+            )),
         bottomNavigationBar: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
@@ -98,8 +128,7 @@ class ChooseHaircut extends StatelessWidget {
                                 child: const Text('Next'))
                             : ElevatedButton(
                                 onPressed: () {
-                                  Get.to(() => ChooseSchedule(
-                                      timeslots: barbershopCombinedData));
+                                  Get.to(() => const ChooseSchedule());
                                 },
                                 child: const Text('Next'))),
                   )

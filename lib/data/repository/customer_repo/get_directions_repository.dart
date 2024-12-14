@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
-import '../../../features/auth/models/barbershop_model.dart';
+import '../../models/user_authenthication_model/barbershop_model.dart';
 
 class GetDirectionsRepository extends GetxController {
   static GetDirectionsRepository get intance => Get.find();

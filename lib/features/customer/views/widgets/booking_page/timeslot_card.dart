@@ -13,53 +13,43 @@ class TimeSlotCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final CustomerBookingController bookingController = Get.find();
+    final CustomerBookingController controller =
+        Get.find(); // Get the instance of CustomerBookingController
 
-    return Obx(() {
-      final isSelected = bookingController.toggleTimeSlot.value == timeSlot;
-      final isAvailable = timeSlot.isAvailable;
+    return GestureDetector(
+      onTap: () {
+        if (controller.isTimeSlotSelectable(timeSlot)) {
+          controller
+              .selectTimeSlot(timeSlot); // Select the time slot when tapped
+        }
+      },
+      child: Obx(() {
+        bool isSelected = controller.selectedTimeSlot.value == timeSlot;
+        bool isSelectable = controller.isTimeSlotSelectable(
+            timeSlot); // Check if the time slot is selectable
 
-      return GestureDetector(
-        onTap: isAvailable
-            ? () {
-                // Only allow selection if the timeslot is available
-                if (isSelected) {
-                  bookingController.toggleTimeSlot.value = null;
-                } else {
-                  bookingController.toggleTimeSlot.value = timeSlot;
-                }
-                bookingController.selectedTimeSlot.value = timeSlot;
-              }
-            : null, // Disable taps if not available
-        child: Container(
+        return Container(
           decoration: BoxDecoration(
-            color: isAvailable
-                ? (isSelected
-                    ? Theme.of(context).primaryColor
-                    : Colors.blue.shade50)
-                : Colors.grey.shade300, // Greyed out for unavailable
+            color: isSelected
+                ? Theme.of(context).primaryColor
+                : (isSelectable ? Colors.blue.shade50 : Colors.grey.shade300),
             borderRadius: BorderRadius.circular(5),
-            border: Border.all(
-              width: 2,
-              color: isAvailable
-                  ? (isSelected ? Theme.of(context).primaryColor : Colors.grey)
-                  : Colors.grey.shade500, // Grey border for unavailable
-            ),
+            border: Border.all(width: 1),
           ),
           child: Center(
             child: Text(
-              isAvailable ? timeSlot.schedule : '${timeSlot.schedule}\nFull',
+              TimeSlotModel.formatTimeRange(
+                  timeSlot.startTime, timeSlot.endTime),
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 14,
-                color: isAvailable
-                    ? (isSelected ? Colors.white : Colors.black)
-                    : Colors.grey, // Grey text for unavailable
-              ),
+                  fontSize: 14,
+                  color: isSelected
+                      ? Colors.white
+                      : Theme.of(context).primaryColor),
             ),
           ),
-        ),
-      );
-    });
+        );
+      }),
+    );
   }
 }

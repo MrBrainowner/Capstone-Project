@@ -1,4 +1,4 @@
-import 'package:barbermate/data/models/combined_model/barbershop_combined_model.dart';
+import 'package:barbermate/data/models/combined_model/barber_haircut.dart';
 import 'package:barbermate/data/models/haircut_model/haircut_model.dart';
 import 'package:barbermate/features/customer/views/barbershop/barbershop.dart';
 import 'package:flutter/material.dart';
@@ -12,13 +12,13 @@ class SuggestHairstyle extends StatelessWidget {
   });
 
   final HaircutModel haircut;
-  final BarbershopCombinedModel barbershop;
+  final BarbershopHaircut barbershop;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Get.to(() => BarbershopProfilePage(barbershop: barbershop));
+        Get.to(() => BarbershopProfilePage(barbershop: barbershop.barbershop));
       },
       child: SizedBox(
         child: Card(

@@ -1,6 +1,6 @@
-import 'package:barbermate/bindings/admin_bindings.dart';
-import 'package:barbermate/bindings/barbershop_bindings.dart';
-import 'package:barbermate/bindings/customer_bindings.dart';
+import 'package:barbermate/bindings/admin/admin_bindings.dart';
+import 'package:barbermate/bindings/barbershops/barbershop_bindings.dart';
+import 'package:barbermate/bindings/customer/customer_bindings.dart';
 import 'package:barbermate/features/admin/views/admin_view.dart';
 import 'package:barbermate/features/auth/views/account_set_up/barbershop/banner_set_up.dart';
 import 'package:barbermate/features/auth/views/account_set_up/barbershop/logo_set_up.dart';
@@ -15,6 +15,8 @@ import 'package:get/get.dart';
 class RoleBasedPage {
   static List<GetPage> getPages() {
     return [
+      //=============================================== setting up profile account
+      //==== barbershop
       GetPage(
           name: '/barbershop/setup_profile',
           page: () => const BarbershopAccountSetUpPage(),
@@ -29,11 +31,13 @@ class RoleBasedPage {
               page: () => const BarbershopAccountSetUpPageLogo(),
             ),
           ]),
+      //==== customers
       GetPage(
         name: '/customer/setup_profile',
         page: () => const CustomerAccountSetUpPage(),
         binding: CustomerBinding(),
       ),
+      //=============================================== customer pages
       GetPage(
           name: '/customer/dashboard',
           page: () => const CustomerDashboard(),
@@ -48,11 +52,15 @@ class RoleBasedPage {
               page: () => const CustomerAppointments(),
             ),
           ]),
+      //=============================================== barbershop pages
+      //
       GetPage(
         name: '/barbershop/dashboard',
         page: () => const BarbershopDashboard(),
         binding: BarbershopBinding(),
       ),
+      //=============================================== admin
+      //
       GetPage(
         name: '/admin',
         page: () => const AdminPanel(),

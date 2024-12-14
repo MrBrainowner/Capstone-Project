@@ -1,4 +1,3 @@
-import 'package:barbermate/data/repository/barbershop_repo/barbers_repository.dart';
 import 'package:barbermate/data/repository/barbershop_repo/barbershop_repo.dart';
 import 'package:barbermate/data/repository/barbershop_repo/documents_verification_repo.dart';
 import 'package:barbermate/data/repository/barbershop_repo/haircut_repository.dart';
@@ -6,7 +5,6 @@ import 'package:barbermate/data/repository/barbershop_repo/timeslot_repository.d
 import 'package:barbermate/data/repository/booking_repo/booking_repo.dart';
 import 'package:barbermate/data/repository/notifications_repo/notifications_repo.dart';
 import 'package:barbermate/data/repository/review_repo/review_repo.dart';
-import 'package:barbermate/features/barbershop/controllers/barbers_controller/barbers_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/barbershop_controller/barbershop_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/booking_controller/booking_controller.dart';
 import 'package:barbermate/features/barbershop/controllers/change_email_controller_barbershop/barbershop_change_email_controller.dart';

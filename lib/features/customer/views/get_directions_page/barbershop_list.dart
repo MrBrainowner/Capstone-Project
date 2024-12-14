@@ -41,8 +41,7 @@ class BarbershopList extends StatelessWidget {
                 return const Center(child: CircularProgressIndicator());
               }
 
-              final barbershops =
-                  controller.barbershopsController.barbershopCombinedModel;
+              final barbershops = controller.barbershopsController.barbershop;
 
               return ListView.builder(
                 controller: scrollController,
@@ -54,19 +53,19 @@ class BarbershopList extends StatelessWidget {
                       'Turn on location';
 
                   return BarbershopCard(
-                    profile: barbershop.barbershop.barbershopProfileImage,
-                    name: barbershop.barbershop.barbershopName,
+                    profile: barbershop.barbershopProfileImage,
+                    name: barbershop.barbershopName,
                     distance: '$distance km',
                     onTap: () async {
-                      var locations = LatLng(barbershop.barbershop.latitude,
-                          barbershop.barbershop.longitude);
+                      var locations =
+                          LatLng(barbershop.latitude, barbershop.longitude);
                       await controller.fetchDirections(locations);
                       controller.selectBarbershop(locations);
                       controller.showBarbershopDetails(
                           locations,
-                          barbershop.barbershop.barbershopName,
+                          barbershop.barbershopName,
                           distance,
-                          barbershop.barbershop.barbershopBannerImage,
+                          barbershop.barbershopBannerImage,
                           barbershop);
                     },
                   );

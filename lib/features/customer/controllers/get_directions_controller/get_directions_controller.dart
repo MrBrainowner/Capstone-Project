@@ -1,5 +1,7 @@
-import 'package:barbermate/data/models/combined_model/barbershop_combined_model.dart';
-import 'package:barbermate/features/customer/controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
+import 'package:barbermate/data/models/user_authenthication_model/barbershop_model.dart';
+import 'package:barbermate/features/customer/controllers/barbershop_controller/get_barbershop_data_controller.dart';
+import 'package:barbermate/features/customer/controllers/barbershop_controller/get_barbershops_controller.dart';
+import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
 import 'package:barbermate/features/customer/views/booking/choose_haircut.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,7 +24,7 @@ class GetDirectionsController extends GetxController {
   RxList<LatLng> routeCoordinates = <LatLng>[].obs;
   RxMap<int, double> barbershopDistances = <int, double>{}.obs;
 
-  final GetHaircutsAndBarbershopsController barbershopsController = Get.find();
+  final GetBarbershopsController barbershopsController = Get.find();
 
   final geoJsonParser = GeoJsonParser();
   var markers = <Marker>[].obs;
@@ -68,14 +70,11 @@ class GetDirectionsController extends GetxController {
   Future<void> calculateAllDistances() async {
     if (currentLocation.value == null) return;
 
-    final barbershops = barbershopsController.barbershopCombinedModel
-        .map((barbershopWithHaircuts) => barbershopWithHaircuts.barbershop)
-        .toList();
-
-    for (int i = 0; i < barbershops.length; i++) {
+    for (int i = 0; i < barbershopsController.barbershop.length; i++) {
       final distance = await _directionsService.getDistance(
           currentLocation.value!,
-          LatLng(barbershops[i].latitude, barbershops[i].longitude));
+          LatLng(barbershopsController.barbershop[i].latitude,
+              barbershopsController.barbershop[i].longitude));
 
       if (distance != null) {
         barbershopDistances[i] = distance;
@@ -129,7 +128,10 @@ class GetDirectionsController extends GetxController {
   }
 
   void showBarbershopDetails(LatLng location, String name, String distance,
-      String front, BarbershopCombinedModel barbershop) {
+      String front, BarbershopModel barbershop) {
+    final CustomerBookingController customerBookingController = Get.find();
+    final GetBarbershopDataController getBarbershopDataController = Get.find();
+
     Get.bottomSheet(
       barrierColor: Colors.transparent,
       isDismissible: true,
@@ -181,30 +183,30 @@ class GetDirectionsController extends GetxController {
               const SizedBox(height: 16.0),
               Text(name, style: Get.textTheme.headlineMedium),
               Text('Distance: $distance km', style: Get.textTheme.bodyMedium),
-              Row(
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  const Text('Reviews'),
-                  const SizedBox(width: 3),
-                  const iconoir.StarSolid(
-                    height: 15,
-                  ),
-                  const SizedBox(width: 3),
-                  Flexible(
-                    child: Text(
-                      // Calculate the average rating
-                      (barbershop.review.isEmpty
-                              ? 0.0
-                              : barbershop.review.fold(0.0,
-                                      (sum, review) => sum + review.rating) /
-                                  barbershop.review.length)
-                          .toStringAsFixed(
-                              1), // Average rating rounded to 1 decimal place
-                      overflow: TextOverflow.clip,
-                      maxLines: 1,
-                    ),
-                  ),
-                  const SizedBox(width: 3),
+                  // Text('Reviews'),
+                  // SizedBox(width: 3),
+                  // iconoir.StarSolid(
+                  //   height: 15,
+                  // ),
+                  // SizedBox(width: 3),
+                  // Flexible(
+                  //   child: Text(
+                  //     // Calculate the average rating
+                  //     (barbershop.review.isEmpty
+                  //             ? 0.0
+                  //             : barbershop.review.fold(0.0,
+                  //                     (sum, review) => sum + review.rating) /
+                  //                 barbershop.review.length)
+                  //         .toStringAsFixed(
+                  //             1), // Average rating rounded to 1 decimal place
+                  //     overflow: TextOverflow.clip,
+                  //     maxLines: 1,
+                  //   ),
+                  // ),
+                  SizedBox(width: 3),
                 ],
               ),
               const SizedBox(height: 16.0),
@@ -212,9 +214,14 @@ class GetDirectionsController extends GetxController {
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        Get.to(() =>
-                            ChooseHaircut(barbershopCombinedData: barbershop));
+                      onPressed: () async {
+                        getBarbershopDataController.fetchHaircuts(
+                            barberShopId: barbershop.id, descending: true);
+                        getBarbershopDataController
+                            .fetchTimeSlots(barbershop.id);
+                        customerBookingController.chosenBarbershop.value =
+                            barbershop;
+                        Get.to(() => const ChooseHaircut());
                       },
                       child: const Text('Book Now'),
                     ),

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:barbermate/data/models/haircut_model/haircut_model.dart';
+import 'package:barbermate/features/barbershop/views/management/haircut/category_selection_modal.dart';
 import 'package:barbermate/utils/popups/confirm_cancel_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -21,13 +22,15 @@ class HaircutEditPage extends StatelessWidget {
     controller.priceController.text = haircut.price.toString();
     controller.durationController.text = haircut.duration.toString();
     controller.selectedCategories.value = haircut.category;
+    final categoryController = Get.put(CategorySelectionController());
+    categoryController.selectedOptionsList.value = haircut.category;
 
     return PopScope(
       canPop: true,
-      onPopInvokedWithResult: (didPop, dynamic) => controller.resetForm(),
+      onPopInvoked: (didPop) => controller.resetForm(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Add New Haircut'),
+          title: const Text('Edit Haircut'),
           centerTitle: true,
           automaticallyImplyLeading: true,
         ),
@@ -90,8 +93,6 @@ class HaircutEditPage extends StatelessWidget {
                         )),
                   ),
                   const SizedBox(height: 10),
-                  const Text('Tap above to upload image'),
-                  const SizedBox(height: 20),
                   MyTextField(
                     validator: validator.validateEmpty,
                     controller: controller.nameController,
@@ -131,6 +132,54 @@ class HaircutEditPage extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   const SizedBox(height: 10),
+                  Obx(() {
+                    return Wrap(
+                        spacing: 8.0,
+                        runSpacing: 4.0,
+                        children: categoryController.selectedOptionsList
+                            .map((category) => Chip(
+                                  label: Text(category),
+                                  deleteIcon: const Icon(Icons.close),
+                                  onDeleted: () {
+                                    categoryController.selectedOptionsList
+                                        .remove(category);
+                                  },
+                                ))
+                            .toList());
+                  }),
+                  const SizedBox(height: 10),
+                  Row(children: [
+                    Expanded(
+                      child: ElevatedButton(
+                          onPressed: () {
+                            categoryController.showCategorySelectionSheet();
+                          },
+                          child: const Text('Select Category')),
+                    )
+                  ]),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                            onPressed: () {
+                              ConfirmCancelPopUp.showDialog(
+                                  context: context,
+                                  title: 'Delete Hairut?',
+                                  description:
+                                      'Are you sure you want to delete this haircut?',
+                                  textConfirm: 'Confirm',
+                                  textCancel: 'Cancel',
+                                  onConfirm: () async {
+                                    await controller
+                                        .deleteHaircut(haircut.id.toString());
+                                  });
+                            },
+                            child: const Text('Delete this Haircut')),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
                   Row(
                     children: [
                       Expanded(
@@ -146,35 +195,22 @@ class HaircutEditPage extends StatelessWidget {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () async {
-                            await controller
-                                .updateHaircut(haircut); // Updated method
+                            if (categoryController
+                                .selectedOptionsList.isEmpty) {
+                              controller.selectedCategories.value =
+                                  haircut.category;
+                              await controller.updateHaircut(haircut);
+                            } else {
+                              controller.selectedCategories.value =
+                                  categoryController.selectedOptionsList;
+                              await controller.updateHaircut(haircut);
+                            }
                           },
                           child: const Text('Update Haircut'),
                         ),
                       ),
                     ],
                   ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                            onPressed: () {
-                              ConfirmCancelPopUp.showDialog(
-                                  context: context,
-                                  title: 'Delete Hairut?',
-                                  description:
-                                      'Are you sure you want to delete this haircut?',
-                                  textConfirm: 'Confirm',
-                                  textCancel: 'Cancel',
-                                  onConfirm: () async {
-                                    controller
-                                        .deleteHaircut(haircut.id.toString());
-                                  });
-                            },
-                            child: const Text('Delete this Haircut')),
-                      ),
-                    ],
-                  )
                 ],
               ),
             ),

@@ -1,8 +1,8 @@
+import 'package:barbermate/common/widgets/notification_template.dart';
 import 'package:barbermate/features/customer/views/appointments/appointments.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/notification_controller/notification_controller.dart';
-import '../../../../common/widgets/notifications_case.dart';
 
 class CustomerNotifications extends StatelessWidget {
   const CustomerNotifications({super.key});
@@ -37,7 +37,7 @@ class CustomerNotifications extends StatelessWidget {
                     Get.off(() => const CustomerAppointments());
                     controller.updateNotifAsReadCustomer(notification);
                   },
-                  child: buildNotificationWidget(notification));
+                  child: NotificationCard(notification: notification));
             },
           );
         }),

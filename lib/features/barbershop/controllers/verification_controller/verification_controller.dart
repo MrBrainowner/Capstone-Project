@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:barbermate/utils/popups/full_screen_loader.dart';
 import 'package:file_picker/file_picker.dart';
+
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 import '../../../../common/widgets/toast.dart';

@@ -200,6 +200,58 @@ class HaircutRepository extends GetxController {
     }
   }
 
+  Stream<List<HaircutModel>> fetchHaircutsforCustomers(
+    String barberShopId, {
+    required bool descending,
+  }) {
+    try {
+      return FirebaseFirestore.instance
+          .collection('Barbershops')
+          .doc(barberShopId)
+          .collection('Haircuts')
+          .snapshots() // Use snapshots() for real-time updates
+          .map((snapshot) => snapshot.docs
+              .map((doc) => HaircutModel.fromSnapshot(doc))
+              .toList());
+    } catch (e) {
+      throw 'Something went wrong. Please try again';
+    }
+  }
+
+  Stream<List<HaircutModel>> fetchAllHaircuts() {
+    try {
+      return FirebaseFirestore.instance
+          .collection('Barbershops')
+          .doc()
+          .collection('Haircuts')
+          .snapshots() // Use snapshots() for real-time updates
+          .map((snapshot) => snapshot.docs
+              .map((doc) => HaircutModel.fromSnapshot(doc))
+              .toList());
+    } catch (e) {
+      throw 'Something went wrong. Please try again';
+    }
+  }
+
+  Future<List<HaircutModel>> fetchHaircutsOnce() async {
+    try {
+      // Get the snapshot of the haircuts collection once
+      final querySnapshot = await haircutsCollection.get();
+
+      // Map the documents to a list of HaircutModel
+      return querySnapshot.docs.map((doc) {
+        return HaircutModel.fromSnapshot(
+            doc as DocumentSnapshot<Map<String, dynamic>>);
+      }).toList();
+    } on FirebaseException catch (e) {
+      throw BFirebaseException(e.code).message;
+    } on PlatformException catch (e) {
+      throw BPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Failed to fetch haircut: $e';
+    }
+  }
+
   Future<void> deleteImageAndRemoveUrl(
       String haircutId, String imageUrl) async {
     try {

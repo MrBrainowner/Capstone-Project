@@ -32,25 +32,28 @@ class HaircutController extends GetxController {
     printer: PrettyPrinter(),
   );
 
-  StreamSubscription? _reviewsStreamSubscription;
-
   @override
   void onInit() async {
     super.onInit();
-    listenToHaircutsStream();
+    fetchHaircutsOnce();
+    print('initialize haircut');
   }
 
   void resetForm() {
     nameController.clear();
     priceController.clear();
     durationController.clear();
-    selectedCategories.clear();
     selectedImage.value = null; // Reset image URL
   }
 
+  void updateSelectedCategories(List<String> categories) {
+    selectedCategories.value = categories;
+  }
+
   Future<void> addHaircut() async {
-    if (!addHaircutFormKey.currentState!.validate()) {
-      ToastNotif(message: 'Field is required', title: 'Error')
+    if (!addHaircutFormKey.currentState!.validate() ||
+        selectedCategories.isEmpty) {
+      ToastNotif(message: 'Fields and categories are required', title: 'Error')
           .showWarningNotif(Get.context!);
       return;
     } else if (selectedImage.value == null) {
@@ -99,8 +102,9 @@ class HaircutController extends GetxController {
   }
 
   Future<void> updateHaircut(HaircutModel haircut) async {
-    if (!addHaircutFormKey.currentState!.validate()) {
-      ToastNotif(message: 'Field is required', title: 'Error')
+    if (!addHaircutFormKey.currentState!.validate() ||
+        selectedCategories.isEmpty) {
+      ToastNotif(message: 'Fields and categories are required', title: 'Error')
           .showWarningNotif(Get.context!);
       return;
     } else if (haircut.imageUrl.isEmpty) {
@@ -156,6 +160,7 @@ class HaircutController extends GetxController {
       ToastNotif(
               message: 'Haircut deleted successfully', title: 'Haircut Deleted')
           .showSuccessNotif(Get.context!);
+
       resetForm();
       Get.back();
     } catch (e) {
@@ -166,29 +171,21 @@ class HaircutController extends GetxController {
     }
   }
 
-  void listenToHaircutsStream() {
-    isLoading(true); // Show loading indicator
-    _haircutRepository.fetchHaircuts().listen(
-      (haircutsList) {
-        // Update the list of haircuts
-        haircuts.assignAll(haircutsList);
-        isLoading(false);
-      },
-      onError: (error) {
-        // Handle error if any occurs in the stream
-        ToastNotif(message: 'Error fetching haircuts: $error', title: 'Error')
-            .showErrorNotif(Get.context!);
-      },
-      onDone: () {
-        isLoading(false); // Stop loading when the stream is done
-      },
-    );
-  }
+  Future<void> fetchHaircutsOnce() async {
+    try {
+      isLoading(true); // Show loading indicator
 
-  @override
-  void onClose() {
-    // Cancel the stream subscription to prevent memory leaks
-    _reviewsStreamSubscription?.cancel();
-    super.onClose();
+      // Fetch the haircuts once from the repository
+      final haircutsList = await _haircutRepository.fetchHaircutsOnce();
+
+      // Update the list of haircuts
+      haircuts.assignAll(haircutsList);
+    } catch (error) {
+      // Handle error if any occurs during the fetch
+      ToastNotif(message: 'Error fetching haircuts: $error', title: 'Error')
+          .showErrorNotif(Get.context!);
+    } finally {
+      isLoading(false); // Stop loading regardless of success or error
+    }
   }
 }

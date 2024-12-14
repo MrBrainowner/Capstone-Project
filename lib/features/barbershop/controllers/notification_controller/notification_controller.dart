@@ -103,34 +103,6 @@ class BarbershopNotificationController extends GetxController {
     }
   }
 
-  // Send a notification to a specific user
-  Future<void> sendNotificationToUser({
-    required String userType,
-    required String userId,
-    required String title,
-    required String body,
-  }) async {
-    try {
-      isLoading(true);
-      String? token =
-          await _notificationServiceRepository.getUserFCMToken(userId);
-      if (token != null) {
-        await _notificationServiceRepository.sendNotificationToUser(
-          token: token,
-          title: title,
-          body: body,
-          userType: userType,
-        );
-      } else {
-        print('User does not have a valid FCM token');
-      }
-    } catch (e) {
-      print('Error sending notification to user: $e');
-    } finally {
-      isLoading(false);
-    }
-  }
-
   // Send a notification to all users
   Future<void> sendNotificationToAllUsers({
     required String userType,

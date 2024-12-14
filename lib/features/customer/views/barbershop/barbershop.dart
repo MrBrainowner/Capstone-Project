@@ -1,12 +1,12 @@
-import 'package:barbermate/data/models/combined_model/barbershop_combined_model.dart';
+import 'package:barbermate/data/models/user_authenthication_model/barbershop_model.dart';
+import 'package:barbermate/features/customer/controllers/barbershop_controller/get_barbershop_data_controller.dart';
+import 'package:barbermate/features/customer/controllers/booking_controller/booking_controller.dart';
 import 'package:barbermate/features/customer/views/booking/choose_haircut.dart';
 import 'package:barbermate/features/customer/views/reviews/reviews.dart';
 import 'package:barbermate/features/customer/views/widgets/barbershop/barbershop_infos.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
-
-import '../../controllers/get_haircuts_and_barbershops_controller/get_haircuts_and_barbershops_controller.dart';
 import '../widgets/booking_page/haircuts_card.dart';
 
 class BarbershopProfilePage extends StatelessWidget {
@@ -15,11 +15,12 @@ class BarbershopProfilePage extends StatelessWidget {
     required this.barbershop,
   });
 
-  final BarbershopCombinedModel barbershop;
+  final BarbershopModel barbershop;
 
   @override
   Widget build(BuildContext context) {
-    final GetHaircutsAndBarbershopsController controller = Get.find();
+    final GetBarbershopDataController getBarbershopsDataController = Get.find();
+    final CustomerBookingController customerBookingController = Get.find();
     const double bannerHeight = 150;
     const double profileHeight = 80;
     const top = bannerHeight - profileHeight / 2;
@@ -32,7 +33,7 @@ class BarbershopProfilePage extends StatelessWidget {
         appBar: AppBar(
           centerTitle: true,
           title: Text(
-            barbershop.barbershop.barbershopName,
+            barbershop.barbershopName,
             style: Theme.of(context).textTheme.bodyLarge,
           ),
         ),
@@ -53,12 +54,10 @@ class BarbershopProfilePage extends StatelessWidget {
                         child: ClipRRect(
                           borderRadius:
                               const BorderRadius.all(Radius.circular(5)),
-                          child: barbershop
-                                  .barbershop.barbershopBannerImage.isEmpty
+                          child: barbershop.barbershopBannerImage.isEmpty
                               ? Image.asset('assets/images/barbershop.jpg',
                                   fit: BoxFit.cover)
-                              : Image.network(
-                                  barbershop.barbershop.barbershopBannerImage,
+                              : Image.network(barbershop.barbershopBannerImage,
                                   fit: BoxFit.cover),
                         ),
                       ),
@@ -79,13 +78,11 @@ class BarbershopProfilePage extends StatelessWidget {
                           child: ClipRRect(
                             borderRadius:
                                 const BorderRadius.all(Radius.circular(5)),
-                            child: barbershop
-                                    .barbershop.barbershopProfileImage.isEmpty
+                            child: barbershop.barbershopProfileImage.isEmpty
                                 ? Image.asset('assets/images/prof.jpg',
                                     fit: BoxFit.cover)
                                 : Image.network(
-                                    barbershop
-                                        .barbershop.barbershopProfileImage,
+                                    barbershop.barbershopProfileImage,
                                     fit: BoxFit.cover),
                           ),
                         ),
@@ -98,7 +95,7 @@ class BarbershopProfilePage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Flexible(
-                      child: Text(barbershop.barbershop.barbershopName,
+                      child: Text(barbershop.barbershopName,
                           maxLines: 2,
                           style: Theme.of(context).textTheme.headlineSmall),
                     ),
@@ -121,33 +118,33 @@ class BarbershopProfilePage extends StatelessWidget {
                       children: [
                         const SizedBox(height: 20),
                         BarbershopInfos(
-                            text: barbershop.barbershop.streetAddress,
+                            text: barbershop.streetAddress,
                             widget: const iconoir.MapPin()),
                         const SizedBox(height: 8.0),
                         BarbershopInfos(
-                            text: barbershop.barbershop.phoneNo,
+                            text: barbershop.phoneNo,
                             widget: const iconoir.Phone()),
                         const SizedBox(height: 8.0),
                         BarbershopInfos(
-                            text: barbershop.barbershop.landMark.isEmpty
+                            text: barbershop.landMark.isEmpty
                                 ? 'Nearby landmark not specified'
-                                : "Near ${barbershop.barbershop.landMark}",
+                                : "Near ${barbershop.landMark}",
                             widget: const iconoir.Neighbourhood()),
                         const SizedBox(height: 8.0),
                         BarbershopInfos(
-                            text: barbershop.barbershop.email,
+                            text: barbershop.email,
                             widget: const iconoir.Mail()),
                         const SizedBox(height: 8.0),
                         BarbershopInfos(
-                            text: barbershop.barbershop.floorNumber.isEmpty
+                            text: barbershop.floorNumber.isEmpty
                                 ? 'Ground Floor'
-                                : "Floor ${barbershop.barbershop.floorNumber}",
+                                : "Floor ${barbershop.floorNumber}",
                             widget: const iconoir.Elevator()),
                         const SizedBox(height: 8.0),
                         OutlinedButton(
                           onPressed: () async {
                             Get.to(() =>
-                                CustomerReviewsPage(barbershop: barbershop));
+                                CustomerReviewsPage(barberId: barbershop.id));
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -163,15 +160,8 @@ class BarbershopProfilePage extends StatelessWidget {
                               Flexible(
                                 child: Text(
                                   // Calculate the average rating
-                                  (barbershop.review.isEmpty
-                                          ? 0.0
-                                          : barbershop.review.fold(
-                                                  0.0,
-                                                  (sum, review) =>
-                                                      sum + review.rating) /
-                                              barbershop.review.length)
-                                      .toStringAsFixed(
-                                          1), // Average rating rounded to 1 decimal place
+                                  customerBookingController.averageRating
+                                      .toString(), // Average rating rounded to 1 decimal place
                                   overflow: TextOverflow.clip,
                                   maxLines: 1,
                                 ),
@@ -183,13 +173,14 @@ class BarbershopProfilePage extends StatelessWidget {
                       ],
                     ),
                     Obx(() {
-                      if (controller.isLoading.value) {
+                      if (getBarbershopsDataController.isLoading.value) {
                         return const Center(child: CircularProgressIndicator());
-                      } else if (barbershop.haircuts.isEmpty) {
+                      } else if (getBarbershopsDataController
+                          .haircuts.isEmpty) {
                         return const Center(
                             child: Text('No haircuts available.'));
                       } else {
-                        final haircut = barbershop.haircuts;
+                        final haircuts = getBarbershopsDataController.haircuts;
                         return GridView.builder(
                           shrinkWrap: true,
                           gridDelegate:
@@ -201,9 +192,9 @@ class BarbershopProfilePage extends StatelessWidget {
                             mainAxisExtent:
                                 215, // Aspect ratio for vertical cards
                           ),
-                          itemCount: barbershop.haircuts.length,
+                          itemCount: haircuts.length,
                           itemBuilder: (BuildContext context, int index) {
-                            final barbershopHaircut = haircut[index];
+                            final barbershopHaircut = haircuts[index];
                             return HaircutsCard(haircut: barbershopHaircut);
                           },
                         );
@@ -220,8 +211,7 @@ class BarbershopProfilePage extends StatelessWidget {
             child: SizedBox(
               child: ElevatedButton(
                   onPressed: () {
-                    Get.to(() =>
-                        ChooseHaircut(barbershopCombinedData: barbershop));
+                    Get.to(() => const ChooseHaircut());
                   },
                   child: const Text('Book Now')),
             )),

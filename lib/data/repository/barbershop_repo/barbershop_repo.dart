@@ -4,12 +4,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../features/auth/models/barbershop_model.dart';
+import '../../models/user_authenthication_model/barbershop_model.dart';
 import '../../../utils/exceptions/firebase_exceptions.dart';
 import '../../../utils/exceptions/format_exceptions.dart';
 import '../../../utils/exceptions/platform_exceptions.dart';
@@ -21,12 +21,6 @@ class BarbershopRepository extends GetxController {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final _storage = FirebaseStorage.instance;
   final Logger logger = Logger();
-
-  String generateImageHash(File file) {
-    final bytes = file.readAsBytesSync();
-    final digest = sha256.convert(bytes);
-    return digest.toString();
-  }
 
   //======================================= Save the barbershop data to firestore
   Future<void> saveBarbershopData(BarbershopModel barbershop) async {
@@ -208,6 +202,7 @@ class BarbershopRepository extends GetxController {
   }
 
   //================================== upload image to storage
+
   Future<String?> uploadImageToStorage(XFile file, String type) async {
     try {
       // Generate a unique file name using UUID

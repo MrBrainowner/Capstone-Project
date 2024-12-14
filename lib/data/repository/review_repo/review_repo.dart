@@ -40,17 +40,18 @@ class ReviewRepo extends GetxController {
   }
 
   // Fetch all reviews for a specific barbershop (method for customers)
-  Stream<List<ReviewsModel>> fetchReviews(String barberShopId) {
+  Future<List<ReviewsModel>> fetchReviewsOnce(String barberShopId) async {
     try {
-      return _db
+      final snapshot = await _db
           .collection('Barbershops')
           .doc(barberShopId)
           .collection('Reviews')
           .orderBy('created_at', descending: true)
-          .snapshots() // Use snapshots() for real-time updates
-          .map((snapshot) => snapshot.docs
-              .map((doc) => ReviewsModel.fromSnapshot(doc))
-              .toList());
+          .get(); // Fetch the data once
+
+      return snapshot.docs
+          .map((doc) => ReviewsModel.fromSnapshot(doc))
+          .toList();
     } catch (e) {
       throw Exception('Error fetching reviews: $e');
     }
@@ -84,6 +85,23 @@ class ReviewRepo extends GetxController {
       return _db
           .collection('Barbershops')
           .doc(user)
+          .collection('Reviews')
+          .orderBy('created_at', descending: true)
+          .snapshots() // Use snapshots() for real-time updates
+          .map((snapshot) => snapshot.docs
+              .map((doc) => ReviewsModel.fromSnapshot(doc))
+              .toList());
+    } catch (e) {
+      throw Exception('Error fetching reviews: $e');
+    }
+  }
+
+  Stream<List<ReviewsModel>> fetchReviewsStream(String id) {
+    try {
+      // Listen to changes in the 'Reviews' collection for the specific barbershop
+      return _db
+          .collection('Barbershops')
+          .doc(id)
           .collection('Reviews')
           .orderBy('created_at', descending: true)
           .snapshots() // Use snapshots() for real-time updates
